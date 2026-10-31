@@ -203,11 +203,12 @@ background image, and skip the splash screen if you'd rather not wait.
 | 🪟 **Batches** | Accounts launch strictly one after another with a stagger (default 6 s). **Same server**: *Pick a server* finds one with room for everyone first; *Follow the first* sends the rest to wherever the first account landed. Cancel at any time; one click re-picks the accounts that didn't launch. |
 | 🔁 **Recovery** | Auto-rejoin after kicks, shutdowns and lost connections (not after you leave on purpose). Opt-in auto-restart for crashes, frozen windows (30 s) and a memory limit. Crash breaker: default 3 relaunches in 10 minutes, with growing backoff. Per-account "Allow disconnect". Crash history with the log's reason. |
 | ↔️ **Free resizing** | Drag a client's edge to any size, past the minimum Roblox holds its window to, and move a small window by its title bar without it growing back. RoALT sizes the window itself (a mouse hook in RoALT's own process); nothing goes into the client. **Start clients tiny** opens every new client at a size you choose. |
-| 🖥️ **Home** | Live preview per client at 15, 30 or 60 FPS (your pick, while RoALT is on screen), with state, game, uptime, CPU and RAM. The **⋯** key, right-click, the menu key or `Shift+F10` for focus, minimize, restore, tiny window (any size, 320×240 by default) and back, CPU limit, efficiency mode, anti-AFK, close. **Tile** fits all clients in a grid on the screen; **Tile micro** lays out micro windows. Minimize all, Restore all. |
+| 🖥️ **Home** | Live preview for every client at 5, 15, 30 or 60 FPS, even hidden ones, with state, game, uptime, CPU and RAM. Drag cards to sort them and resize them from the corner; **Detailed view** off shows only the preview and username. Dials show what all Roblox clients use together. Browser-style **account tabs** give each account its own game and options, and launch one or all of them. The **⋯** key, right-click, the menu key or `Shift+F10` for focus, minimize, restore, tiny window (any size, 320×240 by default) and back, CPU limit, efficiency mode, anti-AFK, close. **Tile** fits all clients in a grid on the screen; **Tile micro** lays out micro windows. Minimize all, Restore all. |
 | 🛑 **Stop all** | Hold one button in the sidebar, use the tray, or press a global **panic hotkey** you choose (off by default) to end every Roblox process and stop pending launches and rejoins. |
+| 🌍 **Languages** | English, Arabic (right to left), Bosnian, Chinese (Simplified), Filipino, French, German, Indonesian, Japanese, Korean, Polish, Portuguese (Brazil), Russian, Spanish, Swedish, Thai, Turkish, Vietnamese. |
 | ⏲️ **Automation** | Minimize each new client on launch. Auto-shutdown timer: close the clients and shut the PC down at a set time (survives a RoALT restart, can be cancelled). Hourly Roblox log cleaner (logs older than a day or over 50 MB). Open logs button; RoALT's own logs rotate at 5 MB. |
 | ⚙️ **Launch control** | Custom launch arguments (default and per account, checked before use and never logged), a cooldown between launches, a configurable close grace (1–60 s). |
-| 🎚️ **Limits** | Per client: CPU cap, efficiency mode, core affinity, working-set trim (every N minutes or "Trim now"). Adaptive manager for background clients; your manual limits always win. **Memory throttle**: a client over a RAM limit gets a CPU cap, which lowers its frame rate, until it drops under 90 % of the limit. |
+| 🎚️ **Limits** | Per client: CPU cap, efficiency mode, core affinity, working-set trim (every N minutes and sooner if a background client grows, or "Trim now"). Adaptive manager for background clients; your manual limits always win. **Memory throttle**: a client over a RAM limit gets a CPU cap, which lowers its frame rate, until it drops under 90 % of the limit. |
 | 🎞️ **FPS cap & graphics** | A default frame-rate cap (5–360), a per-account override and a per-launch one under Play's More options (a rejoin keeps it), plus the lowest graphics for every client (on by default). Set through Roblox's own Maximum Frame Rate and Graphics Quality just before each client starts; your own Roblox settings are put back once it has read them, and again when such a client closes (or when RoALT next starts, if it wasn't running then). Everything performance-related lives in its own **Performance** tab. |
 | 🪶 **Lighter rendering** | Clients RoALT starts get low geometry detail and the graphics flags below (on by default): less GPU time and memory per client. Written just before each client starts and put back once it has read them; skipped under a bootstrapper. |
 | 🎚️ **Graphics flags** | Pick MSAA, texture quality, rendering mode, gray sky, no grass and lowest render quality, from the FastFlags Roblox still allows. Roblox may ignore Vulkan and OpenGL. |
@@ -242,7 +243,7 @@ background image, and skip the splash screen if you'd rather not wait.
 > compare its SHA-256 with `SHA256SUMS.txt` on the release page, then choose **More info → Run anyway**.
 >
 > ```powershell
-> Get-FileHash .\RoALT-Setup-0.7.0.exe -Algorithm SHA256
+> Get-FileHash .\RoALT-Setup-0.8.0.exe -Algorithm SHA256
 > ```
 
 Your accounts and settings live in `%LOCALAPPDATA%\RoALT`. Uninstalling keeps them unless you tick
@@ -373,10 +374,14 @@ In **Settings → Launching**, turn on **Auto-rejoin** (and, if you like, **Auto
   can run next to it. It needs to copy that one handle (`PROCESS_DUP_HANDLE`) and never reads or writes the client's memory.
 - **Anti-AFK (opt-in)** briefly brings a client to the front and presses Space the way a keyboard does, or, in background
   mode, posts a Tab press to its window.
-- **Window tools** (thumbnails, minimize, micro, tile) use ordinary Windows window calls (`PrintWindow`, `ShowWindow`,
-  `SetWindowPos`).
-- **Free resizing** uses a low-level mouse hook in RoALT's own process. It sees where the mouse is across the PC, stores
-  nothing and sends nothing, and only acts on a press on the edge or title bar of a client RoALT started.
+- **Window tools** (previews, hide, micro, tile) use ordinary Windows calls: Windows.Graphics.Capture for previews, and
+  `ShowWindow`, `SetWindowPos`, `SetWindowLongPtr` and `SetLayeredWindowAttributes` for the rest. A hidden client gets the
+  layered and click-through window styles at alpha 1. Clean exit and panics clear them; if RoALT is killed outright, the
+  client stays invisible until RoALT starts again.
+- **Free resizing and hidden clients** use a low-level mouse hook and window-event hooks (foreground, Alt-Tab, minimize,
+  drags) in RoALT's own process. They see where the mouse is and which window changes across the PC, and store and send
+  nothing. A press only acts on the edge or title bar of a client RoALT started; a press on the taskbar or its thumbnails
+  is only noted, for a moment, as you asking for a hidden client back.
 - **Bandwidth limit (opt-in)** adds a Windows QoS policy named `RoALT-Roblox` through an admin prompt, only when you click
   Apply. Windows drops it on restart. It is the only change RoALT makes to Windows.
 
