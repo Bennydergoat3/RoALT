@@ -28,7 +28,7 @@ Your cookies stay encrypted on your PC. Nothing is sent anywhere except Roblox.
 
 <br>
 
-<img src="docs/images/home.png" alt="RoALT's Home page: four running clients with live previews, and CPU, memory and GPU dials" width="900">
+<img src="docs/images/home.png" alt="RoALT's Home page: account tabs, running clients with live previews, and dials for what the clients use" width="900">
 
 </div>
 
@@ -135,8 +135,8 @@ CPU, memory, disk/network and uptime per client, with sparklines and totals, ref
 
 ### 🎚️ Performance tab
 FPS cap, lowest graphics and graphics flags (MSAA, textures, no grass, gray sky), with presets and
-shareable profiles. Cap one client's CPU, pin cores or trim memory. Adaptive mode limits every client
-that isn't in front.
+shareable profiles. **Max alts** runs clients tiny, at 10 FPS, with a CPU share that scales with how many
+you run and memory trims. The one you're playing stays free of it. Cap one client's CPU, pin cores or trim memory.
 
 </td>
 </tr>
@@ -160,9 +160,9 @@ it is signed by Roblox Corporation. Optional auto-update when no client runs.
 <td valign="top">
 
 ### 🖥️ Home
-Every running client as a live window thumbnail, with your PC's CPU, memory and GPU. Right-click one to
-focus, minimize, shrink it to a tiny window, limit it or close it. Tile all clients in one click. Anti-AFK
-has its own switch here.
+Browser-style **account tabs**, each with its own game and options. Every running client as a live preview,
+even hidden ones, in cards you can drag and resize, with dials for what your clients use. Right-click one to
+focus, minimize, shrink it, limit it or close it. Tile all clients in one click. Anti-AFK has its own switch here.
 
 </td>
 <td valign="top">
@@ -186,6 +186,22 @@ without them snapping back. Or start every client tiny.
 ### 🎨 Soft Deck design
 A soft, very dark interface with a floating page, or a light theme. Pick any accent colour and your own
 background image, and skip the splash screen if you'd rather not wait.
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+### 🌍 18 languages
+English, Arabic (fully right to left), Bosnian, Chinese (Simplified), Filipino, French, German, Indonesian,
+Japanese, Korean, Polish, Portuguese (Brazil), Russian, Spanish, Swedish, Thai, Turkish and Vietnamese.
+
+</td>
+<td valign="top">
+
+### ❤️ Support RoALT
+RoALT is free. The **Donate** button in the sidebar opens a [Roblox gamepass](https://www.roblox.com/games/102259086923102/Donation-Experience#!/store)
+for the amount you pick, and you confirm the purchase on Roblox.
 
 </td>
 </tr>
@@ -510,7 +526,7 @@ flowchart LR
 | [`vault/`](src-tauri/src/vault) | Envelope encryption: one random data key encrypts every secret (AES-256-GCM, row-bound AAD). The key is wrapped with DPAPI, or with an Argon2id key from the master password and then DPAPI. Windows Hello re-auth, `.roalt` backups. |
 | [`roblox_api/`](src-tauri/src/roblox_api) | The one typed Roblox client. Every URL in `endpoints.rs`. CSRF from the real request's 403, per-route queues driven by `x-ratelimit-*`, rotated `.ROBLOSECURITY` saved atomically, three error-body shapes parsed. |
 | [`launcher/`](src-tauri/src/launcher) | `target.rs` parses any pasted link locally; `uri.rs` builds the `roblox-player:` URI exactly like the website; `bulk.rs` runs batches and same-server; `client_settings.rs` the FPS cap and lowest graphics; `flags.rs` the rendering flags; `update.rs` + `authenticode.rs` install Roblox updates after `WinVerifyTrust`. |
-| [`instances/`](src-tauri/src/instances) | `tracker.rs` ties each client to its account by PID, start time and log file; `logwatch.rs` reads job IDs and disconnects; `rejoin.rs` and the crash breaker; `limits.rs` CPU caps, affinity, efficiency mode, trims; `metrics.rs`; `multi.rs` the singleton lock and take-over; `window.rs` thumbnails, micro and tile; `resize.rs` free resizing; `qos.rs`; `afk.rs`. |
+| [`instances/`](src-tauri/src/instances) | `tracker.rs` ties each client to its account by PID, start time and log file; `logwatch.rs` reads job IDs and disconnects; `rejoin.rs` and the crash breaker; `limits.rs` CPU caps, affinity, efficiency mode, trims; `metrics.rs`; `multi.rs` the singleton lock and take-over; `capture.rs` live previews; `window.rs` hidden clients, micro and tile; `resize.rs` free resizing; `qos.rs`; `afk.rs`. |
 | [`discord.rs`](src-tauri/src/discord.rs) | Webhook alerts: host-checked URL, events coalesced every 2 s, `retry_after` honoured. |
 | [`webview.rs`](src-tauri/src/webview.rs) | Sign-in and session windows on temporary WebView2 profiles, deleted after use. |
 | [`storage/`](src-tauri/src/storage) | SQLite through `rusqlite` with numbered migrations. Running clients live in memory only. |
