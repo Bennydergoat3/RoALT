@@ -3,6 +3,7 @@
 //! (`afk`) presses a key the way a keyboard does.
 
 pub mod afk;
+mod autopsy;
 mod capture;
 mod gpu;
 pub mod limits;
@@ -16,4 +17,4 @@ pub mod window;
 mod tracker;
 
 pub mod rejoin;
-pub use tracker::{Tracker, Transition, challenged, closed, hung, unexpected, wrong_account};
+pub use tracker::{Tracker, Transition, auth_failed, challenged, closed, hung, unexpected, wrong_account};
