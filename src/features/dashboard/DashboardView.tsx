@@ -33,12 +33,10 @@ let cardsInView = 0;
 /** Draws the client's window on `canvas` up to `fps` times a second while the RoALT window is
  * visible, one request in flight at a time; a request that gets no new picture changes nothing on
  * the canvas. `status`: what the client's window is doing (`window::Status`), null before the first
- * answer; `painted`: the canvas holds a picture, maybe an old one; `ghost`: RoALT hid it, and it
- * draws while asked for; `ageS`: seconds since its picture, when it is live and that has gone on too long. */
+ * answer; `painted`: the canvas holds a picture, maybe an old one; `ageS`: seconds since its picture, when it is live and that has gone on too long. */
 function useThumbnail(id: string, canvas: React.RefObject<HTMLCanvasElement | null>, fps: PreviewFps) {
   const [status, setStatus] = useState<(typeof STATUSES)[number] | null>(null);
   const [painted, setPainted] = useState(false);
-  const [ghost, setGhost] = useState(false);
   const [ageS, setAgeS] = useState<number | null>(null);
   useEffect(() => {
     let stop = false;
@@ -78,7 +76,6 @@ function useThumbnail(id: string, canvas: React.RefObject<HTMLCanvasElement | nu
             setPainted(true);
           }
           setStatus(STATUSES[code]);
-          setGhost(head.getUint32(12, true) === 1);
           // Back from minimized or no window: no picture came meanwhile, as when out of sight.
           const live = STATUSES[code] === "live";
           if (live && !wasLive) askingSince = performance.now();
@@ -99,7 +96,7 @@ function useThumbnail(id: string, canvas: React.RefObject<HTMLCanvasElement | nu
       if (inView) cardsInView--;
     };
   }, [id, canvas, fps]);
-  return { status, painted, ghost, ageS };
+  return { status, painted, ageS };
 }
 
 /** `beside`: the left edge of the key that opened it, `x` its right edge. The menu opens on the
@@ -204,10 +201,10 @@ function ClientCard({ inst: i, account: a, metrics: m, now, afkOn, defaultFps, f
     card.current?.animate([{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "none" }], { duration: 220, easing: "cubic-bezier(.2,.8,.2,1)" });
   }, []);
   const canvas = useRef<HTMLCanvasElement>(null);
-  const { status, painted, ghost, ageS } = useThumbnail(i.id, canvas, fps);
+  const { status, painted, ageS } = useThumbnail(i.id, canvas, fps);
   // No window to show or minimize yet.
   const noWindow = status === "noWindow" || (status === null && i.state === "starting");
-  const hidden = status === "minimized" || ghost;
+  const hidden = status === "minimized";
   const name = a ? accountName(a) : t("dashboard.account", { id: i.accountId });
   const rejoining = i.relaunching && i.state === "disconnected";
   const [label, color] = closing ? [t("launch.running.closing"), "var(--dim)"] : rejoining ? [t("launch.state.rejoining"), "var(--orange)"] : STATES[i.state];
@@ -271,8 +268,7 @@ function ClientCard({ inst: i, account: a, metrics: m, now, afkOn, defaultFps, f
           {!painted && <span className="absolute inset-0 grid place-items-center text-xs text-dim">{pictureNote}</span>}
         </div>
         {painted && pictureNote ? <span className="badge" title={status === "minimized" ? t("dashboard.lastPictureHint") : undefined}>{pictureNote}</span>
-          : ageS !== null ? <span className="badge" title={t("dashboard.pictureAgeHint")}>{t("dashboard.pictureAge", { s: ageS })}</span>
-          : ghost && <span className="badge" title={t("dashboard.hiddenHint")}>{t("dashboard.hidden")}</span>}
+          : ageS !== null && <span className="badge" title={t("dashboard.pictureAgeHint")}>{t("dashboard.pictureAge", { s: ageS })}</span>}
         <button type="button" className="grip" aria-label={t("accounts.reorder", { name })} {...grip(name)}>
           <Icon name="grip" size={14} />
         </button>

@@ -720,9 +720,8 @@ impl Tracker {
     pub fn spawn(app: AppHandle) {
         restore(&app);
         super::resize::start();
-        let followed: Vec<u32> = app.state::<crate::App>().tracker.clients().into_iter().map(|c| c.1).collect();
         // Not on this thread: changing a window waits for its client.
-        std::thread::spawn(move || super::window::recover(&followed));
+        std::thread::spawn(super::window::recover);
         tauri::async_runtime::spawn(async move {
             let mut tick: u64 = 0;
             loop {
@@ -772,14 +771,13 @@ impl Tracker {
                         s.limiter.sync(&super::limits::plan_now(&s, &v, &clients, &held));
                     }
                     let throttle_moved = s.tracker.set_in_force(&s.limiter.in_force()) || throttle_moved;
-                    super::window::set_live_hidden_previews(v.live_hidden_previews);
                     // Once per client, without taking the focus.
                     for pid in s.tracker.first_in_game(&|pid| process::main_window(pid).is_some()) {
                         let id = clients.iter().find(|c| c.1 == pid).map(|c| c.0.clone());
                         let full_quality = id.as_deref().and_then(|id| s.tracker.get(id)).and_then(|i| s.db.account(i.account_id).ok()).is_some_and(|a| a.full_quality);
                         let tiny = id.filter(|id| v.tiny_on_launch && !full_quality && s.tracker.set_micro(id, true));
                         let (size, minimize) = ((v.micro_width, v.micro_height), v.minimize_on_launch && !full_quality);
-                        log::info!("client {pid}: in a game; making it tiny: {}, hiding it: {minimize}", tiny.is_some());
+                        log::info!("client {pid}: in a game; making it tiny: {}, minimizing it: {minimize}", tiny.is_some());
                         // Not on this thread: a busy client's ShowWindow would stop every poll.
                         tauri::async_runtime::spawn_blocking(move || {
                             if let Some(id) = tiny
@@ -792,7 +790,7 @@ impl Tracker {
                             }
                         });
                     }
-                    // Hidden clients nobody watches go to sleep. One round at a time, off this thread.
+                    // Tiny clients stay at their size. One round at a time, off this thread.
                     static SWEEPING: AtomicBool = AtomicBool::new(false);
                     if !clients.is_empty() && !SWEEPING.swap(true, Ordering::Relaxed) {
                         let size = (v.micro_width, v.micro_height);

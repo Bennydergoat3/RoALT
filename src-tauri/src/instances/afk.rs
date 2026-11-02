@@ -4,10 +4,8 @@
 //! - Focus: the client is brought to the front for a moment, gets the press through `SendInput`
 //!   of Space (by scan code, as a keyboard sends it), and the window that was in front gets the focus
 //!   back. One client at a time, about 100 ms each. Only while nobody has touched the keyboard or
-//!   mouse for 5 s (`GetLastInputInfo`); otherwise it tries again 30 s later. Hidden clients
-//!   (`window`) get it invisibly. A minimized one, asleep or minimized by hand, wakes as a hidden one
-//!   first, up to about 2 s each, so Background suits many clients. A hidden one goes back to the
-//!   bottom of the z-order after its press, and to sleep soon after.
+//!   mouse for 5 s (`GetLastInputInfo`); otherwise it tries again 30 s later. Minimized clients
+//!   are skipped.
 //! - Background: WM_ACTIVATE, then WM_KEYDOWN/WM_KEYUP for Tab are posted to the client's
 //!   window; the focus never moves, so it runs while the user is at the PC and in minimized
 //!   clients too. Roblox may not count posted input as activity in every game.
@@ -15,7 +13,6 @@
 //! Nothing is injected into or read from the client; auto-rejoin on the 267 kick stays the
 //! fallback.
 
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::sleep;
 use std::time::Duration;
 
@@ -32,7 +29,7 @@ use windows::Win32::UI::WindowsAndMessaging::{
     WM_ACTIVATE, WM_KEYDOWN, WM_KEYUP,
 };
 
-use super::{process, window};
+use super::process;
 use crate::App;
 use crate::commands::{instances_changed, now_ms};
 use crate::model::AfkMode;
@@ -48,15 +45,6 @@ const SPACE: u16 = 0x39;
 /// Tab, for background mode: posted Space counts as activity less reliably than Tab.
 const TAB: u16 = 0x0F;
 const VK_TAB: usize = 0x09;
-/// Background mode, around its press: a capped or sleeping client may draw less than one frame in
-/// a shorter time, and would see activate, key and deactivate all at once.
-const POST_SETTLE: Duration = Duration::from_millis(200);
-const POST_HOLD: Duration = Duration::from_millis(300);
-/// After waking a client, before its press: it has to be taking input again.
-// ponytail: a guess; tune from real clients if pressed clients still get kicked.
-const AFTER_WAKE: Duration = Duration::from_millis(300);
-/// A press is under way: a hidden client in front is this, not something to get away from (`resize`).
-pub(super) static PRESSING: AtomicBool = AtomicBool::new(false);
 
 /// A client anti-AFK may press keys in (`Tracker::afk_clients`).
 #[derive(Clone, Debug, PartialEq)]
@@ -126,12 +114,11 @@ fn tick(app: &AppHandle) -> Duration {
     };
     if v.anti_afk.mode == AfkMode::Background {
         for c in clients.iter().filter(|c| ids.contains(&c.id)) {
-            let Some((hwnd, minimized)) = process::main_window(c.pid) else {
+            let Some((hwnd, _)) = process::main_window(c.pid) else {
                 log::debug!("anti-AFK: instance {} has no main window", c.id);
                 continue;
             };
             if post_press(hwnd) {
-                log::info!("anti-AFK: posted Tab to instance {} (minimized: {minimized})", c.id);
                 s.tracker.mark_afk(&c.id, now_ms());
             } else {
                 log::info!("anti-AFK: couldn't post a key to instance {}", c.id);
@@ -149,23 +136,11 @@ fn tick(app: &AppHandle) -> Duration {
             failed = true;
             break;
         }
-        let Some((hwnd, minimized)) = process::main_window(c.pid) else {
-            log::debug!("anti-AFK: instance {} has no window", c.id);
+        // A minimized client is left alone (restoring it would move it on screen).
+        let Some((hwnd, false)) = process::main_window(c.pid) else {
+            log::debug!("anti-AFK: instance {} has no window or is minimized", c.id);
             continue;
         };
-        if minimized {
-            if !window::wake_for_press(c.pid, hwnd) {
-                failed = true;
-                log::info!("anti-AFK: instance {} couldn't be woken for its press", c.id);
-                continue;
-            }
-            sleep(AFTER_WAKE);
-            // Waking took a while: the user may be back.
-            if last_input() != ours {
-                failed = true;
-                break;
-            }
-        }
         let r = press(hwnd);
         ours = last_input();
         match r {
@@ -211,16 +186,8 @@ enum Pressed {
     Interrupted,
 }
 
-/// Space in `hwnd`, then the focus back where it was, and a hidden client back down.
+/// Space in `hwnd`, then the focus back where it was.
 fn press(hwnd: HWND) -> Pressed {
-    PRESSING.store(true, Ordering::Relaxed);
-    let pressed = press_key(hwnd);
-    window::back_down(hwnd);
-    PRESSING.store(false, Ordering::Relaxed);
-    pressed
-}
-
-fn press_key(hwnd: HWND) -> Pressed {
     // SAFETY: reads which window is in front.
     let prev = unsafe { GetForegroundWindow() };
     if !to_front(hwnd) {
@@ -263,22 +230,11 @@ fn post_press(hwnd: HWND) -> bool {
     let post = |msg, w: usize, l: LPARAM| unsafe { PostMessageW(Some(hwnd), msg, WPARAM(w), l) }.is_ok();
     // SAFETY: reads which window is in front.
     let front = unsafe { GetForegroundWindow() } == hwnd;
-    if !front {
-        if !post(WM_ACTIVATE, WA_ACTIVE as usize, LPARAM(0)) {
-            return false;
-        }
-        sleep(POST_SETTLE);
-    }
-    let ok = post(WM_KEYDOWN, VK_TAB, down);
-    sleep(POST_HOLD);
+    let ok = (front || post(WM_ACTIVATE, WA_ACTIVE as usize, LPARAM(0))) && post(WM_KEYDOWN, VK_TAB, down);
+    sleep(Duration::from_millis(40));
     let ok = ok && post(WM_KEYUP, VK_TAB, up);
     if !front {
-        sleep(POST_SETTLE);
-        // The user may have brought it to the front meanwhile.
-        // SAFETY: reads which window is in front.
-        if unsafe { GetForegroundWindow() } != hwnd {
-            post(WM_ACTIVATE, WA_INACTIVE as usize, LPARAM(0));
-        }
+        post(WM_ACTIVATE, WA_INACTIVE as usize, LPARAM(0));
     }
     ok
 }
