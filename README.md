@@ -261,7 +261,7 @@ for the amount you pick, and you confirm the purchase on Roblox.
 > compare its SHA-256 with `SHA256SUMS.txt` on the release page, then choose **More info → Run anyway**.
 >
 > ```powershell
-> Get-FileHash .\RoALT-Setup-0.9.0.exe -Algorithm SHA256
+> Get-FileHash .\RoALT-Setup-0.9.1.exe -Algorithm SHA256
 > ```
 
 Your accounts and settings live in `%LOCALAPPDATA%\RoALT`. Uninstalling keeps them unless you tick
