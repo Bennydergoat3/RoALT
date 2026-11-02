@@ -188,7 +188,7 @@ fn clear_ghost(hwnd: HWND) {
 }
 
 /// Minimizes the client without taking the focus. Posted: a busy client holds up nothing.
-fn hide(hwnd: HWND) {
+pub(super) fn hide(hwnd: HWND) {
     // SAFETY: a window-manager call on a top-level window; posted.
     let _ = unsafe { ShowWindowAsync(hwnd, SW_SHOWMINNOACTIVE) };
 }

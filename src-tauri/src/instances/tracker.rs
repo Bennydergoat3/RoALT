@@ -632,6 +632,11 @@ impl Tracker {
                 e.rejoin_seen = true;
                 if let Some(cause) = e.cause() {
                     let i = &e.inst;
+                    // Kicked for idling: says whether anti-AFK's presses counted in this game.
+                    if e.facts.reason.as_deref().is_some_and(|r| r.ends_with(" 278")) {
+                        let last = i.afk_at.map_or_else(|| "never".into(), |t| format!("{} min ago", (crate::commands::now_ms() - t) / 60_000));
+                        log::warn!("instance {} kicked for idling (278); anti-AFK on for it: {}, its last press: {last}", i.id, i.anti_afk);
+                    }
                     out.push(Rejoin {
                         from: i.id.clone(),
                         account_id: i.account_id,

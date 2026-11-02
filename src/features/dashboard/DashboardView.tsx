@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, type AccountSummary, type ClientMetrics, type GameInfo, type Instance, type Limits, type WindowShow } from "../../api";
 import { qk, queryClient, useInstances, useMetrics, useSetSettings, useSettings, useSystemUsage } from "../../data";
-import { Segmented, Switch } from "../../ui/controls";
+import { Switch } from "../../ui/controls";
 import { ConfirmDialog } from "../../ui/Dialog";
 import { Icon, type IconName } from "../../ui/Icon";
 import { toast, toastError } from "../../ui/Toast";
@@ -537,19 +537,8 @@ function AfkPanel() {
     <section aria-labelledby="afk-title" className="panel flex flex-wrap items-center gap-x-5 gap-y-3 px-5 py-4">
       <div className="flex-[1_1_320px] min-w-0">
         <h2 id="afk-title" className="section-title">{t("settings.antiAfk")}</h2>
-        <p className="text-dim text-[13px] mt-1">{afk.enabled ? (afk.mode === "focus" ? t("settings.antiAfkFocusHint") : t("settings.antiAfkBackgroundHint")) : t("settings.antiAfkHint")}</p>
+        <p className="text-dim text-[13px] mt-1">{afk.enabled ? t("settings.antiAfkHowHint") : t("settings.antiAfkHint")}</p>
       </div>
-      {afk.enabled && (
-        <Segmented
-          label={t("settings.antiAfkMode")}
-          value={afk.mode}
-          options={[
-            { value: "focus", label: t("settings.antiAfkFocus") },
-            { value: "background", label: t("settings.inBackground") },
-          ]}
-          onChange={(mode) => set.mutate({ antiAfk: { ...afk, mode } })}
-        />
-      )}
       <Switch label={t("settings.antiAfk")} checked={afk.enabled} onChange={(enabled) => set.mutate({ antiAfk: { ...afk, enabled } })} />
     </section>
   );
