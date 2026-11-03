@@ -1143,5 +1143,9 @@
   "settings.tabLayoutTop": "계정을 위에",
   "settings.tabLayoutSide": "계정을 옆에",
   "ui.accountsTop": "계정을 위로 이동",
-  "ui.accountsSide": "계정을 옆으로 이동"
+  "ui.accountsSide": "계정을 옆으로 이동",
+  "settings.soundEffects": "효과음",
+  "settings.soundHint": "클릭, 스위치 및 알림에 은은한 소리를 재생합니다.",
+  "settings.soundVolume": "음량",
+  "settings.soundPreview": "소리 재생"
 }

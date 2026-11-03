@@ -1235,5 +1235,9 @@
   "settings.tabLayoutTop": "Konta na górze",
   "settings.tabLayoutSide": "Konta z boku",
   "ui.accountsTop": "Przenieś konta na górę",
-  "ui.accountsSide": "Przenieś konta na bok"
+  "ui.accountsSide": "Przenieś konta na bok",
+  "settings.soundEffects": "Efekty dźwiękowe",
+  "settings.soundHint": "Subtelne dźwięki kliknięć, przełączników i powiadomień.",
+  "settings.soundVolume": "Głośność",
+  "settings.soundPreview": "Odtwórz dźwięk"
 }

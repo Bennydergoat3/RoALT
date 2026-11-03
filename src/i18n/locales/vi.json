@@ -1143,5 +1143,9 @@
   "settings.tabLayoutTop": "Tài khoản ở trên",
   "settings.tabLayoutSide": "Tài khoản ở bên",
   "ui.accountsTop": "Chuyển tài khoản lên trên",
-  "ui.accountsSide": "Chuyển tài khoản sang bên"
+  "ui.accountsSide": "Chuyển tài khoản sang bên",
+  "settings.soundEffects": "Hiệu ứng âm thanh",
+  "settings.soundHint": "Âm thanh nhẹ cho thao tác nhấp, công tắc và thông báo.",
+  "settings.soundVolume": "Âm lượng",
+  "settings.soundPreview": "Phát âm thanh"
 }

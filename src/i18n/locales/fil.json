@@ -1189,5 +1189,9 @@
   "settings.tabLayoutTop": "Mga account sa itaas",
   "settings.tabLayoutSide": "Mga account sa gilid",
   "ui.accountsTop": "Ilipat ang mga account sa itaas",
-  "ui.accountsSide": "Ilipat ang mga account sa gilid"
+  "ui.accountsSide": "Ilipat ang mga account sa gilid",
+  "settings.soundEffects": "Mga sound effect",
+  "settings.soundHint": "Mahihinang tunog para sa mga click, switch at notification.",
+  "settings.soundVolume": "Lakas ng tunog",
+  "settings.soundPreview": "I-play ang tunog"
 }

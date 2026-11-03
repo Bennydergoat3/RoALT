@@ -1189,5 +1189,9 @@
   "settings.tabLayoutTop": "Konten oben",
   "settings.tabLayoutSide": "Konten seitlich",
   "ui.accountsTop": "Konten nach oben verschieben",
-  "ui.accountsSide": "Konten zur Seite verschieben"
+  "ui.accountsSide": "Konten zur Seite verschieben",
+  "settings.soundEffects": "Soundeffekte",
+  "settings.soundHint": "Dezente Töne für Klicks, Schalter und Benachrichtigungen.",
+  "settings.soundVolume": "Lautstärke",
+  "settings.soundPreview": "Ton abspielen"
 }

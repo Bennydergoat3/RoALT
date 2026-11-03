@@ -1189,5 +1189,9 @@
   "settings.tabLayoutTop": "Contas em cima",
   "settings.tabLayoutSide": "Contas ao lado",
   "ui.accountsTop": "Mover contas para cima",
-  "ui.accountsSide": "Mover contas para o lado"
+  "ui.accountsSide": "Mover contas para o lado",
+  "settings.soundEffects": "Efeitos sonoros",
+  "settings.soundHint": "Sons suaves para cliques, interruptores e notificações.",
+  "settings.soundVolume": "Volume",
+  "settings.soundPreview": "Reproduzir som"
 }

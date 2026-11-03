@@ -1235,5 +1235,9 @@
   "settings.tabLayoutTop": "Računi gore",
   "settings.tabLayoutSide": "Računi sa strane",
   "ui.accountsTop": "Premjesti račune gore",
-  "ui.accountsSide": "Premjesti račune sa strane"
+  "ui.accountsSide": "Premjesti račune sa strane",
+  "settings.soundEffects": "Zvučni efekti",
+  "settings.soundHint": "Tihi zvukovi za klikove, prekidače i obavijesti.",
+  "settings.soundVolume": "Jačina zvuka",
+  "settings.soundPreview": "Pusti zvuk"
 }

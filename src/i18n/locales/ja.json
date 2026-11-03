@@ -1143,5 +1143,9 @@
   "settings.tabLayoutTop": "アカウントを上に",
   "settings.tabLayoutSide": "アカウントを横に",
   "ui.accountsTop": "アカウントを上に移動",
-  "ui.accountsSide": "アカウントを横に移動"
+  "ui.accountsSide": "アカウントを横に移動",
+  "settings.soundEffects": "効果音",
+  "settings.soundHint": "クリック、スイッチ、通知に控えめな音を付けます。",
+  "settings.soundVolume": "音量",
+  "settings.soundPreview": "音を再生"
 }

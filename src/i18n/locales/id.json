@@ -1143,5 +1143,9 @@
   "settings.tabLayoutTop": "Akun di atas",
   "settings.tabLayoutSide": "Akun di samping",
   "ui.accountsTop": "Pindahkan akun ke atas",
-  "ui.accountsSide": "Pindahkan akun ke samping"
+  "ui.accountsSide": "Pindahkan akun ke samping",
+  "settings.soundEffects": "Efek suara",
+  "settings.soundHint": "Suara lembut untuk klik, sakelar, dan notifikasi.",
+  "settings.soundVolume": "Volume suara",
+  "settings.soundPreview": "Putar suara"
 }

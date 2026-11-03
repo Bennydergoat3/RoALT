@@ -1143,5 +1143,9 @@
   "settings.tabLayoutTop": "บัญชีด้านบน",
   "settings.tabLayoutSide": "บัญชีด้านข้าง",
   "ui.accountsTop": "ย้ายบัญชีไปด้านบน",
-  "ui.accountsSide": "ย้ายบัญชีไปด้านข้าง"
+  "ui.accountsSide": "ย้ายบัญชีไปด้านข้าง",
+  "settings.soundEffects": "เอฟเฟกต์เสียง",
+  "settings.soundHint": "เสียงเบาๆ สำหรับการคลิก สวิตช์ และการแจ้งเตือน",
+  "settings.soundVolume": "ระดับเสียง",
+  "settings.soundPreview": "เล่นเสียง"
 }

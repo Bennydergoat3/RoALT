@@ -1373,5 +1373,9 @@
   "settings.tabLayoutTop": "الحسابات في الأعلى",
   "settings.tabLayoutSide": "الحسابات على الجانب",
   "ui.accountsTop": "نقل الحسابات إلى الأعلى",
-  "ui.accountsSide": "نقل الحسابات إلى الجانب"
+  "ui.accountsSide": "نقل الحسابات إلى الجانب",
+  "settings.soundEffects": "المؤثرات الصوتية",
+  "settings.soundHint": "أصوات خفيفة للنقرات والمفاتيح والإشعارات.",
+  "settings.soundVolume": "مستوى الصوت",
+  "settings.soundPreview": "تشغيل الصوت"
 }

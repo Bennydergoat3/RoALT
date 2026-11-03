@@ -1189,5 +1189,9 @@
   "settings.tabLayoutTop": "Konton överst",
   "settings.tabLayoutSide": "Konton vid sidan",
   "ui.accountsTop": "Flytta konton överst",
-  "ui.accountsSide": "Flytta konton till sidan"
+  "ui.accountsSide": "Flytta konton till sidan",
+  "settings.soundEffects": "Ljudeffekter",
+  "settings.soundHint": "Diskreta ljud för klick, reglage och aviseringar.",
+  "settings.soundVolume": "Ljudvolym",
+  "settings.soundPreview": "Spela ljud"
 }

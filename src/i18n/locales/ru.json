@@ -1235,5 +1235,9 @@
   "settings.tabLayoutTop": "Аккаунты сверху",
   "settings.tabLayoutSide": "Аккаунты сбоку",
   "ui.accountsTop": "Переместить аккаунты наверх",
-  "ui.accountsSide": "Переместить аккаунты вбок"
+  "ui.accountsSide": "Переместить аккаунты вбок",
+  "settings.soundEffects": "Звуковые эффекты",
+  "settings.soundHint": "Негромкие звуки нажатий, переключателей и уведомлений.",
+  "settings.soundVolume": "Громкость",
+  "settings.soundPreview": "Прослушать"
 }

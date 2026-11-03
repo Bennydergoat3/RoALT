@@ -1189,5 +1189,9 @@
   "settings.tabLayoutTop": "Comptes en haut",
   "settings.tabLayoutSide": "Comptes sur le côté",
   "ui.accountsTop": "Déplacer les comptes en haut",
-  "ui.accountsSide": "Déplacer les comptes sur le côté"
+  "ui.accountsSide": "Déplacer les comptes sur le côté",
+  "settings.soundEffects": "Effets sonores",
+  "settings.soundHint": "Sons discrets pour les clics, les interrupteurs et les notifications.",
+  "settings.soundVolume": "Volume sonore",
+  "settings.soundPreview": "Écouter"
 }
