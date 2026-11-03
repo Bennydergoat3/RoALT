@@ -670,6 +670,12 @@ Bug reports, ideas and pull requests are welcome.
 
 <br>
 
+## ⚖️ License
+
+[MIT](LICENSE).
+
+<br>
+
 ## 📜 Disclaimer
 
 RoALT is an independent project, not affiliated with or endorsed by Roblox Corporation. Use it only
