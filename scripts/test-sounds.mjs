@@ -30,6 +30,7 @@ globalThis.AudioContext = class {
   createGain() { return { gain: { setValueAtTime() {}, exponentialRampToValueAtTime() {} }, connect() {}, disconnect() {} }; }
 };
 const sound = await import("../src/ui/sounds.ts");
+sound.setSoundPreferences({ enabled: true }); // Off by default; opt in for the checks below.
 sound.installSounds();
 const click = events.get("click");
 sound.installSounds();

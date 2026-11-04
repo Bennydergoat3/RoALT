@@ -3,7 +3,8 @@ import { useSyncExternalStore } from "react";
 export type Sound = "click" | "on" | "off" | "notification" | "success" | "error";
 type Preferences = { enabled: boolean; volume: number };
 const KEY = "roalt.sounds";
-const DEFAULT: Preferences = { enabled: true, volume: 0.35 };
+// Off until the user opts in, so upgrades don't suddenly start clicking.
+const DEFAULT: Preferences = { enabled: false, volume: 0.35 };
 function read(): Preferences {
   try {
     const saved = JSON.parse(localStorage.getItem(KEY) ?? "null");
