@@ -18,7 +18,8 @@
       "allow": [
         { "url": "https://www.roblox.com/*" },
         { "url": "https://github.com/inspectsoftware/*" },
-        { "url": "https://discord.gg/*" }
+        { "url": "https://discord.gg/*" },
+        { "url": "https://www.autohotkey.com/*" }
       ]
     }
   ]

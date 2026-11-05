@@ -82,6 +82,9 @@ export function previewSound() {
   if (context?.state === "suspended") void context.resume().then(() => playSound("success")).catch(() => {});
   else playSound("success");
 }
+/** Controls that pick one of several: a click, or nothing when it is already the one. */
+const CHOICE = '[data-choice], .seg, .swatch, .preset, .island-item, .island-child, .rail-item, [role="tab"], [role="option"], [role="radio"], [role="menuitemradio"]';
+
 /** Read ARIA state before React starts a possibly asynchronous settings update. */
 export function interactionSound(target: HTMLElement): Sound | null {
   if (target instanceof HTMLInputElement && ["checkbox", "radio"].includes(target.type)) {
@@ -90,9 +93,10 @@ export function interactionSound(target: HTMLElement): Sound | null {
   const checked = target.getAttribute("aria-checked");
   const pressed = target.getAttribute("aria-pressed");
   const selected = target.getAttribute("aria-selected");
-  // Picking a preset, tab, or option is selection, not switching a feature off.
-  if (target.matches('.seg, .swatch, .preset-select, .preset, .nav-item, .rounded-full[aria-pressed], [role="tab"], [role="option"]')) {
-    return [checked, pressed, selected].includes("true") ? null : "click";
+  const current = target.getAttribute("aria-current") === "page" ? "true" : null;
+  // Picking a preset, tab, place or option is selection, not switching a feature off.
+  if (target.matches(CHOICE)) {
+    return [checked, pressed, selected, current].includes("true") ? null : "click";
   }
   const state = checked ?? pressed;
   return state === "true" ? "off" : state === "false" || state === "mixed" ? "on" : "click";

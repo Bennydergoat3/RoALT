@@ -10,7 +10,7 @@ Your cookies stay encrypted on your PC. Nothing is sent anywhere except Roblox.
 [![Latest release](https://img.shields.io/github/v/release/inspectsoftware/RoALT?style=for-the-badge&color=b4f000&labelColor=1a1a1a&label=release)](https://github.com/inspectsoftware/RoALT/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/inspectsoftware/RoALT/total?style=for-the-badge&color=2b2b2b&labelColor=1a1a1a)](https://github.com/inspectsoftware/RoALT/releases)
 [![Windows 10 | 11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078d4?style=for-the-badge&logo=windows&labelColor=1a1a1a)](#-install)
-[![Discord](https://img.shields.io/badge/Discord-join-5865f2?style=for-the-badge&logo=discord&logoColor=white&labelColor=1a1a1a)](https://discord.gg/qcj68tHKCX)
+[![Discord](https://img.shields.io/badge/Discord-join-5865f2?style=for-the-badge&logo=discord&logoColor=white&labelColor=1a1a1a)](https://discord.gg/roaltdev)
 
 [![CI](https://img.shields.io/github/actions/workflow/status/inspectsoftware/RoALT/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/inspectsoftware/RoALT/actions/workflows/ci.yml)
 ![Tauri 2](https://img.shields.io/badge/Tauri-2-24c8db?style=flat-square&logo=tauri&logoColor=white)
@@ -21,7 +21,7 @@ Your cookies stay encrypted on your PC. Nothing is sent anywhere except Roblox.
 <br>
 
 [**⬇ Download**](https://github.com/inspectsoftware/RoALT/releases/latest) &nbsp;·&nbsp;
-[**💬 Discord**](https://discord.gg/qcj68tHKCX) &nbsp;·&nbsp;
+[**💬 Discord**](https://discord.gg/roaltdev) &nbsp;·&nbsp;
 [Quick start](#-quick-start) &nbsp;·&nbsp;
 [Privacy](#-safety-and-privacy) &nbsp;·&nbsp;
 [For developers](#-for-developers)
@@ -161,10 +161,10 @@ it is signed by Roblox Corporation. Optional auto-update when no client runs.
 <td valign="top">
 
 ### 🖥️ Home
-Browser-style **account tabs**, each with its own game and options. Every running client as a live preview,
-even hidden ones, in cards you can drag and resize, with dials for what your clients use. Right-click one to
-focus, minimize, shrink it, limit it or close it. Tile all clients in one click. Anti-AFK has its own switch here.
-Prefer vertical tabs? Put your accounts on the side and RoALT's sections along the top, and drag either into your own order.
+Every running client as a live preview, even hidden ones, in cards you can drag and resize. Click a picture to
+bring that client to the front; right-click to minimize, shrink, limit or close it. One bar above them holds
+what your PC can take, Anti-AFK, the card size and the window tools. Browser-style **account tabs** give each
+account its own game and options. Prefer your accounts in a list? The side layout puts them in a rail.
 
 </td>
 <td valign="top">
@@ -185,9 +185,10 @@ without them snapping back. Or start every client tiny.
 </td>
 <td valign="top">
 
-### 🎨 Soft Deck design
-A soft, very dark interface with a floating page, or a light theme. Pick any accent colour and your own
-background image, and skip the splash screen if you'd rather not wait.
+### 🏝️ The island
+A quiet, near-black window with one living control: the **island**, a pill in the title bar that holds every
+section and grows a launch's progress and your running clients out of its side. Light theme too, white by
+default or any accent you pick, your own background, and motion you can turn down (or up) in Settings.
 
 </td>
 </tr>
@@ -202,7 +203,7 @@ Japanese, Korean, Polish, Portuguese (Brazil), Russian, Spanish, Swedish, Thai, 
 <td valign="top">
 
 ### ❤️ Support RoALT
-RoALT is free. The **Donate** button in the sidebar opens a [Roblox gamepass](https://www.roblox.com/games/102259086923102/Donation-Experience#!/store)
+RoALT is free. **Donate**, in the app menu (the RoALT logo) or Settings › About, opens a [Roblox gamepass](https://www.roblox.com/games/102259086923102/Donation-Experience#!/store)
 for the amount you pick, and you confirm the purchase on Roblox.
 
 </td>
@@ -221,8 +222,8 @@ for the amount you pick, and you confirm the purchase on Roblox.
 | 🪟 **Batches** | Accounts launch strictly one after another with a stagger (default 6 s). **Same server**: *Pick a server* finds one with room for everyone first; *Follow the first* sends the rest to wherever the first account landed. Cancel at any time; one click re-picks the accounts that didn't launch. |
 | 🔁 **Recovery** | Auto-rejoin after kicks, shutdowns and lost connections (not after you leave on purpose). Opt-in auto-restart for crashes, frozen windows (30 s) and a memory limit. Crash breaker: default 3 relaunches in 10 minutes, with growing backoff. Per-account "Allow disconnect". Crash history with the log's reason. |
 | ↔️ **Free resizing** | Drag a client's edge to any size, past the minimum Roblox holds its window to, and move a small window by its title bar without it growing back. RoALT sizes the window itself (a mouse hook in RoALT's own process); nothing goes into the client. **Start clients tiny** opens every new client at a size you choose. |
-| 🖥️ **Home** | Live preview for every client at 5, 15, 30 or 60 FPS, even hidden ones, with state, game, uptime, CPU and RAM. Drag cards to sort them and resize them from the corner; **Detailed view** off shows only the preview and username. Dials show what all Roblox clients use together. Browser-style **account tabs** give each account its own game and options, and launch one or all of them. **Tab layout** (Settings or the title bar) moves accounts to a list on the side and RoALT's sections to tabs along the top. Drag accounts and sections to sort them, or use `Alt` and the arrow keys; the order is saved, and a launch of all tabs follows it. The **⋯** key, right-click, the menu key or `Shift+F10` for focus, minimize, restore, tiny window (any size, 320×240 by default) and back, CPU limit, efficiency mode, anti-AFK, close. **Tile** fits all clients in a grid on the screen; **Tile micro** lays out micro windows. Minimize all, Restore all. |
-| 🛑 **Stop all** | Hold one button in the sidebar, use the tray, or press a global **panic hotkey** you choose (off by default) to end every Roblox process and stop pending launches and rejoins. |
+| 🖥️ **Home** | Live preview for every client at 5, 15, 30 or 60 FPS, even hidden ones, with one status pill, game, uptime, CPU and RAM, and only the limits that differ from your defaults. Click a picture to show that client. Drag cards to sort them and resize them from the corner; **Compact** shows only the preview, with its actions on hover or focus. The bar above them says what your PC can take (it opens dials for CPU, memory and GPU), switches Anti-AFK, and holds Tile windows, Minimize all and **⋯** (Restore all, Tile tiny windows, Refresh, Close all). Browser-style **account tabs** give each account its own game and options, and launch one or all of them. **Layout** (Settings or the title bar) moves your accounts to a rail on the side. Drag accounts and sections to sort them, or use `Alt` and the arrow keys; the order is saved, and a launch of all tabs follows it. The **⋯** key, right-click, the menu key or `Shift+F10` for show, minimize, restore, tiny window (any size, 320×240 by default) and back, CPU limit, efficiency mode, anti-AFK, close. Recently closed clients come back with **Play again**, or **Play all again**. |
+| 🛑 **Stop all** | Hold one button (in the app menu, or the running clients' sheet in the island), use the tray, or press a global **panic hotkey** you choose (off by default) to end every Roblox process and stop pending launches and rejoins. |
 | 🌍 **Languages** | English, Arabic (right to left), Bosnian, Chinese (Simplified), Filipino, French, German, Indonesian, Japanese, Korean, Polish, Portuguese (Brazil), Russian, Spanish, Swedish, Thai, Turkish, Vietnamese. |
 | ⏲️ **Automation** | Minimize each new client on launch. Auto-shutdown timer: close the clients and shut the PC down at a set time (survives a RoALT restart, can be cancelled). Hourly Roblox log cleaner (logs older than a day or over 50 MB). Open logs button; RoALT's own logs rotate at 5 MB. |
 | ⚙️ **Launch control** | Custom launch arguments (default and per account, checked before use and never logged), a cooldown between launches, a configurable close grace (1–60 s). |
@@ -236,9 +237,10 @@ for the amount you pick, and you confirm the purchase on Roblox.
 | 📤 **Performance profiles** | Export your performance settings to a file or a share code, or import someone else's: you see what changes, then apply it. Only performance settings travel, never accounts, passwords, launch arguments or hotkeys. |
 | 📶 **Bandwidth** | One upload cap for all Roblox clients through a Windows QoS policy. Applied only when you click Apply (admin prompt); cleared when Windows restarts. |
 | 💤 **Anti-AFK** | Off by default, with a switch on Home. While you are away from the PC, every few minutes each client is briefly brought to the front and gets one F13 press (no game uses it, so the character stays put), so Roblox doesn't kick it after 20 idle minutes. A minimized client is restored for the press and minimized again. Stops the moment you touch the mouse. Roblox only counts a real key press in the window in front: keys posted to a background window don't stop the idle kick (measured). Per-client opt-out. |
-| 🔔 **Discord** | Crash, disconnect, restart and batch alerts, plus an opt-in alert when a client gets into a game. Mute alerts per account. **Rich presence** (on by default, a switch in Settings): your profile shows "Playing RoALT", idling or with the game and how many alts run. |
-| 🔄 **RoALT updates** | Looks for a new RoALT on GitHub Releases at start and every 6 hours (can be turned off; *Check now* in Settings). A banner offers it; *Update now* downloads it, checks its release signature, installs it silently and restarts RoALT. Never installs on its own. |
-| 🧰 **Comfort** | Tray menu with favourites, close to tray, relaunch an ended client in one click, movable data folder, keyboard shortcuts. Dark, light or system theme, any accent colour, and your own background image, with a choice of how much the theme covers it. Optional skip of the splash screen. Your RoALT and Roblox versions at the top of Settings. |
+| 🔔 **Discord** | Crash, disconnect, restart and batch alerts, plus an opt-in alert when a client gets into a game. Mute alerts per account. **Rich presence** (on by default, a switch on the Discord page): your profile shows "Playing RoALT", idling or with the game and how many alts run. |
+| ⌨️ **Macros** | Your own [AutoHotkey v2](https://www.autohotkey.com/) scripts, run on chosen clients (each copy is told its client's window): write, import or export `.ahk` files, start and stop them from Home or the Macros page, give each a global hotkey, or run one on every client as it reaches a game (a switch on the Macros page). Imported scripts run only after you've reviewed them. **AutoHotkey isn't included:** install it yourself (it's GPL-2.0). A script runs with your full Windows rights, and macros may break the rules of some games. |
+| 🔄 **RoALT updates** | Looks for a new RoALT on GitHub Releases at start and every 6 hours (can be turned off; *Check now* in Settings). The island offers it; *Update now* downloads it, checks its release signature, installs it silently and restarts RoALT. Never installs on its own. |
+| 🧰 **Comfort** | Tray menu with favourites, close to tray, relaunch an ended client in one click, movable data folder, keyboard shortcuts (`?` lists them). One search (`Ctrl+F`) finds any setting, in Settings, Performance, Discord or Macros, and takes you to it. Dark, light or system theme, white by default or any accent colour, and your own background image, with a choice of how much the theme covers it. **Motion**: follow Windows' animation setting, or always full or reduced. Optional skip of the splash screen. |
 
 </details>
 
@@ -261,7 +263,7 @@ for the amount you pick, and you confirm the purchase on Roblox.
 > compare its SHA-256 with `SHA256SUMS.txt` on the release page, then choose **More info → Run anyway**.
 >
 > ```powershell
-> Get-FileHash .\RoALT-Setup-0.9.2.exe -Algorithm SHA256
+> Get-FileHash .\RoALT-Setup-1.0.0.exe -Algorithm SHA256
 > ```
 
 Your accounts and settings live in `%LOCALAPPDATA%\RoALT`. Uninstalling keeps them unless you tick
@@ -488,7 +490,7 @@ In `%LOCALAPPDATA%\RoALT`. **Settings → Data** opens it or moves it to another
 
 ## 💬 Community
 
-Questions, ideas or bug reports? Join the **[Discord server](https://discord.gg/qcj68tHKCX)** or
+Questions, ideas or bug reports? Join the **[Discord server](https://discord.gg/roaltdev)** or
 [open an issue](https://github.com/inspectsoftware/RoALT/issues).
 
 <br>
@@ -557,9 +559,6 @@ CPU-cap job handle is kept.
 
 </details>
 
-The full design, with every Roblox behaviour verified and its source, is in [docs/DESIGN.md](docs/DESIGN.md).
-What each milestone added and how to test it is in [docs/MILESTONES.md](docs/MILESTONES.md).
-
 <br>
 
 ## 🧱 Tech stack
@@ -605,12 +604,14 @@ npm run tauri dev        # run the app with hot reload
 
 ```text
 ├─ src/                    React UI
-│  ├─ App.tsx              window shell, navigation, shortcuts
+│  ├─ App.tsx              root: vault, title bar, events
+│  ├─ app/                 shell, island model, navigation, theme, live activities, app menu
 │  ├─ api.ts               one typed wrapper per backend command
 │  ├─ bindings/            ts-rs generated types (committed)
-│  ├─ dev/mockIpc.ts       mock backend for `npm run dev`
-│  ├─ ui/                  shared components
-│  └─ features/            dashboard · accounts · launch · servers · performance · monitor · discord · debug · settings · splash · vault
+│  ├─ dev/                 mock backend for `npm run dev`, and the ?gallery of every primitive
+│  ├─ styles/              tokens and layered CSS
+│  ├─ ui/                  shared components, the island, motion
+│  └─ features/            dashboard · accounts · launch · servers · performance · monitor · discord · macros · debug · settings · splash · vault · donate
 ├─ src-tauri/              Rust backend
 │  ├─ src/
 │  │  ├─ main.rs           builder, plugins, managed state
@@ -618,11 +619,10 @@ npm run tauri dev        # run the app with hot reload
 │  │  ├─ model.rs          shared types (exported to TS)
 │  │  ├─ vault/  roblox_api/  launcher/  instances/  storage/
 │  │  ├─ discord.rs  webview.rs  tray.rs  error.rs
-│  ├─ tests/fixtures/      recorded Roblox responses (no real cookies)
 │  └─ tauri.conf.json
 ├─ installer/RoALT.iss     Inno Setup script
 ├─ scripts/                build-installer.ps1
-├─ docs/                   DESIGN.md · MILESTONES.md · research/
+├─ docs/                   images/ · research/fixtures/ (recorded Roblox responses the tests read, no real cookies)
 └─ .github/workflows/      ci.yml · release.yml
 ```
 
@@ -647,7 +647,7 @@ round-trips, and response parsing from recorded fixtures. They never use real co
 
 Bug reports, ideas and pull requests are welcome.
 
-1. Open an [issue](https://github.com/inspectsoftware/RoALT/issues) or ask on [Discord](https://discord.gg/qcj68tHKCX) first for anything big.
+1. Open an [issue](https://github.com/inspectsoftware/RoALT/issues) or ask on [Discord](https://discord.gg/roaltdev) first for anything big.
 2. Keep changes small and focused, and match the surrounding code.
 3. Run the [tests](#-testing) and `npm run bindings` if you changed a shared type.
 4. Never commit a real cookie, ticket or webhook, including in fixtures or screenshots.
@@ -672,7 +672,7 @@ Bug reports, ideas and pull requests are welcome.
 
 ## ⚖️ License
 
-[MIT](LICENSE).
+[MIT](LICENSE). The license covers the code, not the RoALT name or logo; see [NOTICE](NOTICE.md) before you fork or reuse it.
 
 <br>
 
@@ -684,5 +684,5 @@ change how its client behaves at any time.
 
 <div align="center">
 <br>
-<sub>Made for people with too many alts. &nbsp;·&nbsp; <a href="https://discord.gg/qcj68tHKCX">Discord</a> &nbsp;·&nbsp; <a href="https://github.com/inspectsoftware/RoALT/releases/latest">Download</a></sub>
+<sub>Made for people with too many alts. &nbsp;·&nbsp; <a href="https://discord.gg/roaltdev">Discord</a> &nbsp;·&nbsp; <a href="https://github.com/inspectsoftware/RoALT/releases/latest">Download</a></sub>
 </div>

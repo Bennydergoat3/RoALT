@@ -7,6 +7,7 @@ import type { MemThrottle } from "./MemThrottle";
 import type { RenderFlags } from "./RenderFlags";
 import type { TabLayout } from "./TabLayout";
 import type { Theme } from "./Theme";
+import type { WindowLayout } from "./WindowLayout";
 
 /**
  * App settings, stored as one JSON value. New fields need `#[serde(default)]` semantics,
@@ -77,6 +78,18 @@ closeToTray: boolean,
  */
 skipSplash: boolean, 
 /**
+ * Select-all (accounts list, launch picker) leaves the MAIN account out.
+ */
+protectMain: boolean, 
+/**
+ * Each client's own Windows audio session is muted once it reaches a game (`instances::audio`).
+ */
+muteOnLaunch: boolean, 
+/**
+ * Launched clients go into this layout on RoALT's monitor; not Off: it replaces `tiny_on_launch`.
+ */
+windowLayout: WindowLayout, 
+/**
  * Restart a client whose private memory stays over this many MB (3 samples, 10 s apart),
  * within the breaker; 0: off, else 512..=65 536.
  */
@@ -129,10 +142,6 @@ discordPresence: boolean,
  */
 minimizeOnLaunch: boolean, 
 /**
- * Home's previews keep hidden clients awake and drawing. Off: they sleep and show their last picture.
- */
-liveHiddenPreviews: boolean, 
-/**
  * System-wide key combination for Kill all, like "Ctrl+Shift+F12"; "" for none.
  */
 panicHotkey: string, 
@@ -169,4 +178,13 @@ allowPublicNetworks: boolean,
 /**
  * UI and message language (`i18n::LANGS`), or "" to follow Windows' display language.
  */
-language: string, };
+language: string, 
+/**
+ * AutoHotkey64.exe the user picked; "" to look for it (`macros::find_ahk`).
+ */
+ahkPath: string, 
+/**
+ * Each client reaching a game starts the first "Run on launch" macro by name, unless its
+ * account is Full quality.
+ */
+macroAutorun: boolean, };

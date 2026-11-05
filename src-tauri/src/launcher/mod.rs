@@ -212,6 +212,7 @@ pub async fn launch(s: &App, account_id: i64, target: &LaunchTarget, fps_cap: Op
         _ => put_back(undo),
     }
     let (pid, pid_start) = started?;
+    update::note_started(s, &exe, production, pid, pid_start);
 
     log::info!(
         "launched account {account_id} (pid {pid}, bootstrapper: {}, {} extra argument(s), Roblox processes running now: {}, lighter rendering: {}, full quality: {})",
