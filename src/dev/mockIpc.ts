@@ -15,14 +15,12 @@
 // Moving the data folder to a path containing "bad" fails as a folder that already has a RoALT database.
 // Anti-AFK (when on) "presses a key" in each opted-in client in a game every 20 s, so the time moves.
 // Discord: any discord.com webhook URL is accepted; one whose token contains "deleted" fails the test.
-// Macros: AutoHotkey is "installed"; "Shared farm loop" is imported (untrusted) and refuses to run until trusted.
-// Runs only change state: nothing presses keys, and a client ending ends its run.
 import { emit } from "@tauri-apps/api/event";
 import { mockIPC, mockWindows } from "@tauri-apps/api/mocks";
 import type {
   AccountInfo, AccountStatus, AccountSummary, BulkProgress, BulkRequest, BulkStage, Crash, Favourite, GameInfo, GameServer, Group, Instance,
   JoinCandidate, LaunchTarget, MultiInstanceStatus, ParsedInput, Presence, PrivateServer, PrivateServerBuy, PrivateServerPage, PrivateServerPatch, PrivateServerSettings, ServerOrder, ServerPage,
-  RobloxClient, Settings, VaultMode, Macro, MacroInput, MacroRun,
+  RobloxClient, Settings, VaultMode,
 } from "../api";
 
 const MIN = 60_000;
@@ -79,8 +77,8 @@ let settings: Settings = {
   adaptive: { enabled: false, background: { cpuCap: 25, eco: true, trimEveryMin: null, affinity: null } }, bandwidthKbps: 0,
   antiAfk: { enabled: false, intervalMin: 15 },
   discord: { crash: true, hang: true, memRestart: true, disconnect: true, restart: true, breaker: true, batchDone: true, launch: false, statusEveryMin: 0, ping: "" },
-  autoUpdate: false, selfUpdate: true, tabLayout: "top", discordPresence: true, minimizeOnLaunch: false, microWidth: 320, microHeight: 240, tinyOnLaunch: false, panicHotkey: "", cleanLogs: false, fpsCap: 0, lowGraphics: true, skipSplash: false, protectMain: true, muteOnLaunch: false, windowLayout: "off", lighterRendering: true, renderFlags: { msaa: "x1", texture: "lowest", mode: "default", graySky: false, noGrass: true, lowestFrm: true, pauseVoxelizer: false },
-  allowPublicNetworks: true, language: "", ahkPath: "", macroAutorun: false,
+  autoUpdate: false, selfUpdate: true, tabLayout: "top", discordPresence: true, onlineCount: true, minimizeOnLaunch: false, microWidth: 320, microHeight: 240, tinyOnLaunch: false, panicHotkey: "", cleanLogs: false, fpsCap: 0, lowGraphics: true, skipSplash: false, protectMain: true, muteOnLaunch: false, windowLayout: "off", lighterRendering: true, renderFlags: { msaa: "x1", texture: "lowest", mode: "default", graySky: false, noGrass: true, lowestFrm: true, pauseVoxelizer: false },
+  allowPublicNetworks: true, language: "",
 };
 
 // Outdated, so Settings offers the update and the Launch view warns before a batch.
@@ -201,7 +199,6 @@ function endInstance(id: string, note: string) {
   i.endedAt = Date.now();
   i.note = note;
   instancesChanged();
-  stopMacroRuns((r) => r.instanceId === id);
 }
 /** The last performance profile "saved" in the preview (performance_export). */
 let lastProfile: string | null = null;
@@ -479,20 +476,6 @@ const placeOfTarget = (t: LaunchTarget) => ("placeId" in t ? t.placeId : t.kind 
 // ---------- M5: bulk launch, servers ----------
 
 const EXPIRED = "This cookie is not valid or has expired. Sign in again.";
-// ---------- macros ----------
-
-let macros: Macro[] = [
-  { id: 1, name: "Anti-idle jump", body: "; A_Args[1]: the client's window id, A_Args[2]: its pid\nwin := \"ahk_id \" A_Args[1]\nLoop {\n  WinActivate win\n  if WinWaitActive(win, , 2)\n    Send \"{Space}\"\n  Sleep 60000\n}\n", trusted: true, hotkey: "Ctrl+Shift+F1", runOnLaunch: true, createdAt: now - DAY, updatedAt: now - DAY },
-  { id: 2, name: "Shared farm loop", body: "Loop {\n  Send \"{w down}\"\n  Sleep 2000\n  Send \"{w up}\"\n}\n", trusted: false, hotkey: "", runOnLaunch: false, createdAt: now - MIN, updatedAt: now - MIN },
-];
-let macroRuns: MacroRun[] = [];
-const runsChanged = () => void emit("macros://runs", structuredClone(macroRuns));
-function stopMacroRuns(which: (r: MacroRun) => boolean) {
-  const before = macroRuns.length;
-  macroRuns = macroRuns.filter((r) => !which(r));
-  if (macroRuns.length !== before) runsChanged();
-}
-
 let batch: BulkProgress | null = null;
 let batchCancel = false;
 function bulkChanged() {
@@ -916,69 +899,6 @@ async function handle(cmd: string, args: Args): Promise<unknown> {
         if (f) f.sortOrder = i;
       });
       return null;
-    case "ahk_status":
-      return { path: settings.ahkPath || (preview.get("ahk") === "0" ? null : "C:\\Program Files\\AutoHotkey\\v2\\AutoHotkey64.exe") };
-    case "macros_list":
-      return structuredClone(macros);
-    case "macro_save": {
-      const { id, name, body, hotkey, runOnLaunch } = args.input as MacroInput;
-      const n = name.trim();
-      if (!n || n.length > 60) return fail("invalid", "Macro names need 1 to 60 characters.");
-      if (macros.some((m) => m.id !== id && m.name.toLowerCase() === n.toLowerCase())) return fail("invalid", `A macro called "${n}" already exists.`);
-      const key = hotkey.trim();
-      const clash = macros.find((m) => m.id !== id && key && m.hotkey.toLowerCase() === key.toLowerCase());
-      if (clash) return fail("invalid", `${key} is already the hotkey of ${clash.name}.`);
-      const old = macros.find((m) => m.id === id);
-      const m: Macro = old
-        ? Object.assign(old, { name: n, body, hotkey: key, runOnLaunch, trusted: true, updatedAt: Date.now() })
-        : { id: Math.max(0, ...macros.map((x) => x.id)) + 1, name: n, body, hotkey: key, runOnLaunch, trusted: true, createdAt: Date.now(), updatedAt: Date.now() };
-      if (!old) macros.push(m);
-      return structuredClone(m);
-    }
-    case "macro_remove":
-      stopMacroRuns((r) => r.macroId === args.id);
-      macros = macros.filter((m) => m.id !== args.id);
-      return null;
-    case "macro_trust": {
-      const m = macros.find((x) => x.id === args.id);
-      if (!m) return fail("notFound", "Not found.");
-      m.trusted = true;
-      return structuredClone(m);
-    }
-    case "macros_import": {
-      const out = (args.paths as string[]).map((p): Macro => {
-        const base = (p.split(/[\\/]/).pop() ?? "Macro").replace(/\.[^.]*$/, "") || "Macro";
-        let name = base;
-        for (let n = 2; macros.some((m) => m.name.toLowerCase() === name.toLowerCase()); n++) name = `${base} (${n})`;
-        const m: Macro = { id: Math.max(0, ...macros.map((x) => x.id)) + 1, name, body: "; imported\nLoop {\n  Send \"{Space}\"\n  Sleep 30000\n}\n", trusted: false, hotkey: "", runOnLaunch: false, createdAt: Date.now(), updatedAt: Date.now() };
-        macros.push(m);
-        return m;
-      });
-      return structuredClone(out);
-    }
-    case "macro_export":
-      return null;
-    case "macro_run": {
-      const m = macros.find((x) => x.id === args.id);
-      if (!m) return fail("notFound", "Not found.");
-      if (!m.trusted) return fail("invalid", `Review ${m.name} on the Macros page before it runs.`);
-      for (const id of args.instanceIds as string[]) {
-        if (!instances.some((i) => i.id === id && i.state === "inGame")) return fail("invalid", "That client isn't in a game.");
-        if (macroRuns.some((r) => r.instanceId === id)) return fail("invalid", "That client is already running a macro. Stop it first.");
-      }
-      for (const id of args.instanceIds as string[]) macroRuns.push({ instanceId: id, macroId: m.id, name: m.name, startedAt: Date.now() });
-      runsChanged();
-      return structuredClone(macroRuns);
-    }
-    case "macro_stop":
-      stopMacroRuns((r) => r.instanceId === args.instanceId);
-      return null;
-    case "macros_stop_all":
-      stopMacroRuns(() => true);
-      return null;
-    case "macro_runs":
-      return structuredClone(macroRuns);
-
     case "join_candidates": {
       await sleep(500);
       if (!find(args.accountId)) return fail("notFound", "Not found.");
@@ -1293,7 +1213,7 @@ async function handle(cmd: string, args: Args): Promise<unknown> {
       const month = new Date().toISOString().slice(0, 7);
       return {
         items: [
-          release(NEXT_VERSION, 3, "## New\n- **A redesigned app**: the island, client cards, Home tabs and a searchable Settings.\n- **Macros**: run AutoHotkey v2 scripts on every client.\n- Export cookies from Accounts.\n- Private servers: change their settings, or buy one.\n\n## Fixed\n- Tooltips no longer jump to the corner of the window.\n- Switching to the side layout no longer flashes the tab strip.\n- The Performance icon sits centred.\n\nNo Authenticode signature yet."),
+          release(NEXT_VERSION, 3, "## New\n- **A redesigned app**: the island, client cards, Home tabs and a searchable Settings.\n- Export cookies from Accounts.\n- Private servers: change their settings, or buy one.\n\n## Fixed\n- Tooltips no longer jump to the corner of the window.\n- Switching to the side layout no longer flashes the tab strip.\n- The Performance icon sits centred.\n\nNo Authenticode signature yet."),
           forum(9001, "Studio MCP Server Updates: Open Cloud Access in Your MCP Client", 5, "Key Takeaways MCP now has full access to Open Cloud; connected agents can help you manage your game beyond building…"),
           forum(9002, "PlayerCharacterDestroyBehavior Will Be Default on November 11", 9, "Hi Creators, What’s Changing We introduced PlayerCharacterDestroyBehavior as an opt-in property almost three years ago…"),
           forum(9003, "Release Notes for 745", 200, ""),
@@ -1303,6 +1223,8 @@ async function handle(cmd: string, args: Args): Promise<unknown> {
         failed: [],
       };
     }
+    case "online_ping":
+      return settings.onlineCount ? 1284 : null;
     case "self_update_status":
       return { current: APP_VERSION, available: appUpdate };
     case "self_update_check":
@@ -1452,8 +1374,6 @@ async function handle(cmd: string, args: Args): Promise<unknown> {
     case "plugin:dialog|save":
       return `C:\\Users\\you\\Documents\\${args.options?.defaultPath ?? "backup.roalt"}`;
     case "plugin:dialog|open":
-      // Several files: two scripts, as Macros' Import asks for.
-      if (args.options?.multiple) return ["C:\\Users\\you\\Documents\\Farm route.ahk", "C:\\Users\\you\\Documents\\Auto click.ahk"];
       return args.options?.directory ? "D:\\RoALT data" : "C:\\Users\\you\\Documents\\RoALT-backup-2026-10-01.roalt";
     case "plugin:window|is_maximized":
       return false;
@@ -1470,7 +1390,6 @@ async function handle(cmd: string, args: Args): Promise<unknown> {
 //   ?theme=light|dark|system  ?lang=ar  ?accent=c6f432  ?layout=side
 //   ?accounts=200  that many more accounts (long-list checks)
 //   ?scenario=busy  three clients start, then a batch of three ("AFK 1" fails in it)
-//   ?ahk=0  AutoHotkey isn't installed (until Browse… picks one)
 //   ?bandwidth=lapsed  a limit Windows has dropped (it restarted)   ?bandwidth=error  its status can't be read
 //   ?instances=slow  Home's client list comes late   ?instances=fail  it can't be read
 //   (?splash=1 replays the splash: Splash.tsx; ?rm=1 reduces motion: ui/motion/reduced.ts)

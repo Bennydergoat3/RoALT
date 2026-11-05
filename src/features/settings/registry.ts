@@ -1,5 +1,5 @@
 // Every setting RoALT has, as data: where its row lives, its words, its control and when it shows.
-// Settings renders from it, and one search covers Settings, Performance, Discord and Macros, plus
+// Settings renders from it, and one search covers Settings, Performance and Discord, plus
 // links to per-account, per-launch and per-client settings in other views.
 import { LANGUAGES, t, type Key } from "../../i18n";
 import { motionPreference } from "../../ui/motion";
@@ -11,7 +11,6 @@ import type { AreaDef, SettingsArea } from "./areas";
 import { SHORTCUTS } from "./shortcuts";
 import { PERFORMANCE_ENTRIES } from "../performance/entries";
 import { DISCORD_ENTRIES } from "../discord/entries";
-import { MACROS_ENTRIES } from "../macros/entries";
 
 export type { AreaDef, SettingsArea };
 
@@ -19,7 +18,7 @@ export type { AreaDef, SettingsArea };
 export type Place =
   | { view: "settings"; area: SettingsArea; group?: Key }
   | { view: "performance"; group: Key }
-  | { view: "discord" | "macros"; group?: Key }
+  | { view: "discord"; group?: Key }
   | { view: Extract<View, "accounts" | "launch" | "dashboard">; link: true };
 
 /** What conditions and changing lines read. `background`: a background image is set. */
@@ -81,7 +80,7 @@ export type Entry = {
   /** Where search and jumps go while `when` is false (else the parent). */
   fallback?: string;
   /** Queries a successful write makes stale. */
-  invalidates?: readonly ("multi" | "ahk")[];
+  invalidates?: readonly "multi"[];
   /** ASCII search words (fps, afk, qos): never shown, never translated. */
   aliases?: readonly string[];
 };
@@ -184,6 +183,7 @@ const SETTINGS_ENTRIES: readonly Entry[] = [
   { id: "browserData", place: data, label: "settings.browserData", hint: "settings.browserDataShort", more: "settings.browserDataHint", control: ACTION, aliases: ["captcha", "webview", "reset"] },
 
   { id: "selfUpdate", place: about, label: "settings.selfUpdate", more: "settings.selfUpdateHint", field: "selfUpdate", control: CUSTOM, aliases: ["update", "github", "version"] },
+  { id: "onlineCount", place: about, label: "settings.onlineCount", more: "settings.onlineCountHint", field: "onlineCount", control: SWITCH, aliases: ["online", "users", "counter", "telemetry", "privacy"] },
   { id: "version", place: about, label: "settings.openReleases", hint: "settings.aboutShort", more: "settings.aboutHint", control: ACTION, aliases: ["version", "about", "changelog", "privacy"] },
   { id: "support", place: about, label: "app.joinDiscord", control: ACTION, aliases: ["donate", "robux", "community", "help"] },
 ];
@@ -211,7 +211,7 @@ const KEY_ENTRIES: readonly Entry[] = SHORTCUTS.map((s) => ({
   aliases: ["shortcut", "hotkey", s.combo.toLowerCase()],
 }));
 
-export const ENTRIES: readonly Entry[] = [...SETTINGS_ENTRIES, ...PERFORMANCE_ENTRIES, ...DISCORD_ENTRIES, ...MACROS_ENTRIES, ...LINK_ENTRIES, ...KEY_ENTRIES];
+export const ENTRIES: readonly Entry[] = [...SETTINGS_ENTRIES, ...PERFORMANCE_ENTRIES, ...DISCORD_ENTRIES, ...LINK_ENTRIES, ...KEY_ENTRIES];
 
 const BY_ID = new Map(ENTRIES.map((e) => [e.id, e]));
 const KIDS = new Map<string, Entry[]>();

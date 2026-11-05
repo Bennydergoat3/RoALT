@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { friendly, toast } from "../ui/Toast";
 import { asError, type Favourite, type SameServer, type Settings, type VaultStatus } from "../api";
-import { qk, useAccounts, useGroups, useInstances, useMacroRuns } from "../data";
+import { qk, useAccounts, useGroups, useInstances } from "../data";
 import { t } from "../i18n";
 import { AccountsView } from "../features/accounts/AccountsView";
 import { AddAccountDialog, type Tab as AddTab } from "../features/accounts/AddAccountDialog";
@@ -17,7 +17,6 @@ import { lastLaunchAccount } from "../features/launch/launchQueue";
 import { LaunchView } from "../features/launch/LaunchView";
 import { isLive } from "../features/launch/Running";
 import { draftFor, EMPTY_DRAFT, type Draft } from "../features/launch/target";
-import { MacrosView } from "../features/macros/MacrosView";
 import { MonitorView } from "../features/monitor/MonitorView";
 import { PerformanceView } from "../features/performance/PerformanceView";
 import { ServersView } from "../features/servers/ServersView";
@@ -56,7 +55,6 @@ export function Shell({ vault, settings, islandSlot }: { vault: VaultStatus; set
   const accounts = useAccounts();
   const groups = useGroups();
   const instances = useInstances().data ?? [];
-  const macroRuns = useMacroRuns().data?.length ?? 0;
   const [view, setView] = useState<View>("dashboard");
   const [area, setArea] = useState<SettingsArea>("launching");
   const [group, setGroup] = useState<number | null>(null);
@@ -225,7 +223,6 @@ export function Shell({ vault, settings, islandSlot }: { vault: VaultStatus; set
       shortcut: shortcutFor(v),
       current: view === v,
       count: s === "accounts" && accounts.data!.length > 0 ? accounts.data!.length : undefined,
-      badge: s === "macros" && macroRuns > 0 ? macroRuns : undefined,
       onSelect: () => (s === "servers" ? openServers() : s === "accounts" ? showAll() : go(v)),
     };
   };
@@ -329,8 +326,6 @@ export function Shell({ vault, settings, islandSlot }: { vault: VaultStatus; set
             <MonitorView accounts={accounts.data} />
           ) : view === "discord" ? (
             <DiscordView />
-          ) : view === "macros" ? (
-            <MacrosView accounts={accounts.data} settings={settings} />
           ) : view === "debug" ? (
             <DebugView />
           ) : view === "performance" ? (

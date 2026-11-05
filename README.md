@@ -16,7 +16,7 @@ Your cookies stay encrypted on your PC. Nothing is sent anywhere except Roblox.
 ![Tauri 2](https://img.shields.io/badge/Tauri-2-24c8db?style=flat-square&logo=tauri&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-2024-dea584?style=flat-square&logo=rust&logoColor=white)
 ![React 19](https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react&logoColor=white)
-![No telemetry](https://img.shields.io/badge/telemetry-none-b4f000?style=flat-square)
+![Telemetry: one anonymous ping, opt-out](https://img.shields.io/badge/telemetry-anonymous%20ping%2C%20opt--out-b4f000?style=flat-square)
 
 <br>
 
@@ -58,7 +58,7 @@ and only ever one client open at a time. RoALT removes all of that.
 - **Paste any game link** and launch one account, or ten, into it. Even into the same server.
 - **Run several Roblox windows side by side**, and let RoALT bring back any that crash or get kicked.
 
-It runs entirely on your PC. There is no RoALT account, no RoALT server and no tracking.
+It runs entirely on your PC. There is no RoALT account and no tracking: the only RoALT server is an online counter that gets a random ID, and you can turn it off.
 
 <table>
 <tr>
@@ -238,9 +238,8 @@ for the amount you pick, and you confirm the purchase on Roblox.
 | 📶 **Bandwidth** | One upload cap for all Roblox clients through a Windows QoS policy. Applied only when you click Apply (admin prompt); cleared when Windows restarts. |
 | 💤 **Anti-AFK** | Off by default, with a switch on Home. While you are away from the PC, every few minutes each client is briefly brought to the front and gets one F13 press (no game uses it, so the character stays put), so Roblox doesn't kick it after 20 idle minutes. A minimized client is restored for the press and minimized again. Stops the moment you touch the mouse. Roblox only counts a real key press in the window in front: keys posted to a background window don't stop the idle kick (measured). Per-client opt-out. |
 | 🔔 **Discord** | Crash, disconnect, restart and batch alerts, plus an opt-in alert when a client gets into a game. Mute alerts per account. **Rich presence** (on by default, a switch on the Discord page): your profile shows "Playing RoALT", idling or with the game and how many alts run. |
-| ⌨️ **Macros** | Your own [AutoHotkey v2](https://www.autohotkey.com/) scripts, run on chosen clients (each copy is told its client's window): write, import or export `.ahk` files, start and stop them from Home or the Macros page, give each a global hotkey, or run one on every client as it reaches a game (a switch on the Macros page). Imported scripts run only after you've reviewed them. **AutoHotkey isn't included:** install it yourself (it's GPL-2.0). A script runs with your full Windows rights, and macros may break the rules of some games. |
 | 🔄 **RoALT updates** | Looks for a new RoALT on GitHub Releases at start and every 6 hours (can be turned off; *Check now* in Settings). The island offers it; *Update now* downloads it, checks its release signature, installs it silently and restarts RoALT. Never installs on its own. |
-| 🧰 **Comfort** | Tray menu with favourites, close to tray, relaunch an ended client in one click, movable data folder, keyboard shortcuts (`?` lists them). One search (`Ctrl+F`) finds any setting, in Settings, Performance, Discord or Macros, and takes you to it. Dark, light or system theme, white by default or any accent colour, and your own background image, with a choice of how much the theme covers it. **Motion**: follow Windows' animation setting, or always full or reduced. Optional skip of the splash screen. |
+| 🧰 **Comfort** | Tray menu with favourites, close to tray, relaunch an ended client in one click, movable data folder, keyboard shortcuts (`?` lists them). One search (`Ctrl+F`) finds any setting, in Settings, Performance or Discord, and takes you to it. Dark, light or system theme, white by default or any accent colour, and your own background image, with a choice of how much the theme covers it. **Motion**: follow Windows' animation setting, or always full or reduced. Optional skip of the splash screen. |
 
 </details>
 
@@ -263,7 +262,7 @@ for the amount you pick, and you confirm the purchase on Roblox.
 > compare its SHA-256 with `SHA256SUMS.txt` on the release page, then choose **More info → Run anyway**.
 >
 > ```powershell
-> Get-FileHash .\RoALT-Setup-1.0.0.exe -Algorithm SHA256
+> Get-FileHash .\RoALT-Setup-1.0.1.exe -Algorithm SHA256
 > ```
 
 Your accounts and settings live in `%LOCALAPPDATA%\RoALT`. Uninstalling keeps them unless you tick
@@ -344,7 +343,7 @@ In **Settings → Launching**, turn on **Auto-rejoin** (and, if you like, **Auto
 
 #### ✅ What RoALT does
 
-- Talks **only** to `*.roblox.com` and `*.rbxcdn.com`, plus GitHub to look for RoALT updates (can be turned off), and your Discord webhook.
+- Talks **only** to `*.roblox.com` and `*.rbxcdn.com`, plus GitHub to look for RoALT updates (can be turned off), RoALT's online counter (can be turned off), and your Discord webhook.
 - Encrypts every cookie with **AES-256-GCM** under a key protected by **Windows DPAPI**, plus your master password if you set one.
 - Encrypts the **whole database** too (SQLCipher, AES-256), with its own DPAPI-protected key: a copied `roalt.db` can't be read on another PC or Windows account.
 - Signs you in through **Roblox's own page**, in a throw-away browser profile.
@@ -358,7 +357,7 @@ In **Settings → Launching**, turn on **Auto-rejoin** (and, if you like, **Auto
 #### 🚫 What RoALT never does
 
 - **Never** reads or writes the Roblox client's memory or files, with two exceptions for the clients it starts: Roblox's own settings file (`GlobalBasicSettings_13.xml`, only the frame-rate cap and graphics quality) and the allowlisted rendering flags in the version folder's `ClientSettings\ClientAppSettings.json`. Both are put back as they were once the client has read them.
-- **Never** sends telemetry. There is no RoALT server and no RoALT account.
+- **Never** sends telemetry beyond the online count: every 2 minutes, a random ID made when RoALT starts, nothing else ([the counter's source](server/online-counter)). Turn it off in **Settings > About** and nothing is sent. There is no RoALT account.
 - **Never** writes cookies, tickets or launch arguments to its logs.
 - **Never** changes Windows settings, except the opt-in bandwidth limit.
 - **Never** contacts Discord's servers unless you paste a webhook. Rich presence goes only to the Discord app on your PC.
@@ -611,7 +610,7 @@ npm run tauri dev        # run the app with hot reload
 │  ├─ dev/                 mock backend for `npm run dev`, and the ?gallery of every primitive
 │  ├─ styles/              tokens and layered CSS
 │  ├─ ui/                  shared components, the island, motion
-│  └─ features/            dashboard · accounts · launch · servers · performance · monitor · discord · macros · debug · settings · splash · vault · donate
+│  └─ features/            dashboard · accounts · launch · servers · performance · monitor · discord · debug · settings · splash · vault · donate
 ├─ src-tauri/              Rust backend
 │  ├─ src/
 │  │  ├─ main.rs           builder, plugins, managed state

@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import type { VaultMode } from "../api";
-import { t } from "../i18n";
+import { useOnline, useSettings } from "../data";
+import { fmtNum, t } from "../i18n";
 import { DISCORD_INVITE } from "../features/donate/links";
-import { IconButton } from "../ui/Button";
 import { Icon, Logo } from "../ui/Icon";
 import { MenuItem, MenuSeparator, Popover, useAnchor } from "../ui/Popover";
 import { toastError } from "../ui/Toast";
@@ -12,7 +12,7 @@ import { requestNavigation } from "./navigation";
 
 /** The logo and name, as the app's own menu: the vault's state, the community, Donate, and the keys
  * that used to sit in the sidebar's foot. While locked, only what needs no vault. Beside it, a
- * Discord button: the community one click away. */
+ * Discord button: the community one click away, with how many use RoALT now while that's on. */
 export function AppMenu({ unlocked, vaultMode, onRefresh, onDonate }: {
   unlocked: boolean;
   vaultMode?: VaultMode;
@@ -21,6 +21,11 @@ export function AppMenu({ unlocked, vaultMode, onRefresh, onDonate }: {
 }) {
   const anchor = useAnchor();
   const [open, setOpen] = useState(false);
+  const counting = useSettings().data?.onlineCount ?? false;
+  const online = useOnline(counting).data;
+  // The cache outlives a switch turned off; the setting decides.
+  const n = counting && typeof online === "number" ? online : null;
+  const discord = n === null ? t("app.joinDiscord") : `${t("app.joinDiscord")} · ${t("app.onlineNow", { count: n })}`;
   const id = "app-menu";
   return (
     <>
@@ -29,7 +34,15 @@ export function AppMenu({ unlocked, vaultMode, onRefresh, onDonate }: {
         <span className="wordmark">RoALT</span>
         <Icon name="chevron" size={12} className="app-menu-chevron" />
       </button>
-      <IconButton icon="discord" label={t("app.joinDiscord")} onClick={() => openUrl(DISCORD_INVITE).catch(toastError)} />
+      <button type="button" className="wc discord-btn" aria-label={discord} data-tip={discord} onClick={() => openUrl(DISCORD_INVITE).catch(toastError)}>
+        <Icon name="discord" size={16} />
+        {n !== null && (
+          <span className="discord-online" aria-hidden="true">
+            <span className="online-dot" />
+            {fmtNum(n, { notation: "compact", maximumFractionDigits: 1 })}
+          </span>
+        )}
+      </button>
       <Popover id={id} anchor={anchor.name} placement="below-start" role="menu" label="RoALT" onToggle={setOpen} className="w-[260px]">
         <div className="flex items-center gap-2 px-2.5 pt-1.5 pb-2 text-[13px] text-fg-3" title={!unlocked ? t("vault.title") : vaultMode === "master" ? t("app.vaultUnlockedMaster") : t("app.vaultUnlockedDpapi")}>
           <Icon name="lock" size={14} />

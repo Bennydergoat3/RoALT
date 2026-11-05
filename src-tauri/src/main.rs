@@ -9,13 +9,13 @@ mod discord;
 mod error;
 mod instances;
 mod launcher;
-mod macros;
 mod model;
 mod network;
 mod performance;
 mod roblox_api;
 mod rpc;
 mod news;
+mod online;
 mod self_update;
 mod splash;
 mod storage;
@@ -52,7 +52,6 @@ pub struct App {
     pub metrics: instances::metrics::Sampler,
     pub bulk: launcher::bulk::Bulk,
     pub discord: discord::Discord,
-    pub macros: macros::Runner,
     pub update: launcher::update::Updater,
     pub self_update: self_update::SelfUpdater,
     /// Whether a Public network is connected (`network`).
@@ -433,7 +432,6 @@ fn init(app: &TauriApp, data_dir: &Path, moved_from: Option<&Path>) -> std::resu
         metrics: instances::metrics::Sampler::new(),
         bulk: launcher::bulk::Bulk::new(),
         discord: discord::Discord::new(),
-        macros: macros::Runner::new(),
         update: launcher::update::Updater::new(),
         self_update: self_update::SelfUpdater::new(),
         network: network::Network::new(),
@@ -447,7 +445,8 @@ fn init(app: &TauriApp, data_dir: &Path, moved_from: Option<&Path>) -> std::resu
             commands::notice(&handle, true, tr!("{why} The panic hotkey is off; change it in Settings, Automation.", why = e.message()));
         });
     }
-    macros::sync_hotkeys(app.handle());
+    // AutoHotkey's work folder from the removed Macros feature; a crash could leave scripts in it.
+    let _ = std::fs::remove_dir_all(data_dir.join("macros"));
     if let Err(e) = tray::setup(app.handle()) {
         log::warn!("no tray icon: {e}");
     }
@@ -541,13 +540,13 @@ fn main() {
                 .rotation_strategy(RotationStrategy::KeepSome(5))
                 .build(),
         )
-        // Macro hotkeys (`macros::sync_hotkeys`) toggle their macro; the panic hotkey
-        // (`settings.panic_hotkey`, registered by `commands::set_panic_hotkey`) kills all.
+        // The panic hotkey (`settings.panic_hotkey`, registered by `commands::set_panic_hotkey`),
+        // the only global shortcut RoALT registers, kills all.
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
-                .with_handler(|app, key, e| {
+                .with_handler(|app, _key, e| {
                     if e.state == ShortcutState::Pressed {
-                        macros::hotkey(app, key);
+                        tray::kill_all(app);
                     }
                 })
                 .build(),
@@ -645,6 +644,7 @@ fn main() {
             commands::roblox_client,
             commands::roblox_install,
             commands::news,
+            commands::online_ping,
             commands::self_update_status,
             commands::self_update_check,
             commands::self_update_install,
@@ -670,17 +670,6 @@ fn main() {
             commands::groups_list,
             commands::group_save,
             commands::group_remove,
-            commands::ahk_status,
-            commands::macros_list,
-            commands::macro_save,
-            commands::macro_remove,
-            commands::macro_trust,
-            commands::macros_import,
-            commands::macro_export,
-            commands::macro_run,
-            commands::macro_stop,
-            commands::macros_stop_all,
-            commands::macro_runs,
             commands::backup_export,
             commands::backup_import,
             commands::performance_profile,
@@ -704,7 +693,6 @@ fn main() {
                 // The next start follows the running clients again (`Tracker::readopt`).
                 if let Some(s) = app.try_state::<App>() {
                     s.tracker.persist(&s.db, true);
-                    s.macros.stop_all();
                     s.limiter.release_all();
                     launcher::client_settings::restore(&s.db);
                     launcher::flags::restore();

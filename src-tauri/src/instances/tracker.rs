@@ -615,13 +615,12 @@ impl Tracker {
         true
     }
 
-    /// Clients anti-AFK may press keys in: in a game, opted in, not being closed, not running a
-    /// macro (`busy`: their instance ids), the client itself known. `since`: its last anti-AFK
-    /// press, else when it reached the game.
-    pub fn afk_clients(&self, busy: &[String]) -> Vec<super::afk::AfkClient> {
+    /// Clients anti-AFK may press keys in: in a game, opted in, not being closed, the client itself
+    /// known. `since`: its last anti-AFK press, else when it reached the game.
+    pub fn afk_clients(&self) -> Vec<super::afk::AfkClient> {
         self.entries()
             .iter()
-            .filter(|e| e.inst.state == InstanceState::InGame && e.inst.anti_afk && !e.closing && !busy.contains(&e.inst.id))
+            .filter(|e| e.inst.state == InstanceState::InGame && e.inst.anti_afk && !e.closing)
             .filter_map(|e| {
                 let (pid, _) = client_of(e)?;
                 Some(super::afk::AfkClient { id: e.inst.id.clone(), pid, since: e.inst.afk_at.or(e.in_game_at)? })
@@ -985,7 +984,6 @@ impl Tracker {
                     s.multi.release_if(|| !s.tracker.any_running());
                     // Also gives a client re-adopted under a new pid its limits again.
                     let clients = s.tracker.clients();
-                    s.macros.sync(&clients);
                     super::resize::set_clients(clients.iter().map(|c| c.1).collect());
                     let (held, throttle_moved) = s.tracker.throttle(v.mem_throttle.mb);
                     if !clients.is_empty() {
@@ -997,12 +995,6 @@ impl Tracker {
                         let id = clients.iter().find(|c| c.1 == pid).map(|c| c.0.clone());
                         let inst = id.as_deref().and_then(|id| s.tracker.get(id));
                         let full_quality = inst.as_ref().and_then(|i| s.db.account(i.account_id).ok()).is_some_and(|a| a.full_quality);
-                        if v.macro_autorun
-                            && !full_quality
-                            && let Some(id) = id.as_deref()
-                        {
-                            crate::macros::auto_run(&handle, &s, id, pid);
-                        }
                         let size = (v.micro_width, v.micro_height);
                         // In the window layout: this client's slot, and every other one's again when a Fit
                         // grid changed size. The accounts the user plays keep their window, as with tiny and minimize.
@@ -1947,13 +1939,10 @@ mod tests {
         let i = t.get(&id).unwrap();
         assert_eq!((i.state, i.job_id.as_deref(), i.place_id), (InGame, Some("0d6c3f4e-5b2a-4c1d-9e8f-7a6b5c4d3e2f"), Some(1818)));
         // In a game: anti-AFK may press keys in it, counting from when it got there.
-        assert_eq!(t.afk_clients(&[]).iter().map(|c| (c.pid, c.since)).collect::<Vec<_>>(), [(100, start + 4_000)]);
-        // Not while it runs a macro: the macro's keys keep it active, and anti-AFK would take the focus.
-        assert!(t.afk_clients(std::slice::from_ref(&id)).is_empty());
-        assert_eq!(t.afk_clients(&["other".into()]).len(), 1);
+        assert_eq!(t.afk_clients().iter().map(|c| (c.pid, c.since)).collect::<Vec<_>>(), [(100, start + 4_000)]);
         t.mark_afk(&id, start + 4_500);
-        assert_eq!(t.afk_clients(&[])[0].since, start + 4_500);
-        assert!(t.set_anti_afk(&id, false) && t.afk_clients(&[]).is_empty());
+        assert_eq!(t.afk_clients()[0].since, start + 4_500);
+        assert!(t.set_anti_afk(&id, false) && t.afk_clients().is_empty());
 
         append(&log, &["[FLog::Network] Disconnection Notification. Reason: 267".into()]);
         let moved = poll(start + 5_000);

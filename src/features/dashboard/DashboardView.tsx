@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNo
 import { useQueryClient } from "@tanstack/react-query";
 import "./dashboard.css";
 import { api, asError, type AccountSummary, type Favourite, type GameInfo, type Instance } from "../../api";
-import { qk, useInstances, useMacroRuns, useSetSettings, useSettings } from "../../data";
+import { qk, useInstances, useSetSettings, useSettings } from "../../data";
 import { fmtList, t } from "../../i18n";
 import { Skeleton } from "../../ui/Bits";
 import { Button } from "../../ui/Button";
@@ -108,7 +108,6 @@ function Clients({ accounts, home, list, running, detailed, setDetailed, extra }
   const [sizes, setSize] = useHomeSizes();
   const [fps] = usePreviewFps();
   const now = useNow(30_000);
-  const macroOn = new Map((useMacroRuns().data ?? []).map((r) => [r.instanceId, r.name]));
   const byId = new Map(accounts.map((a) => [a.id, a]));
   const nameOf = (i: Instance) => clientName(i, byId.get(i.accountId));
   const shown = homeSorted(running, home.order);
@@ -225,7 +224,6 @@ function Clients({ accounts, home, list, running, detailed, setDetailed, extra }
             afkOn={afkOn}
             defaultFps={settings?.fpsCap ?? 0}
             fps={fps}
-            macro={macroOn.get(i.id)}
             now={now}
           />
         ))}

@@ -7,6 +7,8 @@ src-tauri/gen/
 .vite/
 .claude/
 installers/
+# Cloudflare's local state from `wrangler dev`.
+.wrangler/
 # AI tooling context and working notes, not source. The recorded Roblox responses the tests read
 # (docs/research/fixtures) stay.
 .impeccable/

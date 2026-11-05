@@ -80,11 +80,12 @@ export function AccountColumn({ account: a, inst }: { account: AccountSummary; i
       <RecentServers account={a} playing={!!inst} />
 
       <Section label={t("home.acct.tools")}>
-        <div className="grid grid-cols-2 gap-2">
-          <Button icon="external" busy={session.isPending} onClick={() => session.mutate()}>
+        {/* Side by side while both labels fit, else one per line (a label never wraps). */}
+        <div className="flex flex-wrap gap-2">
+          <Button icon="external" className="flex-[1_1_0]" busy={session.isPending} onClick={() => session.mutate()}>
             {t("accounts.menu.openSession")}
           </Button>
-          <Button variant="danger" icon="trash" onClick={() => setRemoving("ask")}>
+          <Button variant="danger" icon="trash" className="flex-[1_1_0]" onClick={() => setRemoving("ask")}>
             {t("accounts.detail.removeEllipsis")}
           </Button>
         </div>

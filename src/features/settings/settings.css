@@ -1,4 +1,4 @@
-/* Settings' screen, and the settings kit's rows (Performance, Discord and Macros draw them too). */
+/* Settings' screen, and the settings kit's rows (Performance and Discord draw them too). */
 @layer views {
   .set-page {
     max-width: 840px;

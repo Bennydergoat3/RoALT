@@ -136,6 +136,11 @@ selfUpdate: boolean,
  */
 discordPresence: boolean, 
 /**
+ * Ping RoALT's online counter every 2 minutes with a random id made once per launch, and
+ * show how many people use RoALT beside the Discord button (`online`). Off: nothing is sent.
+ */
+onlineCount: boolean, 
+/**
  * Hide each client (without taking the focus) once, when it first reaches a game, unless its
  * account is full quality. A hidden client (`instances::window`) stays live while Home shows
  * it and sleeps otherwise, and comes back from the taskbar or Alt-Tab.
@@ -178,13 +183,4 @@ allowPublicNetworks: boolean,
 /**
  * UI and message language (`i18n::LANGS`), or "" to follow Windows' display language.
  */
-language: string, 
-/**
- * AutoHotkey64.exe the user picked; "" to look for it (`macros::find_ahk`).
- */
-ahkPath: string, 
-/**
- * Each client reaching a game starts the first "Run on launch" macro by name, unless its
- * account is Full quality.
- */
-macroAutorun: boolean, };
+language: string, };

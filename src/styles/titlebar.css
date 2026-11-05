@@ -73,9 +73,40 @@
   .app-menu-btn[aria-expanded="true"] .app-menu-chevron {
     rotate: 180deg;
   }
+  /* The Discord key: a circle, widened to a pill by how many use RoALT now (AppMenu). */
+  .discord-btn {
+    width: auto;
+    min-width: var(--h-md);
+    grid-auto-flow: column;
+    align-items: center;
+    gap: 7px;
+  }
+  .discord-btn:has(.discord-online) {
+    padding-inline: 9px 11px;
+  }
+  .discord-online {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .online-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: var(--r-pill);
+    background: var(--ok);
+  }
   @container titlebar (width < 1060px) {
     .app-menu-btn .wordmark {
       display: none;
+    }
+    .discord-btn .discord-online {
+      display: none;
+    }
+    .discord-btn:has(.discord-online) {
+      padding-inline: 0;
     }
   }
 

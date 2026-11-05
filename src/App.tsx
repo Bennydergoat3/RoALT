@@ -52,7 +52,7 @@ function Root() {
 
   const markLocked = () => {
     qc.setQueryData<VaultStatus>(qk.vault, (old) => old && { ...old, locked: true });
-    for (const queryKey of [qk.accounts, qk.presence, ["info"], qk.favourites, qk.join, qk.privateServers, qk.discord, qk.macros]) qc.removeQueries({ queryKey });
+    for (const queryKey of [qk.accounts, qk.presence, ["info"], qk.favourites, qk.join, qk.privateServers, qk.discord]) qc.removeQueries({ queryKey });
     // A launch kept on show from here (its target can hold a private server's code) goes too. The
     // backend's batch (qk.bulk) stays: "unlock, then launch the ones cancelled" shows after unlock.
     resetLaunches();
@@ -70,14 +70,13 @@ function Root() {
   useEffect(() => {
     const subs = [
       events.onAccountsChanged(() => {
-        // A restore fires it too, and can bring macros.
-        for (const queryKey of [qk.accounts, qk.groups, qk.vault, qk.macros]) qc.invalidateQueries({ queryKey });
+        // A restore fires it too.
+        for (const queryKey of [qk.accounts, qk.groups, qk.vault]) qc.invalidateQueries({ queryKey });
       }),
       events.onInstancesChanged(() => {
         for (const queryKey of [qk.instances, qk.multi, qk.crashes]) qc.invalidateQueries({ queryKey });
       }),
       events.onBulkProgress((p) => qc.setQueryData(qk.bulk, p)),
-      events.onMacroRuns((runs) => qc.setQueryData(qk.macroRuns, runs)),
       events.onRobloxClient((c) => qc.setQueryData(qk.client, c)),
       events.onNetwork((n) => qc.setQueryData(qk.network, n)),
       events.onAppUpdate((u) => qc.setQueryData(qk.appUpdate, u)),
@@ -150,6 +149,7 @@ function Root() {
         tools={
           <TitleTools
             dark={dark}
+            onRefresh={unlocked ? refresh : undefined}
             onToggleTheme={s ? () => setSettings.mutate({ theme: dark ? "light" : "dark" }) : undefined}
             onLock={unlocked && v.mode === "master" ? lock : undefined}
             vaultMode={unlocked ? v.mode : undefined}

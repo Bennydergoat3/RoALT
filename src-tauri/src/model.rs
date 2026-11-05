@@ -277,6 +277,9 @@ pub struct Settings {
     /// Discord rich presence through the Discord app on this PC (`rpc`): "Playing RoALT" with
     /// the game and how many alts run.
     pub discord_presence: bool,
+    /// Ping RoALT's online counter every 2 minutes with a random id made once per launch, and
+    /// show how many people use RoALT beside the Discord button (`online`). Off: nothing is sent.
+    pub online_count: bool,
     /// Hide each client (without taking the focus) once, when it first reaches a game, unless its
     /// account is full quality. A hidden client (`instances::window`) stays live while Home shows
     /// it and sleeps otherwise, and comes back from the taskbar or Alt-Tab.
@@ -303,11 +306,6 @@ pub struct Settings {
     pub allow_public_networks: bool,
     /// UI and message language (`i18n::LANGS`), or "" to follow Windows' display language.
     pub language: String,
-    /// AutoHotkey64.exe the user picked; "" to look for it (`macros::find_ahk`).
-    pub ahk_path: String,
-    /// Each client reaching a game starts the first "Run on launch" macro by name, unless its
-    /// account is Full quality.
-    pub macro_autorun: bool,
 }
 
 /// The network RoALT runs on (`network`). Never its name: streamers show RoALT on screen.
@@ -504,6 +502,7 @@ impl Default for Settings {
             auto_update: false,
             self_update: true,
             discord_presence: true,
+            online_count: true,
             minimize_on_launch: false,
 panic_hotkey: String::new(),
             clean_logs: false,
@@ -516,8 +515,6 @@ panic_hotkey: String::new(),
             tiny_on_launch: false,
             allow_public_networks: true,
             language: String::new(),
-            ahk_path: String::new(),
-            macro_autorun: false,
         }
     }
 }
@@ -591,6 +588,8 @@ pub struct SettingsPatch {
     #[ts(optional)]
     pub discord_presence: Option<bool>,
     #[ts(optional)]
+    pub online_count: Option<bool>,
+    #[ts(optional)]
     pub minimize_on_launch: Option<bool>,
     #[ts(optional)]
     pub panic_hotkey: Option<String>,
@@ -614,10 +613,6 @@ pub struct SettingsPatch {
     pub allow_public_networks: Option<bool>,
     #[ts(optional)]
     pub language: Option<String>,
-    #[ts(optional)]
-    pub ahk_path: Option<String>,
-    #[ts(optional)]
-    pub macro_autorun: Option<bool>,
 }
 
 /// What a Roblox log clean-up deleted (`logs_clean`).
@@ -840,57 +835,6 @@ pub struct FavouriteInput {
     pub target: LaunchTarget,
     pub account_ids: Vec<i64>,
     pub in_tray: bool,
-}
-
-/// A stored AutoHotkey v2 macro (`macros`). Only `trusted` ones run: typed in RoALT, or imported
-/// and then reviewed.
-#[derive(Serialize, TS, Clone, Debug, PartialEq)]
-#[serde(rename_all = "camelCase")]
-#[ts(export)]
-pub struct Macro {
-    pub id: i64,
-    pub name: String,
-    pub body: String,
-    pub trusted: bool,
-    /// System-wide key combination that starts or stops it, like "Ctrl+Shift+F1"; "" for none.
-    pub hotkey: String,
-    pub run_on_launch: bool,
-    /// Unix ms.
-    pub created_at: i64,
-    pub updated_at: i64,
-}
-
-/// Create (`id: None`) or edit a macro in the editor; what is saved there counts as trusted.
-#[derive(Deserialize, TS, Clone, Debug, Default)]
-#[serde(rename_all = "camelCase")]
-#[ts(export)]
-pub struct MacroInput {
-    #[ts(optional)]
-    pub id: Option<i64>,
-    pub name: String,
-    pub body: String,
-    pub hotkey: String,
-    pub run_on_launch: bool,
-}
-
-/// A macro running on one client (one AutoHotkey process).
-#[derive(Serialize, TS, Clone, Debug, PartialEq)]
-#[serde(rename_all = "camelCase")]
-#[ts(export)]
-pub struct MacroRun {
-    pub instance_id: String,
-    pub macro_id: i64,
-    pub name: String,
-    /// Unix ms.
-    pub started_at: i64,
-}
-
-/// Where AutoHotkey v2 was found (`macros::find_ahk`); None: not installed.
-#[derive(Serialize, TS, Clone, Debug, PartialEq)]
-#[serde(rename_all = "camelCase")]
-#[ts(export)]
-pub struct AhkStatus {
-    pub path: Option<String>,
 }
 
 /// Someone an account can join: a friend online on Roblox, or another stored account.

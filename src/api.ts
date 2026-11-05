@@ -35,10 +35,6 @@ import type { LaunchInfo } from "./bindings/LaunchInfo";
 import type { LaunchTarget } from "./bindings/LaunchTarget";
 import type { Limits } from "./bindings/Limits";
 import type { LogsCleaned } from "./bindings/LogsCleaned";
-import type { AhkStatus } from "./bindings/AhkStatus";
-import type { Macro } from "./bindings/Macro";
-import type { MacroInput } from "./bindings/MacroInput";
-import type { MacroRun } from "./bindings/MacroRun";
 import type { MultiInstanceStatus } from "./bindings/MultiInstanceStatus";
 import type { Notice } from "./bindings/Notice";
 import type { ParsedInput } from "./bindings/ParsedInput";
@@ -63,7 +59,6 @@ export type {
   BandwidthStatus, ClientMetrics, Crash, DiscordStatus, Instance, MultiInstanceStatus, BulkProgress, BulkRequest, ServerOrder, ServerPage, GameInfo, PrivateServerPage, DataDir, LogsCleaned, Notice, RobloxClient,
   AccountPatch, AccountSummary, AppUpdate, ConflictPolicy, ErrorPayload, Group, GroupInput,
   ImportReport, InstallProgress, Settings, SettingsPatch, VaultMode, VaultStatus,
-  AhkStatus, Macro, MacroInput, MacroRun,
 };
 export type { AccountStatus } from "./bindings/AccountStatus";
 export type { News } from "./bindings/News";
@@ -266,26 +261,6 @@ export const api = {
   groupSave: (input: GroupInput) => invoke<Group>("group_save", { input }),
   groupRemove: (id: number) => invoke<void>("group_remove", { id }),
 
-  /** Where AutoHotkey v2 is (Settings' ahkPath first); path null: not installed. */
-  ahkStatus: () => invoke<AhkStatus>("ahk_status"),
-  macrosList: () => invoke<Macro[]>("macros_list"),
-  /** Create or edit from the editor; saved there counts as trusted. The hotkey must be free. */
-  macroSave: (input: MacroInput) => invoke<Macro>("macro_save", { input }),
-  /** Stops it where it runs, then deletes it. */
-  macroRemove: (id: number) => invoke<void>("macro_remove", { id }),
-  /** The user reviewed its whole source: it may run from now on. */
-  macroTrust: (id: number) => invoke<Macro>("macro_trust", { id }),
-  /** .ahk/.txt files, each a new untrusted macro named after its file; nothing runs. */
-  macrosImport: (paths: string[]) => invoke<Macro[]>("macros_import", { paths }),
-  /** One macro as a .ahk file (UTF-8 with BOM). */
-  macroExport: (id: number, path: string) => invoke<void>("macro_export", { id, path }),
-  /** Starts the macro on these clients (each in a game), one AutoHotkey each; the runs now. */
-  macroRun: (id: number, instanceIds: string[]) => invoke<MacroRun[]>("macro_run", { id, instanceIds }),
-  macroStop: (instanceId: string) => invoke<void>("macro_stop", { instanceId }),
-  macrosStopAll: () => invoke<void>("macros_stop_all"),
-  /** What runs now, oldest first; macros://runs sends changes. */
-  macroRuns: () => invoke<MacroRun[]>("macro_runs"),
-
   /** Master mode needs the master password (currentPassword); DPAPI mode shows Windows Hello. */
   /** The current performance settings as a profile (JSON text). */
   performanceProfile: (previewFps: number) => invoke<string>("performance_profile", { previewFps }),
@@ -305,6 +280,7 @@ export const api = {
   robloxInstall: () => invoke<RobloxClient>("roblox_install"),
   /** RoALT's version and the newer release the last check found (no network). */
   news: () => invoke<News>("news"),
+  onlinePing: () => invoke<number | null>("online_ping"),
   selfUpdateStatus: () => invoke<AppUpdate>("self_update_status"),
   /** Asks GitHub for a newer RoALT now. */
   selfUpdateCheck: () => invoke<AppUpdate>("self_update_check"),
@@ -352,6 +328,4 @@ export const events = {
   onRobloxInstall: (f: (p: InstallProgress) => void): Promise<UnlistenFn> => listen<InstallProgress>("roblox://install", (e) => f(e.payload)),
   /** Joined or left a Public network (checked every 10 s). */
   onNetwork: (f: (n: NetworkStatus) => void): Promise<UnlistenFn> => listen<NetworkStatus>("app://network", (e) => f(e.payload)),
-  /** A macro run started or ended (stopped, its client gone, or by itself): every run now. */
-  onMacroRuns: (f: (runs: MacroRun[]) => void): Promise<UnlistenFn> => listen<MacroRun[]>("macros://runs", (e) => f(e.payload)),
 };

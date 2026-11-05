@@ -1163,6 +1163,16 @@ pub async fn news() -> crate::model::News {
     crate::news::fetch().await
 }
 
+/// Pings RoALT's online counter and returns how many people use RoALT now (`online`). None, and
+/// nothing sent, while `settings.online_count` is off or the settings can't be read.
+#[tauri::command]
+pub async fn online_ping(s: State<'_, App>) -> Result<Option<u32>> {
+    if !s.db.settings().is_ok_and(|v| v.online_count) {
+        return Ok(None);
+    }
+    Ok(crate::online::ping().await)
+}
+
 /// Asks GitHub for a newer RoALT now (Check now), whatever `settings.self_update` says.
 #[tauri::command]
 pub async fn self_update_check(app: AppHandle) -> Result<AppUpdate> {
@@ -2275,14 +2285,13 @@ pub fn set_panic_hotkey(app: &AppHandle, old: &str, key: &str) -> Result<()> {
     Ok(())
 }
 
-/// A hotkey as Windows takes it (panic and macro hotkeys).
+/// A hotkey as Windows takes it (the panic hotkey).
 pub(crate) fn parse_hotkey(k: &str) -> Result<tauri_plugin_global_shortcut::Shortcut> {
     k.parse().map_err(|_| AppError::Invalid(tr!("\"{k}\" isn't a key combination, like Ctrl+Shift+F12.", k = k.chars().take(32).collect::<String>())))
 }
 
 pub(crate) async fn kill_all(s: &App) -> Result<MultiInstanceStatus> {
     log::info!("kill all Roblox");
-    s.macros.stop_all();
     s.bulk.kill();
     s.tracker.mark_all_closing();
     // First, so that the list of clients taken next has anything they just started.
@@ -2580,105 +2589,6 @@ pub fn group_remove(app: AppHandle, s: State<'_, App>, id: i64) -> Result<()> {
     Ok(())
 }
 
-// ---------- macros ----------
-
-/// Where AutoHotkey v2 is (Settings' own pick first); None: not installed.
-#[tauri::command]
-pub fn ahk_status(s: State<'_, App>) -> Result<AhkStatus> {
-    Ok(AhkStatus { path: crate::macros::find_ahk(&s.db.settings()?.ahk_path).map(|p| p.display().to_string()) })
-}
-
-/// Every macro by name, with its source.
-#[tauri::command]
-pub fn macros_list(s: State<'_, App>) -> Result<Vec<Macro>> {
-    s.db.macros()
-}
-
-/// Create or edit from the editor: a new macro is trusted, an edited one keeps its trust (only
-/// the review trusts an imported one). A new or changed hotkey must be free.
-#[tauri::command]
-pub fn macro_save(app: AppHandle, s: State<'_, App>, mut input: MacroInput) -> Result<Macro> {
-    unlocked(&s)?;
-    input.hotkey = input.hotkey.trim().to_owned();
-    crate::macros::check_text(&input.body)?;
-    let macros = s.db.macros()?;
-    crate::macros::check_hotkey(&input.hotkey, input.id, &macros, &s.db.settings()?.panic_hotkey)?;
-    // An unchanged key isn't tried again: one another app took before RoALT started would block every edit.
-    let key = |k: &str| k.parse::<tauri_plugin_global_shortcut::Shortcut>().ok();
-    if !macros.iter().any(|m| Some(m.id) == input.id && key(&m.hotkey) == key(&input.hotkey)) {
-        crate::macros::can_register(&app, &input.hotkey)?;
-    }
-    let id = s.db.save_macro(&input, input.id.is_none())?;
-    crate::macros::sync_hotkeys(&app);
-    s.db.macro_by_id(id)
-}
-
-/// Stops it where it runs, then deletes it.
-#[tauri::command]
-pub fn macro_remove(app: AppHandle, s: State<'_, App>, id: i64) -> Result<()> {
-    unlocked(&s)?;
-    s.macros.stop_macro(id);
-    s.db.remove_macro(id)?;
-    crate::macros::sync_hotkeys(&app);
-    Ok(())
-}
-
-/// The user reviewed its whole source: it may run from now on.
-#[tauri::command]
-pub fn macro_trust(app: AppHandle, s: State<'_, App>, id: i64) -> Result<Macro> {
-    unlocked(&s)?;
-    s.db.trust_macro(id)?;
-    crate::macros::sync_hotkeys(&app);
-    s.db.macro_by_id(id)
-}
-
-/// `.ahk`/`.txt` files, each a new untrusted macro named after its file; nothing runs. Stops at
-/// the first file that can't be read (the ones before it stay imported).
-#[tauri::command]
-pub async fn macros_import(s: State<'_, App>, paths: Vec<String>) -> Result<Vec<Macro>> {
-    unlocked(&s)?;
-    let mut out = Vec::new();
-    for p in &paths {
-        let (name, body) = crate::macros::read_file(Path::new(p))?;
-        out.push(s.db.macro_by_id(s.db.import_macro(&name, &body)?)?);
-    }
-    Ok(out)
-}
-
-/// One macro as a `.ahk` file (UTF-8 with a BOM, as AutoHotkey reads it).
-#[tauri::command]
-pub async fn macro_export(s: State<'_, App>, id: i64, path: String) -> Result<()> {
-    let m = s.db.macro_by_id(id)?;
-    let mut bytes = b"\xEF\xBB\xBF".to_vec();
-    bytes.extend_from_slice(m.body.as_bytes());
-    crate::vault::backup::write_atomic(Path::new(&path), &bytes)
-}
-
-/// Starts macro `id` on these clients, one AutoHotkey each; macros://runs follows.
-#[tauri::command]
-pub async fn macro_run(app: AppHandle, s: State<'_, App>, id: i64, instance_ids: Vec<String>) -> Result<Vec<MacroRun>> {
-    crate::macros::run(&app, &s, id, &instance_ids)?;
-    Ok(s.macros.list())
-}
-
-/// Stops the macro on this client; macros://runs follows once AutoHotkey has ended.
-#[tauri::command]
-pub fn macro_stop(s: State<'_, App>, instance_id: String) {
-    s.macros.stop(&instance_id);
-}
-
-/// Stops every running macro.
-#[tauri::command]
-pub fn macros_stop_all(s: State<'_, App>) {
-    s.macros.stop_all();
-}
-
-/// What runs now, oldest first.
-#[tauri::command]
-pub fn macro_runs(s: State<'_, App>) -> Vec<MacroRun> {
-    s.macros.list()
-}
-
 // ---------- backup ----------
 
 const MIN_BACKUP_PASSWORD: usize = 8;
@@ -2738,7 +2648,6 @@ pub async fn backup_export(
         accounts,
         groups: groups.iter().map(|g| BackupGroup { name: g.name.clone(), color: g.color.clone(), sort_order: g.sort_order }).collect(),
         favourites,
-        macros: s.db.macros()?.into_iter().map(|m| backup::BackupMacro { name: m.name, body: m.body, hotkey: m.hotkey, run_on_launch: m.run_on_launch }).collect(),
     };
     backup::write(Path::new(&path), &password, &payload)?;
     Ok(count)
@@ -2750,8 +2659,7 @@ fn check_backup(p: &backup::BackupPayload) -> Result<()> {
     let wrong = p.version != 1
         || p.accounts.iter().any(|a| a.user_id <= 0 || bad(&a.username) || bad(&a.display_name))
         || p.groups.iter().any(|g| bad(&g.name))
-        || p.favourites.iter().any(|f| f.name.is_empty() || bad(&f.name))
-        || p.macros.iter().any(|m| m.name.trim().is_empty() || m.name.trim().chars().count() > crate::storage::MAX_MACRO_NAME || crate::storage::check_macro_body(&m.body).is_err());
+        || p.favourites.iter().any(|f| f.name.is_empty() || bad(&f.name));
     if wrong {
         return Err(AppError::Invalid(tr!("This isn't a RoALT backup.")));
     }
@@ -2837,24 +2745,6 @@ pub async fn backup_import(app: AppHandle, s: State<'_, App>, path: String, pass
         let json = zeroize::Zeroizing::new(serde_json::to_vec(&f.target).map_err(|e| AppError::Internal(e.to_string()))?);
         let blob = s.vault.encrypt(FAVOURITE_AAD, &json)?;
         s.db.save_favourite(None, &f.name, &blob, &ids, f.in_tray)?;
-    }
-    // Macros this PC doesn't have yet, by name: untrusted until reviewed, and their hotkey only
-    // when it is free here.
-    let panic = s.db.settings()?.panic_hotkey;
-    for m in &payload.macros {
-        let have = s.db.macros()?;
-        if have.iter().any(|h| h.name.to_lowercase() == m.name.trim().to_lowercase()) {
-            continue;
-        }
-        if let Err(e) = crate::macros::check_text(&m.body) {
-            log::warn!("restore: macro {:?} left out: {e}", m.name);
-            continue;
-        }
-        let hotkey = if crate::macros::check_hotkey(m.hotkey.trim(), None, &have, &panic).is_ok() { m.hotkey.trim().to_owned() } else { String::new() };
-        s.db.save_macro(&MacroInput { id: None, name: m.name.clone(), body: m.body.clone(), hotkey, run_on_launch: m.run_on_launch }, false)?;
-    }
-    if !payload.macros.is_empty() {
-        crate::macros::sync_hotkeys(&app);
     }
     crate::tray::refresh(&app);
     accounts_changed(&app);
@@ -3110,19 +3000,11 @@ pub fn settings_set(app: AppHandle, s: State<'_, App>, patch: SettingsPatch) -> 
         d.ping = crate::discord::parse_ping(&d.ping)?;
         v.discord = d;
     }
-    if let Some(p) = patch.ahk_path {
-        let p = p.trim();
-        let path = Path::new(p);
-        if !(p.is_empty() || (path.is_absolute() && path.is_file() && path.extension().is_some_and(|e| e.eq_ignore_ascii_case("exe")))) {
-            return Err(AppError::Invalid(tr!("Pick AutoHotkey64.exe, the AutoHotkey v2 program.")));
-        }
-        v.ahk_path = p.to_owned();
-    }
-    if let Some(a) = patch.macro_autorun { v.macro_autorun = a }
     if let Some(a) = patch.auto_update { v.auto_update = a }
     let self_update = patch.self_update.filter(|&u| u != v.self_update);
     if let Some(u) = self_update { v.self_update = u }
     if let Some(p) = patch.discord_presence { v.discord_presence = p }
+    if let Some(o) = patch.online_count { v.online_count = o }
     if let Some(c) = patch.clean_logs { v.clean_logs = c }
     if let Some(d) = patch.launch_delay_ms {
         if !(2_000..=60_000).contains(&d) {
@@ -3146,7 +3028,6 @@ pub fn settings_set(app: AppHandle, s: State<'_, App>, patch: SettingsPatch) -> 
     let had = v.panic_hotkey.clone();
     if let Some(k) = patch.panic_hotkey {
         let k = k.trim();
-        crate::macros::check_hotkey(k, None, &s.db.macros()?, "")?;
         set_panic_hotkey(&app, &had, k)?;
         v.panic_hotkey = k.to_owned();
     }
