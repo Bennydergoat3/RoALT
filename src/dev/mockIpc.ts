@@ -92,9 +92,11 @@ let robloxClient: RobloxClient = {
 /** RoALT's self-update: the background check "finds" the next minor version 10 s after start. */
 const APP_VERSION: string = import.meta.env.APP_VERSION;
 const NEXT_VERSION = APP_VERSION.replace(/^(\d+)\.(\d+)\..*$/, (_, a, b) => `${a}.${Number(b) + 1}.0`);
+/** The website's demo (`npm run build:demo`) never invents a RoALT release or usage numbers visitors could believe. */
+const DEMO = import.meta.env.MODE === "demo";
 let appUpdate: string | null = null;
 setTimeout(() => {
-  if (!settings.selfUpdate) return;
+  if (DEMO || !settings.selfUpdate) return;
   appUpdate = NEXT_VERSION;
   void emit("app://update", { current: APP_VERSION, available: appUpdate });
 }, 10_000);
@@ -1213,7 +1215,7 @@ async function handle(cmd: string, args: Args): Promise<unknown> {
       const month = new Date().toISOString().slice(0, 7);
       return {
         items: [
-          release(NEXT_VERSION, 3, "## New\n- **A redesigned app**: the island, client cards, Home tabs and a searchable Settings.\n- Export cookies from Accounts.\n- Private servers: change their settings, or buy one.\n\n## Fixed\n- Tooltips no longer jump to the corner of the window.\n- Switching to the side layout no longer flashes the tab strip.\n- The Performance icon sits centred.\n\nNo Authenticode signature yet."),
+          ...(DEMO ? [] : [release(NEXT_VERSION, 3, "## New\n- **A redesigned app**: the island, client cards, Home tabs and a searchable Settings.\n- Export cookies from Accounts.\n- Private servers: change their settings, or buy one.\n\n## Fixed\n- Tooltips no longer jump to the corner of the window.\n- Switching to the side layout no longer flashes the tab strip.\n- The Performance icon sits centred.\n\nNo Authenticode signature yet.")]),
           forum(9001, "Studio MCP Server Updates: Open Cloud Access in Your MCP Client", 5, "Key Takeaways MCP now has full access to Open Cloud; connected agents can help you manage your game beyond building…"),
           forum(9002, "PlayerCharacterDestroyBehavior Will Be Default on November 11", 9, "Hi Creators, What’s Changing We introduced PlayerCharacterDestroyBehavior as an opt-in property almost three years ago…"),
           forum(9003, "Release Notes for 745", 200, ""),
@@ -1224,12 +1226,12 @@ async function handle(cmd: string, args: Args): Promise<unknown> {
       };
     }
     case "online_ping":
-      return settings.onlineCount ? { online: 1284, playing: 5120 } : null;
+      return !DEMO && settings.onlineCount ? { online: 1284, playing: 5120 } : null;
     case "self_update_status":
       return { current: APP_VERSION, available: appUpdate };
     case "self_update_check":
       await sleep(800);
-      appUpdate = NEXT_VERSION;
+      appUpdate = DEMO ? null : NEXT_VERSION;
       return { current: APP_VERSION, available: appUpdate };
     case "self_update_install":
       if (!appUpdate) return fail("invalid", "RoALT is up to date.");

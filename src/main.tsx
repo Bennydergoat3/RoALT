@@ -89,8 +89,9 @@ if (preview) {
 installReducedMotion();
 installReactive();
 
-// Plain-browser preview (`npm run dev` outside Tauri). Dead code in production builds.
-if (!preview && import.meta.env.DEV && !("__TAURI_INTERNALS__" in window)) {
+// Plain-browser preview (`npm run dev` outside Tauri), and the website's demo (`npm run build:demo`).
+// Dead code in production builds.
+if (!preview && (import.meta.env.DEV || import.meta.env.MODE === "demo") && !("__TAURI_INTERNALS__" in window)) {
   await import("./dev/mockIpc");
 }
 if (import.meta.env.DEV) assertMotionTokens();
