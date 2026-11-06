@@ -1163,14 +1163,15 @@ pub async fn news() -> crate::model::News {
     crate::news::fetch().await
 }
 
-/// Pings RoALT's online counter and returns how many people use RoALT now (`online`). None, and
-/// nothing sent, while `settings.online_count` is off or the settings can't be read.
+/// Pings RoALT's online counter and returns how many people use RoALT now and how many accounts
+/// they're playing (`online`). None, and nothing sent, while `settings.online_count` is off or the
+/// settings can't be read.
 #[tauri::command]
-pub async fn online_ping(s: State<'_, App>) -> Result<Option<u32>> {
+pub async fn online_ping(s: State<'_, App>) -> Result<Option<crate::online::Online>> {
     if !s.db.settings().is_ok_and(|v| v.online_count) {
         return Ok(None);
     }
-    Ok(crate::online::ping().await)
+    Ok(crate::online::ping(s.tracker.clients().len()).await)
 }
 
 /// Asks GitHub for a newer RoALT now (Check now), whatever `settings.self_update` says.

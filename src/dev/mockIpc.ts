@@ -1224,7 +1224,7 @@ async function handle(cmd: string, args: Args): Promise<unknown> {
       };
     }
     case "online_ping":
-      return settings.onlineCount ? 1284 : null;
+      return settings.onlineCount ? { online: 1284, playing: 5120 } : null;
     case "self_update_status":
       return { current: APP_VERSION, available: appUpdate };
     case "self_update_check":
