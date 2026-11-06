@@ -1,8 +1,8 @@
 <div align="center">
 
-# RoALT
+<img src="docs/images/banner-wide.png" alt="RoALT: every Roblox alt, one click from any game. Free account manager and multi-client launcher for Windows." width="100%">
 
-### Every Roblox account you own, signed in, checked and one click from any game.
+<br>
 
 A fast, local-only account manager and multi-client launcher for Windows.<br>
 Your cookies stay encrypted on your PC. Nothing is sent anywhere except Roblox.
@@ -22,13 +22,14 @@ Your cookies stay encrypted on your PC. Nothing is sent anywhere except Roblox.
 
 [**⬇ Download**](https://github.com/inspectsoftware/RoALT/releases/latest) &nbsp;·&nbsp;
 [**💬 Discord**](https://discord.gg/roaltdev) &nbsp;·&nbsp;
+[**🌐 Try it in your browser**](https://roalt.dev) &nbsp;·&nbsp;
 [Quick start](#-quick-start) &nbsp;·&nbsp;
 [Privacy](#-safety-and-privacy) &nbsp;·&nbsp;
 [For developers](#-for-developers)
 
 <br>
 
-<img src="docs/images/home.png" alt="RoALT's Home page: account tabs, running clients with live previews, and dials for what the clients use" width="900">
+<img src="docs/images/home.webp" alt="RoALT's Home page: the island in the title bar, a batch launching, and four running clients with live previews" width="900">
 
 </div>
 
@@ -62,12 +63,20 @@ It runs entirely on your PC. There is no RoALT account and no tracking: the only
 
 <table>
 <tr>
-<td width="50%"><img src="docs/images/accounts.png" alt="Accounts: every account with its status, groups and a details panel"><br><sub><b>Accounts:</b> status, groups and details at a glance</sub></td>
-<td width="50%"><img src="docs/images/play.png" alt="Play: pick who plays, then paste where to"><br><sub><b>Play:</b> who plays, where, then the big button</sub></td>
+<td width="50%"><img src="docs/images/accounts.webp" alt="Accounts: every account with its status, groups and a details panel"><br><sub><b>Accounts:</b> status, groups and details at a glance</sub></td>
+<td width="50%"><img src="docs/images/play.webp" alt="Play: pick who plays, then where to, with a batch's progress per account"><br><sub><b>Play:</b> who plays, where, and each account's progress</sub></td>
 </tr>
 <tr>
-<td><img src="docs/images/performance.png" alt="Performance: FPS cap, lowest graphics and graphics flags"><br><sub><b>Performance:</b> FPS cap, graphics flags, presets and profiles</sub></td>
-<td><img src="docs/images/settings.png" alt="Settings: theme, accent colour, background image and more"><br><sub><b>Settings:</b> dark or light, any accent, your own background</sub></td>
+<td><img src="docs/images/performance.webp" alt="Performance: Max alts, Balanced and Roblox defaults presets, For this PC, and fine-tuning"><br><sub><b>Performance:</b> presets, For this PC and fine-tuning</sub></td>
+<td><img src="docs/images/servers.webp" alt="Servers: a game's public servers by players, ping and FPS"><br><sub><b>Servers:</b> pick a server, send any accounts into it</sub></td>
+</tr>
+<tr>
+<td><img src="docs/images/monitor.webp" alt="Monitor: CPU, memory, commit, GPU and I/O per client, with totals"><br><sub><b>Monitor:</b> what every client uses, every 2 seconds</sub></td>
+<td><img src="docs/images/discord.webp" alt="Discord: rich presence, a webhook and which events it posts"><br><sub><b>Discord:</b> your status, and alerts in your own channel</sub></td>
+</tr>
+<tr>
+<td><img src="docs/images/settings.webp" alt="Settings: launching and recovery options, with a search for any setting"><br><sub><b>Settings:</b> launching, recovery, and a search for any setting</sub></td>
+<td><img src="docs/images/home-light.webp" alt="Home in the light theme"><br><sub><b>Light theme:</b> or dark, or follow Windows, with any accent</sub></td>
 </tr>
 </table>
 
@@ -88,7 +97,8 @@ with auto-lock and an optional **recovery code**. Reveal and copy sit behind **W
 
 ### 👥 Accounts at a glance
 Avatars, live presence, Robux, Plus, friends, followers and 2-step status. Groups, aliases, notes,
-favourites, search and filters. Check sign-ins, one or all, in a click.
+favourites, search and filters. Check sign-ins, one or all, in a click. Your **MAIN** account stays out of
+select-all, so a batch never takes it by accident.
 
 </td>
 </tr>
@@ -104,7 +114,7 @@ RoALT works out what it is. Join a friend, or save a target as a favourite.
 
 ### 🪟 Multi-instance
 Run several clients side by side. Launch a batch one after another, all into **the same server**
-if you like, with live progress per account.
+or spread over **different servers** (your own private ones, random or the closest), with live progress per account.
 
 </td>
 </tr>
@@ -134,7 +144,8 @@ CPU, memory, disk/network and uptime per client, with sparklines and totals, ref
 <td valign="top">
 
 ### 🎚️ Performance tab
-FPS cap, lowest graphics and graphics flags (MSAA, textures, no grass, gray sky), with presets and
+Three presets, **Max alts**, **Balanced** and **Roblox defaults**, and you see every change before it applies.
+**For this PC** watches your running clients for about 25 seconds and suggests what to turn on. FPS cap, lowest graphics and graphics flags (MSAA, textures, no grass, gray sky), with presets and
 shareable profiles. **Max alts** runs clients tiny, at 10 FPS, with a CPU share that scales with how many
 you run and memory trims. The one you're playing stays free of it. CPU and memory settings have their own
 panel, most useful first. Cap one client's CPU, pin cores or trim memory.
@@ -208,6 +219,22 @@ for the amount you pick, and you confirm the purchase on Roblox.
 
 </td>
 </tr>
+<tr>
+<td valign="top">
+
+### 📰 News
+RoALT releases, the Roblox DevForum's announcements and release notes, the Roblox Newsroom and Roblox client
+updates, in one tab on Home, with unread counts.
+
+</td>
+<td valign="top">
+
+### 📤 Cookie export
+Export the cookies of the accounts you pick to a `username:cookie` file, for a backup or another tool. It needs your
+master password if you set one, and RoALT deletes the file after 10 minutes.
+
+</td>
+</tr>
 </table>
 
 <details>
@@ -217,9 +244,9 @@ for the amount you pick, and you confirm the purchase on Roblox.
 | Area | What you get |
 |---|---|
 | 🔐 **Vault** | DPAPI by default (opens silently). Optional master password with auto-lock after idle, and an optional one-use recovery code for it. Encrypted `.roalt` backups you can export and import. Copied cookies are kept out of clipboard history and cleared after 30 s. |
-| 👥 **Accounts** | Add through Roblox's sign-in page (passkeys and security keys work), by pasting a cookie, by pasting many cookies at once, or by importing from Roblox Account Manager (an unlocked `AccountData.json`). Groups, alias, notes, colour, favourite, drag to reorder. Presence, Robux, Plus / Premium (legacy), friend and follower counts, join date, email and 2-step status. "Open on roblox.com" signed in as that account. |
+| 👥 **Accounts** | Add through Roblox's sign-in page (passkeys and security keys work), by pasting a cookie, by pasting many cookies at once, or by importing from Roblox Account Manager (an unlocked `AccountData.json`). Groups, alias, notes, colour, favourite, drag to reorder. Presence, Robux, Plus / Premium (legacy), friend and follower counts, join date, email and 2-step status. "Open on roblox.com" signed in as that account. **MAIN** stays out of select-all (a setting). **Export cookies** of the accounts you pick as `username:cookie` lines; the file is deleted after 10 minutes. |
 | 🚀 **Play** | Game links, place IDs, `roblox://` links, job IDs, private server links, `roblox.com/share` links (both formats), universes, profiles, `@username`. Join a friend or one of your other accounts. Favourites on the Play page and in the tray. `Ctrl+Enter` to launch. |
-| 🪟 **Batches** | Accounts launch strictly one after another with a stagger (default 6 s). **Same server**: *Pick a server* finds one with room for everyone first; *Follow the first* sends the rest to wherever the first account landed. Cancel at any time; one click re-picks the accounts that didn't launch. |
+| 🪟 **Batches** | Accounts launch strictly one after another with a stagger (default 6 s). **Same server**: *Pick a server* finds one with room for everyone first; *Follow the first* sends the rest to wherever the first account landed. **Different servers**: your own private servers, random public ones, or the closest. Cancel at any time; one click re-picks the accounts that didn't launch. |
 | 🔁 **Recovery** | Auto-rejoin after kicks, shutdowns and lost connections (not after you leave on purpose). Opt-in auto-restart for crashes, frozen windows (30 s) and a memory limit. Crash breaker: default 3 relaunches in 10 minutes, with growing backoff. Per-account "Allow disconnect". Crash history with the log's reason. |
 | ↔️ **Free resizing** | Drag a client's edge to any size, past the minimum Roblox holds its window to, and move a small window by its title bar without it growing back. RoALT sizes the window itself (a mouse hook in RoALT's own process); nothing goes into the client. **Start clients tiny** opens every new client at a size you choose. |
 | 🖥️ **Home** | Live preview for every client at 5, 15, 30 or 60 FPS, even hidden ones, with one status pill, game, uptime, CPU and RAM, and only the limits that differ from your defaults. Click a picture to show that client. Drag cards to sort them and resize them from the corner; **Compact** shows only the preview, with its actions on hover or focus. The bar above them says what your PC can take (it opens dials for CPU, memory and GPU), switches Anti-AFK, and holds Tile windows, Minimize all and **⋯** (Restore all, Tile tiny windows, Refresh, Close all). Browser-style **account tabs** give each account its own game and options, and launch one or all of them. **Layout** (Settings or the title bar) moves your accounts to a rail on the side. Drag accounts and sections to sort them, or use `Alt` and the arrow keys; the order is saved, and a launch of all tabs follows it. The **⋯** key, right-click, the menu key or `Shift+F10` for show, minimize, restore, tiny window (any size, 320×240 by default) and back, CPU limit, efficiency mode, anti-AFK, close. Recently closed clients come back with **Play again**, or **Play all again**. |
@@ -238,6 +265,7 @@ for the amount you pick, and you confirm the purchase on Roblox.
 | 📶 **Bandwidth** | One upload cap for all Roblox clients through a Windows QoS policy. Applied only when you click Apply (admin prompt); cleared when Windows restarts. |
 | 💤 **Anti-AFK** | Off by default, with a switch on Home. While you are away from the PC, every few minutes each client is briefly brought to the front and gets one F13 press (no game uses it, so the character stays put), so Roblox doesn't kick it after 20 idle minutes. A minimized client is restored for the press and minimized again. Stops the moment you touch the mouse. Roblox only counts a real key press in the window in front: keys posted to a background window don't stop the idle kick (measured). Per-client opt-out. |
 | 🔔 **Discord** | Crash, disconnect, restart and batch alerts, plus an opt-in alert when a client gets into a game. Mute alerts per account. **Rich presence** (on by default, a switch on the Discord page): your profile shows "Playing RoALT", idling or with the game and how many alts run. |
+| 📰 **News** | A tab on Home with RoALT's releases (GitHub), the DevForum's announcements and release notes, the Roblox Newsroom and Roblox client updates. Filter by source, unread counts, mark all read. |
 | 🔄 **RoALT updates** | Looks for a new RoALT on GitHub Releases at start and every 6 hours (can be turned off; *Check now* in Settings). The island offers it; *Update now* downloads it, checks its release signature, installs it silently and restarts RoALT. Never installs on its own. |
 | 🧰 **Comfort** | Tray menu with favourites, close to tray, relaunch an ended client in one click, movable data folder, keyboard shortcuts (`?` lists them). One search (`Ctrl+F`) finds any setting, in Settings, Performance or Discord, and takes you to it. Dark, light or system theme, white by default or any accent colour, and your own background image, with a choice of how much the theme covers it. **Motion**: follow Windows' animation setting, or always full or reduced. Optional skip of the splash screen. |
 
@@ -610,7 +638,7 @@ npm run tauri dev        # run the app with hot reload
 │  ├─ dev/                 mock backend for `npm run dev`, and the ?gallery of every primitive
 │  ├─ styles/              tokens and layered CSS
 │  ├─ ui/                  shared components, the island, motion
-│  └─ features/            dashboard · accounts · launch · servers · performance · monitor · discord · debug · settings · splash · vault · donate
+│  └─ features/            dashboard · news · accounts · launch · servers · performance · monitor · discord · debug · settings · splash · vault · donate
 ├─ src-tauri/              Rust backend
 │  ├─ src/
 │  │  ├─ main.rs           builder, plugins, managed state

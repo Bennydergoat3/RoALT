@@ -1,0 +1,113 @@
+<!doctype html>
+<!-- Source of the README banners, in roalt.dev's style (assets/og-source.html on the site).
+     Open with a hash for the layout, at the CSS size below and 2x scale:
+       #banner  1280x720 -> banner.png (2560x1440)
+       #wide    1600x400 -> banner-wide.png (3200x800)
+       #logo    1280x720 -> banner-logo.png (2560x1440)
+       #social  1280x640 at 1x -> social.png (GitHub's social preview, under 1 MB)
+     It reads home.webp beside it, the app icon and Geist from the repo: render it from a checkout after npm ci. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RoALT banners</title>
+<style>
+@font-face { font-family: Geist; src: url(../../node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2) format('woff2'); font-weight: 100 900; }
+* { box-sizing: border-box; margin: 0; }
+html, body { overflow: hidden; }
+body { position: relative; background: #f2f2ef; color: #111; font-family: Geist, sans-serif; -webkit-font-smoothing: antialiased; }
+body.banner, body.logo { width: 1280px; height: 720px; }
+body.wide { width: 1600px; height: 400px; }
+body.social { width: 1280px; height: 640px; }
+.layout { display: none; }
+.banner .l-hero, .social .l-hero, .wide .l-wide, .logo .l-logo { display: block; }
+
+.brand { position: absolute; display: flex; align-items: center; gap: 16px; font-size: 32px; font-weight: 600; letter-spacing: -.02em; }
+.brand img { width: 56px; height: 56px; }
+h1 { position: absolute; font-weight: 600; line-height: .98; letter-spacing: -.045em; }
+.sub { position: absolute; line-height: 1.3; letter-spacing: -.01em; }
+.url { position: absolute; font-weight: 600; letter-spacing: -.01em; }
+.url span { font-weight: 400; color: #55554f; }
+/* The real app window running off the edge, with its island under it, as on the site. */
+.win { position: absolute; overflow: hidden; border-radius: 16px; background: #0a0a0a; }
+.win img { width: 100%; display: block; }
+.island { position: absolute; display: flex; align-items: center; gap: 4px; height: 56px; padding: 6px; border-radius: 999px; background: #141414; color: #b0b0b0; }
+.tile { display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px; border-radius: 999px; font-size: 18px; font-weight: 500; }
+.tile.on { background: #f5f5f5; color: #0a0a0a; }
+.tile svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.cap { display: flex; align-items: center; gap: 9px; height: 44px; padding: 0 17px; margin-left: 6px; border-radius: 999px; background: #222; color: #ededed; font-size: 18px; font-weight: 500; }
+.cap i { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; }
+
+/* 16:9 and 2:1 */
+.l-hero .brand { left: 64px; top: 56px; }
+.l-hero h1 { left: 64px; top: 168px; width: 560px; font-size: 82px; }
+.l-hero .sub { left: 64px; top: 452px; width: 500px; font-size: 27px; }
+.l-hero .url { left: 64px; bottom: 58px; font-size: 27px; }
+.l-hero .win { left: 660px; top: 64px; width: 860px; height: 538px; }
+.l-hero .island { left: 700px; top: 624px; }
+.social .l-hero .brand { top: 48px; }
+.social .l-hero h1 { top: 140px; font-size: 74px; }
+.social .l-hero .sub { top: 400px; font-size: 25px; }
+.social .l-hero .url { bottom: 48px; font-size: 25px; }
+.social .l-hero .win { top: 52px; width: 780px; height: 488px; }
+.social .l-hero .island { top: 558px; }
+
+/* 4:1 */
+.l-wide .brand { left: 72px; top: 52px; font-size: 28px; gap: 14px; }
+.l-wide .brand img { width: 48px; height: 48px; }
+.l-wide h1 { left: 72px; top: 132px; width: 760px; font-size: 68px; }
+.l-wide .sub { left: 72px; top: 292px; font-size: 24px; color: #33332f; }
+.l-wide .win { left: 960px; top: 36px; width: 760px; height: 278px; }
+.l-wide .island { left: 1000px; top: 330px; }
+
+/* Centered mark */
+.l-logo .mark { position: absolute; left: 0; right: 0; top: 112px; display: flex; flex-direction: column; align-items: center; }
+.l-logo .mark img { width: 168px; height: 168px; }
+.l-logo .name { margin-top: 28px; font-size: 120px; font-weight: 600; line-height: 1; letter-spacing: -.05em; }
+.l-logo .tag { margin-top: 22px; font-size: 32px; letter-spacing: -.015em; color: #33332f; }
+.l-logo .island { position: static; margin-top: 44px; }
+</style>
+</head>
+<body>
+<template id="island">
+  <span class="tile on"><svg viewBox="0 0 16 16"><path d="M2.5 7.2 8 2.6l5.5 4.6M4 6v6.4A1.1 1.1 0 0 0 5.1 13.5h5.8a1.1 1.1 0 0 0 1.1-1.1V6M6.6 13.5V10h2.8v3.5"/></svg>Home</span>
+  <span class="tile"><svg viewBox="0 0 16 16"><path d="M5 3.2v9.6a.6.6 0 0 0 .9.5l7.5-4.8a.6.6 0 0 0 0-1L5.9 2.7a.6.6 0 0 0-.9.5z"/></svg></span>
+  <span class="tile"><svg viewBox="0 0 16 16"><circle cx="8" cy="5.4" r="2.7"/><path d="M2.9 14c.3-2.7 2.4-4.4 5.1-4.4s4.8 1.7 5.1 4.4"/></svg></span>
+  <span class="tile"><svg viewBox="0 0 16 16"><path d="M2.7 10.65a5.3 5.3 0 1 1 10.6 0"/><path d="M8 10.65l2.6-3.4"/></svg></span>
+  <span class="cap"><i></i>4 playing</span>
+</template>
+
+<div class="layout l-hero">
+  <div class="brand"><img src="../../src-tauri/icons/app-icon.svg" alt="">RoALT</div>
+  <h1>Every Roblox alt, one click from any game.</h1>
+  <p class="sub">Free account manager and multi-client launcher for Windows.</p>
+  <p class="url">roalt.dev <span>· local only, open source</span></p>
+  <div class="win"><img src="home.webp" alt=""></div>
+  <div class="island"></div>
+</div>
+
+<div class="layout l-wide">
+  <div class="brand"><img src="../../src-tauri/icons/app-icon.svg" alt="">RoALT</div>
+  <h1>Every Roblox alt, one click from any game.</h1>
+  <p class="sub">Free account manager and multi-client launcher for Windows.</p>
+  <div class="win"><img src="home.webp" alt=""></div>
+  <div class="island"></div>
+</div>
+
+<div class="layout l-logo">
+  <div class="mark">
+    <img src="../../src-tauri/icons/app-icon.svg" alt="">
+    <p class="name">RoALT</p>
+    <p class="tag">Every Roblox alt, one click from any game.</p>
+    <div class="island"></div>
+  </div>
+</div>
+
+<script>
+const layout = () => (document.body.className = location.hash.slice(1) || "banner");
+layout();
+addEventListener("hashchange", layout);
+const island = document.getElementById("island").innerHTML;
+document.querySelectorAll(".island").forEach((el) => (el.innerHTML = island));
+</script>
+</body>
+</html>
