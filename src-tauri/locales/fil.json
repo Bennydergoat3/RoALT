@@ -241,6 +241,7 @@
   "Pick a folder outside the current data folder.": "Pumili ng folder sa labas ng kasalukuyang data folder.",
   "That folder already has a RoALT database. Pick another one.": "May RoALT database na ang folder na iyon. Pumili ng iba.",
   "RoALT can't open its database {path}: {why}": "Hindi mabuksan ng RoALT ang database nito na {path}: {why}",
+  "Windows can't unlock RoALT's database on this account. This happens after a Windows password reset or reinstall, or with a data folder copied from another PC.\n\nStart with an empty database? The old files are kept in {path}.": "Hindi ma-unlock ng Windows ang database ng RoALT sa account na ito. Nangyayari ito pagkatapos i-reset ang password ng Windows o i-reinstall ito, o kung kinopya ang data folder mula sa ibang PC.\n\nMagsimula sa walang lamang database? Nakatago ang mga lumang file sa {path}.",
   "RoALT can't open its vault on this Windows account ({why}).\n\nIf this data folder came from another PC or Windows account, rename {path} and import a .roalt backup.": "Hindi mabuksan ng RoALT ang vault nito sa Windows account na ito ({why}).\n\nKung galing sa ibang PC o Windows account ang data folder na ito, palitan ang pangalan ng {path} at mag-import ng .roalt backup.",
   "{why} The panic hotkey is off; change it in Settings, Automation.": "{why} Off ang panic hotkey; palitan ito sa Settings, Automation.",
   "RoALT can't open its window ({why}).\n\nIf this PC was very busy, start RoALT again. Otherwise it needs the Microsoft Edge WebView2 Runtime: https://go.microsoft.com/fwlink/p/?LinkId=2124703": "Hindi mabuksan ng RoALT ang window nito ({why}).\n\nKung sobrang busy ang PC na ito, buksan ulit ang RoALT. Kung hindi, kailangan nito ang Microsoft Edge WebView2 Runtime: https://go.microsoft.com/fwlink/p/?LinkId=2124703",
@@ -354,7 +355,6 @@
     "other": "{n} alts · {games} laro"
   },
   "Make friends takes up to {max} accounts at a time.": "Hanggang {max} account lang ang kaya ng Gawing magkaibigan bawat takbo.",
-  "That Roblox window is still closing. Try again in a moment.": "Nagsasara pa ang Roblox window na iyon. Subukan ulit mamaya.",
   "Pick Fit or Tiny to see where the windows go.": "Piliin ang Fit o Tiny para makita kung saan mapupunta ang mga window.",
   "Pick accounts to see where their windows go.": "Pumili ng mga account para makita kung saan mapupunta ang mga window nila.",
   "A private server needs a name.": "Kailangan ng pangalan ang private server.",
@@ -363,5 +363,14 @@
   "Roblox refused the purchase and charged nothing: check the price on the game's page.": "Tinanggihan ng Roblox ang pagbili at walang siningil: tingnan ang presyo sa page ng laro.",
   "Roblox wants a verification for this: do it on roblox.com, then try again.": "Humihingi ang Roblox ng verification para dito: gawin ito sa roblox.com, saka subukan ulit.",
   "A measurement is already running.": "May tumatakbo nang pagsukat.",
-  "Start a client and let it reach a game first.": "Magsimula muna ng client at hayaan itong makapasok sa isang laro."
+  "Start a client and let it reach a game first.": "Magsimula muna ng client at hayaan itong makapasok sa isang laro.",
+  "Use at most 500 custom FFlags.": "Gumamit ng hindi hihigit sa 500 sariling FFlags.",
+  "\"{name}\" isn't an FFlag name: use 1 to 128 letters, digits or _.": "Hindi pangalan ng FFlag ang \"{name}\": gumamit ng 1 hanggang 128 letra, numero o _.",
+  "The value of {name} is too long (at most 1024 characters).": "Masyadong mahaba ang value ng {name} (hanggang 1024 character lang).",
+  "This account is already in that server.": "Nasa server na iyon na ang account na ito.",
+  "Give both a username and a password, or neither.": "Magbigay ng username at password, o wala sa dalawa.",
+  "That isn't a Roblox username: use 1 to 254 characters without spaces.": "Hindi iyan Roblox username: gumamit ng 1 hanggang 254 na character na walang espasyo.",
+  "The password must be 1 to 256 characters.": "Dapat 1 hanggang 256 na character ang password.",
+  "That page isn't available in Browse.": "Hindi available ang page na iyan sa Browse.",
+  "Purchases are locked. Turn off Lock purchases in Settings, under Security, to buy this.": "Naka-lock ang mga pagbili. I-off ang I-lock ang pagbili sa Settings, sa ilalim ng Security, para mabili ito."
 }

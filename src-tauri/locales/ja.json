@@ -241,6 +241,7 @@
   "Pick a folder outside the current data folder.": "現在のデータフォルダーの外にあるフォルダーを選択してください。",
   "That folder already has a RoALT database. Pick another one.": "そのフォルダーにはすでに RoALT のデータベースがあります。別のフォルダーを選択してください。",
   "RoALT can't open its database {path}: {why}": "RoALT がデータベース {path} を開けません: {why}",
+  "Windows can't unlock RoALT's database on this account. This happens after a Windows password reset or reinstall, or with a data folder copied from another PC.\n\nStart with an empty database? The old files are kept in {path}.": "このアカウントでは Windows が RoALT のデータベースのロックを解除できません。Windows のパスワードのリセットや再インストールの後、または別の PC からコピーしたデータフォルダーで起こります。\n\n空のデータベースで始めますか？古いファイルは {path} に残ります。",
   "RoALT can't open its vault on this Windows account ({why}).\n\nIf this data folder came from another PC or Windows account, rename {path} and import a .roalt backup.": "RoALT がこの Windows アカウントで保管庫を開けません ({why})。\n\nこのデータフォルダーが別の PC や Windows アカウントのものなら、{path} の名前を変更して .roalt バックアップをインポートしてください。",
   "{why} The panic hotkey is off; change it in Settings, Automation.": "{why} 緊急停止ホットキーはオフです。設定の「自動化」で変更してください。",
   "RoALT can't open its window ({why}).\n\nIf this PC was very busy, start RoALT again. Otherwise it needs the Microsoft Edge WebView2 Runtime: https://go.microsoft.com/fwlink/p/?LinkId=2124703": "RoALT がウィンドウを開けません ({why})。\n\nPC の負荷が非常に高かった場合は、RoALT を再度起動してください。それ以外の場合は Microsoft Edge WebView2 Runtime が必要です: https://go.microsoft.com/fwlink/p/?LinkId=2124703",
@@ -343,7 +344,6 @@
     "other": "サブ垢 {n} 個・{games} ゲーム"
   },
   "Make friends takes up to {max} accounts at a time.": "フレンド登録は一度に最大 {max} アカウントまでです。",
-  "That Roblox window is still closing. Try again in a moment.": "その Roblox ウィンドウはまだ閉じています。少し待ってからもう一度お試しください。",
   "Pick Fit or Tiny to see where the windows go.": "ウィンドウの位置を見るには、フィットか極小を選んでください。",
   "Pick accounts to see where their windows go.": "ウィンドウの位置を見るには、アカウントを選んでください。",
   "A private server needs a name.": "プライベートサーバーには名前が必要です。",
@@ -352,5 +352,14 @@
   "Roblox refused the purchase and charged nothing: check the price on the game's page.": "Roblox が購入を拒否しました (請求はありません)。ゲームのページで価格を確認してください。",
   "Roblox wants a verification for this: do it on roblox.com, then try again.": "Roblox がこの操作に確認を求めています。roblox.com で確認してから、もう一度お試しください。",
   "A measurement is already running.": "測定はすでに実行中です。",
-  "Start a client and let it reach a game first.": "まずクライアントを起動し、ゲームに入るまで待ってください。"
+  "Start a client and let it reach a game first.": "まずクライアントを起動し、ゲームに入るまで待ってください。",
+  "Use at most 500 custom FFlags.": "カスタム FFlags は 500 個までです。",
+  "\"{name}\" isn't an FFlag name: use 1 to 128 letters, digits or _.": "\"{name}\" は FFlag 名ではありません: 英字、数字、_ を 1〜128 文字で使ってください。",
+  "The value of {name} is too long (at most 1024 characters).": "{name} の値が長すぎます (1024 文字まで)。",
+  "This account is already in that server.": "このアカウントはすでにそのサーバーにいます。",
+  "Give both a username and a password, or neither.": "ユーザー名とパスワードを両方入れるか、どちらも入れないでください。",
+  "That isn't a Roblox username: use 1 to 254 characters without spaces.": "Roblox のユーザー名ではありません: 空白なしで 1〜254 文字にしてください。",
+  "The password must be 1 to 256 characters.": "パスワードは 1〜256 文字にしてください。",
+  "That page isn't available in Browse.": "そのページは閲覧では開けません。",
+  "Purchases are locked. Turn off Lock purchases in Settings, under Security, to buy this.": "購入はロックされています。購入するには、設定のセキュリティで「購入をロック」をオフにしてください。"
 }

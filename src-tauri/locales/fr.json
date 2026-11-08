@@ -241,6 +241,7 @@
   "Pick a folder outside the current data folder.": "Choisis un dossier en dehors du dossier des données actuel.",
   "That folder already has a RoALT database. Pick another one.": "Ce dossier contient déjà une base de données RoALT. Choisis-en un autre.",
   "RoALT can't open its database {path}: {why}": "RoALT ne peut pas ouvrir sa base de données {path} : {why}",
+  "Windows can't unlock RoALT's database on this account. This happens after a Windows password reset or reinstall, or with a data folder copied from another PC.\n\nStart with an empty database? The old files are kept in {path}.": "Windows ne peut pas déverrouiller la base de données de RoALT sur ce compte. Cela arrive après une réinitialisation du mot de passe Windows, une réinstallation, ou avec un dossier de données copié depuis un autre PC.\n\nDémarrer avec une base de données vide ? Les anciens fichiers sont conservés dans {path}.",
   "RoALT can't open its vault on this Windows account ({why}).\n\nIf this data folder came from another PC or Windows account, rename {path} and import a .roalt backup.": "RoALT ne peut pas ouvrir son coffre sur ce compte Windows ({why}).\n\nSi ce dossier des données vient d'un autre PC ou compte Windows, renomme {path} et importe une sauvegarde .roalt.",
   "{why} The panic hotkey is off; change it in Settings, Automation.": "{why} Le raccourci d'urgence est désactivé ; change-le dans Paramètres, Automatisation.",
   "RoALT can't open its window ({why}).\n\nIf this PC was very busy, start RoALT again. Otherwise it needs the Microsoft Edge WebView2 Runtime: https://go.microsoft.com/fwlink/p/?LinkId=2124703": "RoALT ne peut pas ouvrir sa fenêtre ({why}).\n\nSi ce PC était très occupé, redémarre RoALT. Sinon, il a besoin du Runtime Microsoft Edge WebView2 : https://go.microsoft.com/fwlink/p/?LinkId=2124703",
@@ -354,7 +355,6 @@
     "other": "{n} alts · {games} jeux"
   },
   "Make friends takes up to {max} accounts at a time.": "Devenir amis accepte au plus {max} comptes à la fois.",
-  "That Roblox window is still closing. Try again in a moment.": "Cette fenêtre Roblox est encore en train de se fermer. Réessayez dans un instant.",
   "Pick Fit or Tiny to see where the windows go.": "Choisissez Ajusté ou Minuscule pour voir où iront les fenêtres.",
   "Pick accounts to see where their windows go.": "Choisissez des comptes pour voir où iront leurs fenêtres.",
   "A private server needs a name.": "Un serveur privé a besoin d'un nom.",
@@ -363,5 +363,14 @@
   "Roblox refused the purchase and charged nothing: check the price on the game's page.": "Roblox a refusé l'achat sans rien débiter : vérifie le prix sur la page du jeu.",
   "Roblox wants a verification for this: do it on roblox.com, then try again.": "Roblox demande une vérification pour ceci : fais-la sur roblox.com, puis réessaie.",
   "A measurement is already running.": "Une mesure est déjà en cours.",
-  "Start a client and let it reach a game first.": "Lance d'abord un client et laisse-le entrer dans un jeu."
+  "Start a client and let it reach a game first.": "Lance d'abord un client et laisse-le entrer dans un jeu.",
+  "Use at most 500 custom FFlags.": "Utilise au plus 500 FFlags perso.",
+  "\"{name}\" isn't an FFlag name: use 1 to 128 letters, digits or _.": "« {name} » n'est pas un nom de FFlag : utilise 1 à 128 lettres, chiffres ou _.",
+  "The value of {name} is too long (at most 1024 characters).": "La valeur de {name} est trop longue (1024 caractères au plus).",
+  "This account is already in that server.": "Ce compte est déjà sur ce serveur.",
+  "Give both a username and a password, or neither.": "Indique un identifiant et un mot de passe, ou aucun des deux.",
+  "That isn't a Roblox username: use 1 to 254 characters without spaces.": "Ce n'est pas un identifiant Roblox : utilise 1 à 254 caractères sans espace.",
+  "The password must be 1 to 256 characters.": "Le mot de passe doit faire 1 à 256 caractères.",
+  "That page isn't available in Browse.": "Cette page n'est pas disponible dans Parcourir.",
+  "Purchases are locked. Turn off Lock purchases in Settings, under Security, to buy this.": "Les achats sont bloqués. Désactive Bloquer les achats dans les Paramètres, sous Sécurité, pour acheter ceci."
 }

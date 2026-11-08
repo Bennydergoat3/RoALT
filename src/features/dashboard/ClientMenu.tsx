@@ -1,12 +1,11 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { api, type AccountSummary, type Instance, type Limits, type WindowShow } from "../../api";
 import { useInstances, useSettings } from "../../data";
-import { isRtl, t } from "../../i18n";
-import { menuKeys } from "../../ui/menu";
-import { MenuCheckItem, MenuItem, MenuLabel, MenuSeparator } from "../../ui/Popover";
+import { t } from "../../i18n";
+import { ContextMenu, MenuCheckItem, MenuItem, MenuLabel, MenuSeparator } from "../../ui/Popover";
 import { toast, toastError } from "../../ui/Toast";
 import { launchOne, useLaunchStep } from "../launch/launchQueue";
-import { mb } from "../monitor/MonitorView";
+import { mb } from "../monitor/format";
 
 const CAPS = [0, 50, 25, 10, 5];
 
@@ -31,36 +30,11 @@ export function ClientMenu({ at, account, onClose, afkOn, closing, onLimits, onC
   onCloseClient: (i: Instance, force: boolean) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [pos, setPos] = useState({ left: 0, top: 0 });
   const settings = useSettings().data;
   // While another launch starts, Play again says what that one is doing.
   const step = useLaunchStep();
   // The checks stay open while they change: they read the client as it is now.
   const i = useInstances().data?.find((x) => x.id === at?.inst.id && x.state !== "exited");
-
-  useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el || !at) return;
-    el.showPopover();
-    const r = el.getBoundingClientRect();
-    setPos({
-      left: at.beside === undefined ? Math.max(4, Math.min(at.x, innerWidth - r.width - 4)) : isRtl() ? Math.min(at.x + 6, innerWidth - r.width - 4) : Math.max(4, at.beside - r.width - 6),
-      top: Math.max(4, Math.min(at.y, innerHeight - r.height - 4)),
-    });
-    el.querySelector<HTMLElement>("[role^=menuitem]:not(:disabled)")?.focus();
-  }, [at]);
-
-  useEffect(() => {
-    const el = ref.current;
-    const toggled = (e: Event) => {
-      if ((e as ToggleEvent).newState !== "closed") return;
-      // Focus goes back to the card unless the click went somewhere else.
-      if (!document.activeElement || document.activeElement === document.body || el?.contains(document.activeElement)) at?.from.focus();
-      onClose();
-    };
-    el?.addEventListener("toggle", toggled);
-    return () => el?.removeEventListener("toggle", toggled);
-  }, [onClose, at]);
 
   // Its client ended while the menu was open: nothing left to act on.
   const gone = !!at && !i;
@@ -79,16 +53,7 @@ export function ClientMenu({ at, account, onClose, afkOn, closing, onLimits, onC
   const trim = () => i && api.instanceTrim(i.id).then(([before, after]) => toast(t("dashboard.trimmedFrom", { before: mb(before), after: mb(after) })), toastError);
 
   return (
-    <div
-      ref={ref}
-      popover="auto"
-      role="menu"
-      aria-label={t("dashboard.clientActions")}
-      className="menu home-menu"
-      dir={isRtl() ? "rtl" : "ltr"}
-      onKeyDown={menuKeys}
-      style={{ position: "fixed", positionArea: "none", inset: "auto", left: pos.left, top: pos.top, margin: 0, maxHeight: "calc(100vh - 8px)" }}
-    >
+    <ContextMenu ref={ref} at={at} label={t("dashboard.clientActions")} className="home-menu" style={{ maxHeight: "calc(100vh - 8px)" }} onClose={onClose}>
       {i && at && (
         <>
           <MenuLabel>{t("launch.running.pid", { pid: i.pid })}</MenuLabel>
@@ -130,6 +95,6 @@ export function ClientMenu({ at, account, onClose, afkOn, closing, onLimits, onC
           <MenuItem icon="x" danger onSelect={() => onCloseClient(i, true)}>{t("dashboard.forceClose")}</MenuItem>
         </>
       )}
-    </div>
+    </ContextMenu>
   );
 }

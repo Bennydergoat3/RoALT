@@ -62,6 +62,8 @@ pub struct Tracker {
     claimed: Mutex<Vec<i64>>,
     /// Clients that ended badly since the last `take_crashes`; locked after `inner`.
     crashes: Mutex<Vec<Ended>>,
+    /// Playtime of entries cleared before `take_playtime` handed it out; locked after `inner`.
+    unsaved_play: Mutex<Vec<(i64, i64, i64)>>,
     /// What `persist` last wrote to the database; locked after `inner`.
     persisted: Mutex<Vec<Saved>>,
     /// The window layout's slots: account id by slot (`reserve`). In memory only; never locked
@@ -285,6 +287,46 @@ struct Entry {
     window_seen: bool,
     /// A failure to read its log was already logged at warn (later ones go to debug).
     log_warned: bool,
+    /// Its time in a game not yet handed out (`take_playtime`).
+    played: Played,
+}
+
+/// Time in a game, counted at each poll and handed out in pieces (`Tracker::take_playtime`).
+#[derive(Clone, Default, Debug)]
+struct Played {
+    /// The place it is counted toward; None while not in a game.
+    place: Option<i64>,
+    ms: i64,
+    /// Unix ms of the last poll that counted.
+    tick: Option<i64>,
+}
+
+/// The longest gap between two polls that counts: a PC asleep or hibernating with a client open
+/// adds nothing.
+const PLAY_GAP_MAX_MS: i64 = 5_000;
+
+impl Played {
+    /// Counts the time since the last poll toward `place` (Some while in a game). Hands out what
+    /// was counted for a place it left (out of a game, another place, ended), and all of it when
+    /// `flush` (pure).
+    fn step(&mut self, place: Option<i64>, now: i64, flush: bool) -> Option<(i64, i64)> {
+        let mut out = None;
+        if self.place != place {
+            out = self.place.filter(|_| self.ms > 0).map(|p| (p, self.ms));
+            *self = Played { place, ..Played::default() };
+        }
+        if place.is_some() {
+            if let Some(t) = self.tick {
+                self.ms += (now - t).clamp(0, PLAY_GAP_MAX_MS);
+            }
+            self.tick = Some(now);
+        }
+        if flush && out.is_none() && self.ms > 0 {
+            out = self.place.map(|p| (p, self.ms));
+            self.ms = 0;
+        }
+        out
+    }
 }
 
 impl Entry {
@@ -318,6 +360,7 @@ impl Entry {
             mem_restart: false,
             window_seen: false,
             log_warned: false,
+            played: Played::default(),
         }
     }
 
@@ -358,6 +401,7 @@ impl Tracker {
             inner: Mutex::new(Vec::new()),
             claimed: Mutex::new(Vec::new()),
             crashes: Mutex::new(Vec::new()),
+            unsaved_play: Mutex::new(Vec::new()),
             persisted: Mutex::new(Vec::new()),
             slots: Mutex::new(Vec::new()),
             slots_pending: Mutex::new(Vec::new()),
@@ -543,6 +587,20 @@ impl Tracker {
                 let private = e.server_seen.is_some() || matches!(e.inst.target, LaunchTarget::PrivateLink { .. } | LaunchTarget::PrivateAccess { .. });
                 out.push((e.inst.account_id, crate::model::ServerVisit { place_id: place, job_id: job.clone(), private, joined_at: crate::commands::now_ms() }));
                 e.server_seen = Some(job.clone());
+            }
+        }
+        out
+    }
+
+    /// Time clients spent in a game since it was last handed out, as (account id, place id, ms):
+    /// counted at each poll (`Played::step`), handed out when a client leaves a game or its place
+    /// or ends, and all of it when `flush` (once a minute, and at exit). Only RoALT's own clients.
+    pub fn take_playtime(&self, now: i64, flush: bool) -> Vec<(i64, i64, i64)> {
+        let mut out = std::mem::take(&mut *self.unsaved_play.lock().unwrap_or_else(|e| e.into_inner()));
+        for e in self.entries().iter_mut() {
+            let place = (e.inst.state == InstanceState::InGame).then_some(e.inst.place_id).flatten();
+            if let Some((p, ms)) = e.played.step(place, now, flush) {
+                out.push((e.inst.account_id, p, ms));
             }
         }
         out
@@ -917,7 +975,18 @@ impl Tracker {
 
     /// Forgets ended entries.
     pub fn clear_ended(&self) {
-        self.entries().retain(|e| e.inst.state != InstanceState::Exited);
+        let mut entries = self.entries();
+        // Playtime not handed out yet goes to the next `take_playtime` with them gone.
+        let mut unsaved = self.unsaved_play.lock().unwrap_or_else(|e| e.into_inner());
+        entries.retain(|e| {
+            let keep = e.inst.state != InstanceState::Exited;
+            if !keep
+                && let Some(place) = e.played.place.filter(|_| e.played.ms > 0)
+            {
+                unsaved.push((e.inst.account_id, place, e.played.ms));
+            }
+            keep
+        });
     }
 
     /// Runs for the app's lifetime (started in setup). Once a second: process liveness by
@@ -1061,6 +1130,13 @@ impl Tracker {
                             log::warn!("could not record a server of account {account}: {e}");
                         }
                     }
+                    let now = crate::commands::now_ms();
+                    let played = s.tracker.take_playtime(now, tick.is_multiple_of(60));
+                    if !played.is_empty()
+                        && let Err(e) = s.db.add_playtime(&played, now)
+                    {
+                        log::warn!("could not record playtime: {e}");
+                    }
                     for c in s.tracker.take_crashes() {
                         log::warn!(
                             "instance {} of account {} ended: {:?}, given up on after {} s (gone after {:?} ms), place {:?}, reason {:?}",
@@ -1159,6 +1235,8 @@ impl Tracker {
             (e.inst.relaunching, e.inst.relaunch_problem) = (old.inst.relaunching, old.inst.relaunch_problem.clone());
             let had_game = old.in_game_at.is_some();
             (e.mem_strikes, e.mem_mb, e.mem_restart) = (old.mem_strikes, old.mem_mb, old.mem_restart);
+            // take_playtime may have handed its time out since (the exit flush): not counted twice.
+            e.played = old.played.clone();
             if let Some(kind) = settle(e, now) {
                 self.crashes.lock().unwrap_or_else(|e| e.into_inner()).push(ended(e, kind, now));
             }
@@ -1585,7 +1663,8 @@ fn state_of(facts: &LogFacts, bound: bool, ended: bool, closing: bool, expected_
 /// Keeps the newest `MAX_ENDED` ended entries, and those still being relaunched.
 fn prune(entries: &mut Vec<Entry>) {
     loop {
-        let ended = entries.iter().enumerate().filter(|(_, e)| e.inst.state == InstanceState::Exited && e.relaunching.is_none());
+        // Not before its playtime is handed out (`take_playtime`, later this tick).
+        let ended = entries.iter().enumerate().filter(|(_, e)| e.inst.state == InstanceState::Exited && e.relaunching.is_none() && e.played.place.is_none());
         if ended.clone().count() <= MAX_ENDED {
             return;
         }
@@ -1737,6 +1816,22 @@ mod tests {
         settle(e, later);
         assert!(e.runs_free(later + REBIND_MS - 1), "its whole load is free");
         assert!(!e.runs_free(later + REBIND_MS));
+    }
+
+    #[test]
+    fn playtime_counts_in_game_time_and_caps_gaps() {
+        let mut p = Played::default();
+        assert_eq!(p.step(None, 0, false), None, "not in a game: nothing");
+        assert_eq!(p.step(Some(7), 1_000, false), None, "the first poll in a game only starts counting");
+        assert_eq!(p.step(Some(7), 2_000, false), None);
+        assert_eq!(p.step(Some(7), 3_000, true), Some((7, 2_000)), "a flush hands out what was counted");
+        assert_eq!(p.step(Some(7), 3_603_000, false), None, "an hour asleep...");
+        assert_eq!(p.step(Some(7), 3_604_000, true), Some((7, PLAY_GAP_MAX_MS + 1_000)), "...counts 5 s");
+        assert_eq!(p.step(Some(7), 3_605_000, false), None);
+        assert_eq!(p.step(Some(9), 3_606_000, false), Some((7, 1_000)), "a new place hands out the old one's");
+        assert_eq!(p.step(Some(9), 3_607_000, false), None);
+        assert_eq!(p.step(None, 3_608_000, false), Some((9, 1_000)), "leaving the game hands it out");
+        assert_eq!(p.step(None, 3_609_000, true), None, "nothing left");
     }
 
     #[test]

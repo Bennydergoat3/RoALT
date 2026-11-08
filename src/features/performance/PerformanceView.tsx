@@ -3,8 +3,9 @@ import { useRef, useState } from "react";
 import { motion } from "motion/react";
 import type { Profile } from "../../api";
 import type { Limits } from "../../bindings/Limits";
-import { useAccounts, useSettings } from "../../data";
+import { useAccounts, useSetSettings, useSettings } from "../../data";
 import { fmtNum, t, type Key } from "../../i18n";
+import { Button } from "../../ui/Button";
 import { NumberField, Segmented, Switch } from "../../ui/controls";
 import { Icon } from "../../ui/Icon";
 import { Collapse, Morph, SPRING, Swap, TWEEN } from "../../ui/motion";
@@ -18,6 +19,7 @@ import { BandwidthRow } from "./BandwidthRow";
 import { PERFORMANCE_ENTRIES } from "./entries";
 import { benchApplied, ForThisPc } from "./ForThisPc";
 import { FpsRow } from "./FpsControl";
+import { FlagsDialog } from "./FlagsDialog";
 import { FACTS_SHOWN, isApplied, named, ownCaps, PRESETS, type Preset } from "./presets";
 import { ReviewDialog } from "./ReviewDialog";
 import { ShareRow } from "./ShareRow";
@@ -80,6 +82,46 @@ function BackgroundLimits() {
   );
 }
 
+/** Custom FFlags: for every account or each its own; the global ones are edited here. */
+function CustomFlagsRow() {
+  return (
+    <SettingRow id="customFlags">
+      <CustomFlagsControl />
+    </SettingRow>
+  );
+}
+
+function CustomFlagsControl() {
+  const { ctx, write, describedBy } = useRow();
+  const setSettings = useSetSettings({ quiet: true });
+  const [editing, setEditing] = useState(false);
+  const global = ctx.s.customFlagsScope === "global";
+  const count = Object.keys(ctx.s.customFlags).length;
+  return (
+    <span className="flex flex-wrap items-center justify-end gap-2">
+      <Segmented
+        label={t("flags.scope")}
+        value={ctx.s.customFlagsScope}
+        options={[{ value: "global" as const, label: t("flags.global") }, { value: "account" as const, label: t("flags.perAccount") }]}
+        onChange={(customFlagsScope) => void write({ customFlagsScope })}
+      />
+      {global && (
+        <Button size="md" icon="pencil" onClick={() => setEditing(true)} aria-describedby={describedBy}>
+          {count ? t("flags.count", { count }) : t("flags.edit")}
+        </Button>
+      )}
+      <FlagsDialog
+        open={editing}
+        onClose={() => setEditing(false)}
+        title={t("flags.title")}
+        flags={ctx.s.customFlags}
+        // Through the API, not `write`: a refusal belongs in the dialog, not the row.
+        onSave={(customFlags) => setSettings.mutateAsync({ customFlags })}
+      />
+    </span>
+  );
+}
+
 function PreviewFpsRow() {
   const [fps, setFps] = usePreviewFps();
   return (
@@ -104,6 +146,7 @@ const RENDERERS: RowRenderers = {
   adaptiveBg: () => <SettingRow id="adaptiveBg" below={<BackgroundLimits />} />,
   previewFps: PreviewFpsRow,
   bandwidth: BandwidthRow,
+  customFlags: CustomFlagsRow,
 };
 
 /** The groups of rows in screen order; each lists its entries' top rows (entries.ts order). */

@@ -241,6 +241,7 @@
   "Pick a folder outside the current data folder.": "Escolha uma pasta fora da pasta de dados atual.",
   "That folder already has a RoALT database. Pick another one.": "Essa pasta já tem um banco de dados do RoALT. Escolha outra.",
   "RoALT can't open its database {path}: {why}": "O RoALT não consegue abrir o banco de dados {path}: {why}",
+  "Windows can't unlock RoALT's database on this account. This happens after a Windows password reset or reinstall, or with a data folder copied from another PC.\n\nStart with an empty database? The old files are kept in {path}.": "O Windows não consegue desbloquear o banco de dados do RoALT nesta conta. Isso acontece após redefinir a senha do Windows ou reinstalá-lo, ou com uma pasta de dados copiada de outro PC.\n\nComeçar com um banco de dados vazio? Os arquivos antigos ficam em {path}.",
   "RoALT can't open its vault on this Windows account ({why}).\n\nIf this data folder came from another PC or Windows account, rename {path} and import a .roalt backup.": "O RoALT não consegue abrir o cofre nesta conta do Windows ({why}).\n\nSe esta pasta de dados veio de outro PC ou conta do Windows, renomeie {path} e importe um backup .roalt.",
   "{why} The panic hotkey is off; change it in Settings, Automation.": "{why} O atalho de pânico está desligado; altere em Configurações, Automação.",
   "RoALT can't open its window ({why}).\n\nIf this PC was very busy, start RoALT again. Otherwise it needs the Microsoft Edge WebView2 Runtime: https://go.microsoft.com/fwlink/p/?LinkId=2124703": "O RoALT não consegue abrir a janela ({why}).\n\nSe este PC estava muito ocupado, abra o RoALT de novo. Caso contrário, ele precisa do Microsoft Edge WebView2 Runtime: https://go.microsoft.com/fwlink/p/?LinkId=2124703",
@@ -354,7 +355,6 @@
     "other": "{n} alts · {games} jogos"
   },
   "Make friends takes up to {max} accounts at a time.": "Fazer amigos aceita até {max} contas por vez.",
-  "That Roblox window is still closing. Try again in a moment.": "Essa janela do Roblox ainda está fechando. Tente de novo em instantes.",
   "Pick Fit or Tiny to see where the windows go.": "Escolha Ajustar ou Mini para ver onde as janelas vão ficar.",
   "Pick accounts to see where their windows go.": "Escolha contas para ver onde as janelas delas vão ficar.",
   "A private server needs a name.": "Um servidor privado precisa de um nome.",
@@ -363,5 +363,14 @@
   "Roblox refused the purchase and charged nothing: check the price on the game's page.": "O Roblox recusou a compra e não cobrou nada: confere o preço na página do jogo.",
   "Roblox wants a verification for this: do it on roblox.com, then try again.": "O Roblox pede uma verificação para isto: faz-a em roblox.com e tenta de novo.",
   "A measurement is already running.": "Já há uma medição em andamento.",
-  "Start a client and let it reach a game first.": "Primeiro inicie um cliente e deixe-o entrar em um jogo."
+  "Start a client and let it reach a game first.": "Primeiro inicie um cliente e deixe-o entrar em um jogo.",
+  "Use at most 500 custom FFlags.": "Use no máximo 500 FFlags próprias.",
+  "\"{name}\" isn't an FFlag name: use 1 to 128 letters, digits or _.": "\"{name}\" não é um nome de FFlag: use de 1 a 128 letras, dígitos ou _.",
+  "The value of {name} is too long (at most 1024 characters).": "O valor de {name} é longo demais (no máximo 1024 caracteres).",
+  "This account is already in that server.": "Esta conta já está nesse servidor.",
+  "Give both a username and a password, or neither.": "Informe um usuário e uma senha, ou nenhum dos dois.",
+  "That isn't a Roblox username: use 1 to 254 characters without spaces.": "Isso não é um nome de usuário do Roblox: use de 1 a 254 caracteres sem espaços.",
+  "The password must be 1 to 256 characters.": "A senha deve ter de 1 a 256 caracteres.",
+  "That page isn't available in Browse.": "Essa página não está disponível em Navegar.",
+  "Purchases are locked. Turn off Lock purchases in Settings, under Security, to buy this.": "As compras estão bloqueadas. Desative Bloquear compras em Configurações, em Segurança, para comprar isto."
 }

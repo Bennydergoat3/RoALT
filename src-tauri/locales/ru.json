@@ -226,6 +226,7 @@
   "Pick a folder outside the current data folder.": "Выберите папку вне текущей папки данных.",
   "That folder already has a RoALT database. Pick another one.": "В этой папке уже есть база данных RoALT. Выберите другую.",
   "RoALT can't open its database {path}: {why}": "RoALT не может открыть свою базу данных {path}: {why}",
+  "Windows can't unlock RoALT's database on this account. This happens after a Windows password reset or reinstall, or with a data folder copied from another PC.\n\nStart with an empty database? The old files are kept in {path}.": "Windows не может разблокировать базу данных RoALT в этой учётной записи. Так бывает после сброса пароля Windows, переустановки или с папкой данных, скопированной с другого ПК.\n\nНачать с пустой базой данных? Старые файлы сохранятся в {path}.",
   "RoALT can't open its vault on this Windows account ({why}).\n\nIf this data folder came from another PC or Windows account, rename {path} and import a .roalt backup.": "RoALT не может открыть хранилище под этой учётной записью Windows ({why}).\n\nЕсли папка данных перенесена с другого ПК или из другой учётной записи Windows, переименуйте {path} и импортируйте резервную копию .roalt.",
   "{why} The panic hotkey is off; change it in Settings, Automation.": "{why} Экстренная клавиша выключена; измените её в Настройках, «Автоматизация».",
   "RoALT can't open its window ({why}).\n\nIf this PC was very busy, start RoALT again. Otherwise it needs the Microsoft Edge WebView2 Runtime: https://go.microsoft.com/fwlink/p/?LinkId=2124703": "RoALT не может открыть окно ({why}).\n\nЕсли компьютер был сильно загружен, запустите RoALT снова. Нужна среда выполнения Microsoft Edge WebView2: https://go.microsoft.com/fwlink/p/?LinkId=2124703",
@@ -365,7 +366,6 @@
   "That isn't a recovery code.": "Это не код восстановления.",
   "RoALT recovery code: {code}\n\nIf you forget your master password, press Forgot password? on the unlock screen and enter this code. It works once, for this Windows user on this PC.\n\nAnyone who finds this file on this PC can open your vault. Keep it on a USB stick, a phone or paper.\n": "Код восстановления RoALT: {code}\n\nЕсли вы забудете мастер-пароль, нажмите «Забыли пароль?» на экране разблокировки и введите этот код. Он срабатывает один раз, для этого пользователя Windows на этом ПК.\n\nЛюбой, кто найдёт этот файл на этом ПК, сможет открыть ваше хранилище. Храните его на USB-накопителе, телефоне или бумаге.\n",
   "Make friends takes up to {max} accounts at a time.": "«Подружить» берёт не больше {max} аккаунтов за раз.",
-  "That Roblox window is still closing. Try again in a moment.": "Это окно Roblox ещё закрывается. Попробуйте чуть позже.",
   "Pick Fit or Tiny to see where the windows go.": "Выберите «По размеру» или «Мини», чтобы увидеть, куда встанут окна.",
   "Pick accounts to see where their windows go.": "Выберите аккаунты, чтобы увидеть, куда встанут их окна.",
   "A private server needs a name.": "У приватного сервера должно быть имя.",
@@ -374,5 +374,14 @@
   "Roblox refused the purchase and charged nothing: check the price on the game's page.": "Roblox отклонил покупку и ничего не списал: проверьте цену на странице игры.",
   "Roblox wants a verification for this: do it on roblox.com, then try again.": "Roblox требует подтверждения для этого: пройдите его на roblox.com и попробуйте снова.",
   "A measurement is already running.": "Измерение уже идёт.",
-  "Start a client and let it reach a game first.": "Сначала запусти клиент и дай ему войти в игру."
+  "Start a client and let it reach a game first.": "Сначала запусти клиент и дай ему войти в игру.",
+  "Use at most 500 custom FFlags.": "Используй не больше 500 своих FFlags.",
+  "\"{name}\" isn't an FFlag name: use 1 to 128 letters, digits or _.": "«{name}» — не имя FFlag: используй от 1 до 128 букв, цифр или _.",
+  "The value of {name} is too long (at most 1024 characters).": "Значение {name} слишком длинное (не больше 1024 символов).",
+  "This account is already in that server.": "Этот аккаунт уже на этом сервере.",
+  "Give both a username and a password, or neither.": "Укажи и логин, и пароль, или ничего из этого.",
+  "That isn't a Roblox username: use 1 to 254 characters without spaces.": "Это не логин Roblox: используй от 1 до 254 символов без пробелов.",
+  "The password must be 1 to 256 characters.": "Пароль должен быть от 1 до 256 символов.",
+  "That page isn't available in Browse.": "Эта страница недоступна в «Обзоре».",
+  "Purchases are locked. Turn off Lock purchases in Settings, under Security, to buy this.": "Покупки заблокированы. Выключи «Блокировать покупки» в настройках, в разделе «Безопасность», чтобы купить это."
 }
