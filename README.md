@@ -215,7 +215,7 @@ Japanese, Korean, Polish, Portuguese (Brazil), Russian, Spanish, Swedish, Thai, 
 
 ### ❤️ Support RoALT
 RoALT is free. **Donate**, in the app menu (the RoALT logo) or Settings › About, opens a [Roblox gamepass](https://www.roblox.com/games/102259086923102/Donation-Experience#!/store)
-for the amount you pick, and you confirm the purchase on Roblox.
+for the amount you pick, and you confirm the purchase on Roblox. No Robux? [Buy me a coffee](https://buymeacoffee.com/roaltdev) works too.
 
 </td>
 </tr>
@@ -724,5 +724,5 @@ change how its client behaves at any time.
 
 <div align="center">
 <br>
-<sub>Made for people with too many alts. &nbsp;·&nbsp; <a href="https://discord.gg/roaltdev">Discord</a> &nbsp;·&nbsp; <a href="https://github.com/inspectsoftware/RoALT/releases/latest">Download</a></sub>
+<sub>Made for people with too many alts. &nbsp;·&nbsp; <a href="https://discord.gg/roaltdev">Discord</a> &nbsp;·&nbsp; <a href="https://github.com/inspectsoftware/RoALT/releases/latest">Download</a> &nbsp;·&nbsp; <a href="https://buymeacoffee.com/roaltdev">Buy me a coffee</a></sub>
 </div>
