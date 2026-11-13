@@ -693,7 +693,7 @@ CPU-cap job handle is kept.
 | Crypto | aes-gcm, argon2, zeroize, Windows DPAPI and Windows Hello |
 | Frontend | React 19, TypeScript, Vite, Tailwind CSS 4, TanStack Query 5 |
 | IPC types | [ts-rs](https://github.com/Aleph-Alpha/ts-rs): Rust types exported to `src/bindings/` |
-| Installer | Inno Setup 6.6, GitHub Actions (CI and tagged draft releases) |
+| Installer | Inno Setup 6.6, GitHub Actions (CI, and a release on every push to `main`) |
 
 <br>
 
@@ -785,11 +785,17 @@ Bug reports, ideas and pull requests are welcome.
 <summary><b>Steps</b></summary>
 <br>
 
+Every push to `main` that changes the app is published by the Release workflow as the next patch
+(the latest release's `X.Y.Z+1`), with the commits since the last release as its notes. Installed
+copies are offered it within 6 hours. There is no draft to check first: only push what is ready.
+
+For a minor or major version:
+
 1. Set the same version in `src-tauri/tauri.conf.json`, `package.json` and `src-tauri/Cargo.toml`,
    then run `cargo update -p roalt --offline` in `src-tauri` so `Cargo.lock` matches (CI builds `--locked`).
-2. Commit all four files, then tag and push the tag: `git tag vX.Y.Z && git push origin vX.Y.Z`.
-3. The Release workflow builds the installer and puts it with `SHA256SUMS.txt` on a draft release.
-   Check it, then publish the draft.
+2. Commit all four files and push to `main`. That push publishes it.
+
+To roll back, push a revert commit. A run of a commit older than the latest release is refused.
 
 </details>
 
