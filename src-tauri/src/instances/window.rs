@@ -499,7 +499,7 @@ pub fn micro(id: &str, pid: u32, on: bool, size: (u32, u32)) -> Result<(u32, u32
     size_set_now(pid);
     if on {
         remember(id, pid, hwnd);
-        normal(hwnd, false);
+        normal(hwnd);
         let (fw, fh) = frame(hwnd).unwrap_or((0, 0));
         free_resize(hwnd, (0, 0, size.0 as i32 + fw, size.1 as i32 + fh), true);
         // Only now: until the tracker has it as tiny too, `sweep` would drop it.
@@ -643,7 +643,7 @@ pub fn place(id: &str, pid: u32, rect: (i32, i32, i32, i32), small: Option<(u32,
     } else {
         saved().retain(|(i, p, _)| !(i == id && *p == pid));
     }
-    normal(hwnd, false);
+    normal(hwnd);
     free_resize(hwnd, rect, false);
     // Only now: until the tracker has it as tiny too, `sweep` would drop it.
     set_tiny(pid, small);
@@ -700,13 +700,12 @@ fn remember(id: &str, pid: u32, hwnd: HWND) {
     }
 }
 
-/// Out of maximized or minimized, without taking the focus, so it can be sized; `queued`
-/// posts it (ahead of a queued resize) instead of waiting for the client.
-fn normal(hwnd: HWND, queued: bool) {
+/// Out of maximized or minimized, without taking the focus, so it can be sized.
+fn normal(hwnd: HWND) {
     // SAFETY: reads and sets one top-level window's state.
     unsafe {
         if IsIconic(hwnd).as_bool() || IsZoomed(hwnd).as_bool() {
-            let _ = if queued { ShowWindowAsync(hwnd, SW_SHOWNOACTIVATE) } else { ShowWindow(hwnd, SW_SHOWNOACTIVATE) };
+            let _ = ShowWindow(hwnd, SW_SHOWNOACTIVATE);
         }
     }
 }

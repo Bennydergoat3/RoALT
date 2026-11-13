@@ -1,10 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { openUrl } from "@tauri-apps/plugin-opener";
+import type { Sponsor } from "../../bindings/Sponsor";
+import { useExtras, useSettings } from "../../data";
 import { fmtDate, fmtList, t } from "../../i18n";
 import { Chip, Skeleton } from "../../ui/Bits";
 import { Button, IconButton } from "../../ui/Button";
+import { Icon } from "../../ui/Icon";
 import { toastError } from "../../ui/Toast";
 import { ago } from "../accounts/shared";
+import { SPONSOR_LINK } from "../donate/links";
 import { useUpdateInstall, useUpdateOffer } from "../settings/UpdateBanner";
 import { markRead, useNewsFeed, type FeedItem } from "./news";
 import { releaseNotes } from "./notes";
@@ -90,6 +94,20 @@ function Lead({ item, now }: { item: FeedItem; now: number }) {
   );
 }
 
+/** Who sponsors RoALT, said to be so; it opens RoALT's own page that sends on to them. */
+function SponsorCard({ sponsor }: { sponsor: Sponsor }) {
+  return (
+    <button type="button" className="panel news-sponsor" onClick={() => openUrl(SPONSOR_LINK).catch(toastError)}>
+      <span className="news-meta">
+        <span className="tag">{t("news.sponsored")}</span>
+        <Icon name="external" size={12} />
+      </span>
+      <span className="news-title">{sponsor.name}</span>
+      <span className="text-fg-2">{sponsor.text}</span>
+    </button>
+  );
+}
+
 function Row({ item, now }: { item: FeedItem; now: number }) {
   const body = (
     <>
@@ -117,6 +135,11 @@ function Row({ item, now }: { item: FeedItem; now: number }) {
  * Leaving it marks what it showed as read. */
 export function NewsView() {
   const { items, unread, failed, query } = useNewsFeed();
+  // Asked for only while the switch is on; no sponsor (or none read) shows nothing. Off hides one
+  // already read too: Settings › About asks for the supporters' names with the same answer.
+  const showSponsor = useSettings().data?.showSponsor ?? false;
+  const extras = useExtras(showSponsor).data;
+  const sponsor = showSponsor ? extras?.sponsor : null;
   const [filter, setFilter] = useState<Source | "all">("all");
   const now = Date.now();
   const shownIds = useRef<string[]>([]);
@@ -159,7 +182,12 @@ export function NewsView() {
         </div>
       )}
       <div className="news-grid">
-        {lead ? <Lead item={lead} now={now} /> : query.isPending && <div className="panel news-lead"><Skeleton width="40%" height={32} /><Skeleton width="90%" /><Skeleton width="75%" /></div>}
+        {(lead || query.isPending || sponsor) && (
+          <div className="flex flex-col gap-5 min-w-0">
+            {lead ? <Lead item={lead} now={now} /> : query.isPending && <div className="panel news-lead"><Skeleton width="40%" height={32} /><Skeleton width="90%" /><Skeleton width="75%" /></div>}
+            {sponsor && <SponsorCard sponsor={sponsor} />}
+          </div>
+        )}
         <div className="panel news-feed">
           {sources.length > 1 && (
             <div className="news-filters" role="group" aria-label={t("news.sources")}>

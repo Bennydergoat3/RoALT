@@ -122,7 +122,7 @@ fn plan_layout(app: &AppHandle, s: &crate::App, v: &crate::model::Settings, arri
         round = s.tracker.layout_gen.fetch_add(1, Ordering::Relaxed) + 1;
         let first = arrived.map(|a| a.0.to_owned());
         // The accounts the user plays keep their window (a slot can come from readopt or Tile).
-        let played = s.db.full_quality_accounts().unwrap_or_default();
+        let played = super::limits::played(s, v);
         list.extend(
             s.tracker
                 .slotted()
@@ -283,6 +283,13 @@ struct Entry {
     mem_mb: u64,
     /// RoALT is closing it for its memory (`mark_restart`): its exit is recorded as `Mem`.
     mem_restart: bool,
+    /// It has run for `Settings.restart_every_h` and may be restarted now (`check_uptime`).
+    timed: bool,
+    /// RoALT is closing it for that (`mark_restart`): its exit is recorded as `Timed`.
+    timed_restart: bool,
+    /// Unix ms the user started this run of the account: a rejoin or restart keeps it
+    /// (`carry_session`), so "close after" counts the whole run.
+    session_at: i64,
     /// Handed out by `first_in_game`, so "Minimize on launch" is done with it.
     window_seen: bool,
     /// A failure to read its log was already logged at warn (later ones go to debug).
@@ -332,6 +339,7 @@ impl Played {
 impl Entry {
     fn new(inst: Instance, btid: i64, start_time: Option<u64>, adopted: bool) -> Entry {
         Entry {
+            session_at: inst.started_at,
             inst,
             btid,
             start_time,
@@ -358,6 +366,8 @@ impl Entry {
             mem_strikes: 0,
             mem_mb: 0,
             mem_restart: false,
+            timed: false,
+            timed_restart: false,
             window_seen: false,
             log_warned: false,
             played: Played::default(),
@@ -390,7 +400,12 @@ impl Entry {
 
     fn cause(&self) -> Option<CrashKind> {
         wants_rejoin(&self.inst, &self.facts, self.hung()).or_else(|| {
-            (self.mem_high() && self.inst.state != InstanceState::Exited && self.inst.note.is_none()).then_some(CrashKind::Mem)
+            let runs = self.inst.state != InstanceState::Exited && self.inst.note.is_none();
+            if runs && self.mem_high() {
+                Some(CrashKind::Mem)
+            } else {
+                (runs && self.timed).then_some(CrashKind::Timed)
+            }
         })
     }
 }
@@ -543,12 +558,14 @@ impl Tracker {
         self.mark_restart(id, None)
     }
 
-    /// `mark_closing` for an auto-rejoin or restart of `cause`; a `Mem` one ends as `Mem`.
+    /// `mark_closing` for an auto-rejoin or restart of `cause`; a `Mem` one ends as `Mem`, a `Timed`
+    /// one as `Timed`.
     pub fn mark_restart(&self, id: &str, cause: Option<CrashKind>) -> Option<(u32, Option<u64>)> {
         let mut entries = self.entries();
         let e = entries.iter_mut().find(|e| e.inst.id == id && e.inst.state != InstanceState::Exited)?;
         e.closing = true;
         e.mem_restart = cause == Some(CrashKind::Mem);
+        e.timed_restart = cause == Some(CrashKind::Timed);
         e.alive.then_some((e.inst.pid, e.start_time))
     }
 
@@ -615,6 +632,7 @@ impl Tracker {
         if let Some(e) = self.entries().iter_mut().find(|e| e.inst.id == id) {
             e.closing = false;
             e.mem_restart = false;
+            e.timed_restart = false;
         }
     }
 
@@ -893,7 +911,7 @@ impl Tracker {
     pub fn take_rejoins(&self) -> Vec<Rejoin> {
         let mut out = Vec::new();
         for e in self.entries().iter_mut() {
-            let trouble = e.hung() || e.mem_high() || matches!(e.inst.state, InstanceState::Disconnected | InstanceState::Exited);
+            let trouble = e.hung() || e.mem_high() || e.timed || matches!(e.inst.state, InstanceState::Disconnected | InstanceState::Exited);
             if !trouble {
                 // Reconnected, teleported or responding again: later trouble counts again, and
                 // an earlier "Gave up" no longer says anything about it.
@@ -934,10 +952,10 @@ impl Tracker {
     }
 
     /// One memory sample of every running client (`private_mb` reads it, MB), counted against
-    /// `limit_mb` (`metrics::mem_strikes`; 0: off) unless `count` is off: then it is only remembered,
-    /// for the throttle, and the strikes stay. A client over it for `MEM_STRIKES` samples in a row
-    /// is handed out by `take_rejoins` as `Mem`.
-    pub fn check_memory(&self, limit_mb: u32, count: bool, private_mb: &dyn Fn(u32, u64) -> Option<u64>) {
+    /// its account's `limit_mb` (`metrics::mem_strikes`; 0: off) unless `count` is off: then it is
+    /// only remembered, for the throttle, and the strikes stay. A client over it for `MEM_STRIKES`
+    /// samples in a row is handed out by `take_rejoins` as `Mem`.
+    pub fn check_memory(&self, limit_mb: &dyn Fn(i64) -> u32, count: bool, private_mb: &dyn Fn(u32, u64) -> Option<u64>) {
         let read: Vec<(String, u32, u64)> = self
             .clients()
             .into_iter()
@@ -948,13 +966,47 @@ impl Tracker {
             match read.iter().find(|(id, pid, _)| *id == e.inst.id && *pid == e.inst.pid) {
                 Some(&(_, _, mb)) => {
                     if count {
-                        e.mem_strikes = mem_strikes(e.mem_strikes, mb, limit_mb);
+                        e.mem_strikes = mem_strikes(e.mem_strikes, mb, limit_mb(e.inst.account_id));
                     }
                     e.mem_mb = mb;
                 }
                 None if count && e.inst.state != InstanceState::Exited => e.mem_strikes = 0,
                 None => {}
             }
+        }
+    }
+
+    /// Marks the clients in a game that have run for `restart_h` hours (0: off) as due for a timed
+    /// restart; `take_rejoins` hands them out as `Timed`. Not the `skip` ids (the ones the user
+    /// plays or has in front), and none while `hold` (a launch, batch or rejoin runs): those wait.
+    pub fn check_uptime(&self, restart_h: u32, now: i64, skip: &[String], hold: bool) {
+        // Held, not reset: a restart under way (which is such a launch itself) stays wanted.
+        if hold && restart_h > 0 {
+            return;
+        }
+        let after = i64::from(restart_h) * 3_600_000;
+        for e in self.entries().iter_mut().filter(|e| !e.closing) {
+            e.timed = restart_h > 0 && e.inst.state == InstanceState::InGame && now - e.inst.started_at >= after && !skip.contains(&e.inst.id);
+        }
+    }
+
+    /// The running clients whose account's run began `close_h` hours ago (0: off): to be closed,
+    /// and not launched again. Not the `skip` ids, nor one already closing.
+    pub fn close_due(&self, close_h: u32, now: i64, skip: &[String]) -> Vec<String> {
+        let after = i64::from(close_h) * 3_600_000;
+        self.entries()
+            .iter()
+            .filter(|e| close_h > 0 && !e.closing && e.inst.state != InstanceState::Exited && now - e.session_at >= after && !skip.contains(&e.inst.id))
+            .map(|e| e.inst.id.clone())
+            .collect()
+    }
+
+    /// A relaunch (`to`) goes on with the run its old client (`from`) was of.
+    pub fn carry_session(&self, to: &str, from: &str) {
+        let mut entries = self.entries();
+        let Some(at) = entries.iter().find(|e| e.inst.id == from).map(|e| e.session_at) else { return };
+        if let Some(e) = entries.iter_mut().find(|e| e.inst.id == to) {
+            e.session_at = at;
         }
     }
 
@@ -1054,17 +1106,27 @@ impl Tracker {
                     // Also gives a client re-adopted under a new pid its limits again.
                     let clients = s.tracker.clients();
                     super::resize::set_clients(clients.iter().map(|c| c.1).collect());
+                    let was_held: Vec<String> = if v.mem_throttle.mb > 0 { s.tracker.list().into_iter().filter(|i| i.throttled).map(|i| i.id).collect() } else { Vec::new() };
                     let (held, throttle_moved) = s.tracker.throttle(v.mem_throttle.mb);
-                    if !clients.is_empty() {
-                        s.limiter.sync(&super::limits::plan_now(&s, &v, &clients, &held));
+                    for i in held.iter().filter(|id| !was_held.contains(id)).filter_map(|id| s.tracker.get(id)) {
+                        crate::discord::throttled(&handle, i.account_id);
                     }
+                    // With no client too: the last one's limits and job handle are forgotten.
+                    let plan = if clients.is_empty() { Vec::new() } else { super::limits::plan_now(&s, &v, &clients, &held) };
+                    s.limiter.sync(&plan);
                     let throttle_moved = s.tracker.set_in_force(&s.limiter.in_force()) || throttle_moved;
+                    crate::clips::sync(&s, &v);
                     // Once per client, without taking the focus.
                     for pid in s.tracker.first_in_game(&|pid| process::main_window(pid).is_some()) {
                         let id = clients.iter().find(|c| c.1 == pid).map(|c| c.0.clone());
                         let inst = id.as_deref().and_then(|id| s.tracker.get(id));
-                        let full_quality = inst.as_ref().and_then(|i| s.db.account(i.account_id).ok()).is_some_and(|a| a.full_quality);
-                        let size = (v.micro_width, v.micro_height);
+                        // Its account's own performance profile over Settings: tiny, minimize, mute.
+                        let own = inst.as_ref().and_then(|i| s.db.account(i.account_id).ok()?.profile);
+                        // Only this client's: the layout below places the others too, at Settings' size.
+                        let mine = crate::performance::overlay(&v, own.as_ref());
+                        // Full quality, or the account Clips record: its clips mustn't be tiny, minimized or muted.
+                        let full_quality = inst.as_ref().is_some_and(|i| super::limits::played(&s, &v).contains(&i.account_id));
+                        let size = (mine.micro_width, mine.micro_height);
                         // In the window layout: this client's slot, and every other one's again when a Fit
                         // grid changed size. The accounts the user plays keep their window, as with tiny and minimize.
                         let (places, round) = match (full_quality, id.as_deref(), inst.as_ref()) {
@@ -1076,10 +1138,10 @@ impl Tracker {
                         // and a minimized client stays so either way.
                         let in_layout = !full_quality && v.window_layout != WindowLayout::Off;
                         let visible = matches!(process::main_window(pid), Some((_, false)));
-                        let tiny = id.filter(|id| !in_layout && visible && v.tiny_on_launch && !full_quality && s.tracker.set_micro(id, Some(size)));
-                        let minimize = v.minimize_on_launch && !full_quality;
+                        let tiny = id.filter(|id| !in_layout && visible && mine.tiny_on_launch && !full_quality && s.tracker.set_micro(id, Some(size)));
+                        let minimize = mine.minimize_on_launch && !full_quality;
                         // The accounts the user plays keep their sound, as they keep their window.
-                        let mute = v.mute_on_launch && !full_quality;
+                        let mute = mine.mute_on_launch && !full_quality;
                         log::info!("client {pid}: in a game; placing {} window(s), making it tiny: {}, minimizing it: {minimize}, muting it: {mute}", places.len(), tiny.is_some());
                         // Not on this thread: a busy client's ShowWindow would stop every poll.
                         tauri::async_runtime::spawn_blocking(move || {
@@ -1115,7 +1177,30 @@ impl Tracker {
                     // Restarts wait (not reset) while a launch, batch or rejoin runs; the throttle doesn't.
                     if tick.is_multiple_of(10) && !clients.is_empty() {
                         let mb = |pid, t0| super::metrics::read(pid, t0).map(|r| r.private >> 20);
-                        s.tracker.check_memory(v.mem_restart_mb, !s.bulk.any_busy(), &mb);
+                        // An account's own profile can set its limit.
+                        let profiles = s.db.account_profiles().unwrap_or_default();
+                        let limit = |account| profiles.get(&account).and_then(|p| p.mem_restart_mb).unwrap_or(v.mem_restart_mb);
+                        s.tracker.check_memory(&limit, !s.bulk.any_busy(), &mb);
+                        // The timers: never the clients the user plays or has in front.
+                        if v.restart_every_h > 0 || v.close_after_h > 0 {
+                            let now = crate::commands::now_ms();
+                            let mut skip = s.tracker.free(&super::limits::played(&s, &v), now);
+                            let front = process::foreground_pid();
+                            skip.extend(clients.iter().filter(|c| Some(c.1) == front).map(|c| c.0.clone()));
+                            s.tracker.check_uptime(v.restart_every_h, now, &skip, s.bulk.any_busy());
+                            for id in s.tracker.close_due(v.close_after_h, now, &skip) {
+                                log::info!("instance {id} closed: its run reached {} h", v.close_after_h);
+                                let handle = handle.clone();
+                                tauri::async_runtime::spawn(async move {
+                                    if let Err(e) = crate::commands::close_timed(&handle, &id).await {
+                                        log::warn!("instance {id} not closed on its timer: {e}");
+                                    }
+                                });
+                            }
+                        } else {
+                            // Switched off since: nothing stays due.
+                            s.tracker.check_uptime(0, 0, &[], false);
+                        }
                     }
                     // Roblox's own logs: 30 s after start, then hourly.
                     if v.clean_logs
@@ -1161,9 +1246,18 @@ impl Tracker {
                         if let Err(e) = s.db.add_crash(&row) {
                             log::warn!("could not record the end of instance {}: {e}", c.instance_id);
                         }
-                        // RoALT closed that one itself, for its memory.
-                        if c.kind != CrashKind::Mem {
-                            std::thread::spawn(move || super::autopsy::report(&c));
+                        // RoALT closed that one itself, for its memory or its timer.
+                        if !matches!(c.kind, CrashKind::Mem | CrashKind::Timed) {
+                            let handle = handle.clone();
+                            std::thread::spawn(move || {
+                                // Kept with the recorded end: the crash history words it.
+                                let verdict = super::autopsy::report(&c);
+                                match handle.state::<crate::App>().db.set_crash_verdict(&c.instance_id, verdict.code()) {
+                                    // The lists of ends were read before it was known.
+                                    Ok(()) => crate::commands::instances_changed(&handle),
+                                    Err(e) => log::warn!("could not record the autopsy's verdict for instance {}: {e}", c.instance_id),
+                                }
+                            });
                         }
                     }
                     s.tracker.persist(&s.db, tick.is_multiple_of(10));
@@ -1235,13 +1329,14 @@ impl Tracker {
             (e.inst.relaunching, e.inst.relaunch_problem) = (old.inst.relaunching, old.inst.relaunch_problem.clone());
             let had_game = old.in_game_at.is_some();
             (e.mem_strikes, e.mem_mb, e.mem_restart) = (old.mem_strikes, old.mem_mb, old.mem_restart);
+            (e.timed, e.timed_restart, e.session_at) = (old.timed, old.timed_restart, old.session_at);
             // take_playtime may have handed its time out since (the exit flush): not counted twice.
             e.played = old.played.clone();
             if let Some(kind) = settle(e, now) {
                 self.crashes.lock().unwrap_or_else(|e| e.into_inner()).push(ended(e, kind, now));
             }
             if e.inst != old.inst {
-                moved.push(Transition { before: old.inst, after: e.inst.clone(), first_game: !had_game && e.in_game_at.is_some() });
+                moved.push(Transition { before: old.inst, after: e.inst.clone(), first_game: !had_game && e.in_game_at.is_some(), reason: e.facts.reason.clone() });
             }
         }
         prune(&mut entries);
@@ -1273,7 +1368,7 @@ fn restore(app: &AppHandle) {
     *s.tracker.persisted.lock().unwrap_or_else(|e| e.into_inner()) = saved.clone();
     let total = saved.len();
     let roblox = with_unreadable(&saved, process::roblox_processes(), process::unreadable_client);
-    let found = s.tracker.readopt(saved, &roblox, &s.db.full_quality_accounts().unwrap_or_default());
+    let found = s.tracker.readopt(saved, &roblox, &super::limits::played(&s, &s.db.settings().unwrap_or_default()));
     for &(pid, t0) in &found {
         super::limits::reset_followed(pid, t0);
     }
@@ -1312,6 +1407,8 @@ pub struct Transition {
     pub after: Instance,
     /// It reached a game for the first time in this poll.
     pub first_game: bool,
+    /// What its log's disconnect line said, if any (`LogFacts::reason`).
+    pub reason: Option<String>,
 }
 
 fn client_of(e: &Entry) -> Option<(u32, u64)> {
@@ -1380,6 +1477,7 @@ fn ended(e: &Entry, kind: CrashKind, now: i64) -> Ended {
         reason: match kind {
             CrashKind::Hang => Some(hung()),
             CrashKind::Mem => Some(tr!("Commit size reached {mb} MB", mb = e.mem_mb)),
+            CrashKind::Timed => Some(tr!("Restarted on its timer after {hours} h", hours = (now - e.inst.started_at).max(0) / 3_600_000)),
             _ => e.facts.reason.clone(),
         },
         place_id: e.inst.place_id,
@@ -1599,6 +1697,7 @@ fn settle(e: &mut Entry, now: i64) -> Option<CrashKind> {
     // A client RoALT closed for its memory ends as `Mem` (its note: "Closed").
     let crash = match ended {
         true if e.closing && e.mem_restart => Some(CrashKind::Mem),
+        true if e.closing && e.timed_restart => Some(CrashKind::Timed),
         true => crash_kind(&e.facts, e.hung(), note.as_deref()),
         false => None,
     };
@@ -2704,7 +2803,7 @@ mod tests {
         let procs = Fake::new(&[(100, (start / 1000) as u64)]);
         t.poll(None, &procs, &user_of, start + 1_000);
         for _ in 0..MEM_STRIKES + 1 {
-            t.check_memory(4_096, false, &|_, _| Some(5_000));
+            t.check_memory(&|_| 4_096,false, &|_, _| Some(5_000));
         }
         assert!(t.take_rejoins().is_empty(), "restarts wait for the batch");
         assert_eq!(t.throttle(4_096).0, [id], "the throttle doesn't");
@@ -2732,23 +2831,23 @@ mod tests {
         t.poll(None, &procs, &user_of, start + 1_000);
         let mb = Mutex::new(5_000u64);
         let read = |_: u32, _: u64| Some(*mb.lock().unwrap());
-        t.check_memory(4_096, true, &read);
-        t.check_memory(4_096, true, &read);
+        t.check_memory(&|_| 4_096,true, &read);
+        t.check_memory(&|_| 4_096,true, &read);
         assert!(t.take_rejoins().is_empty(), "two samples aren't enough");
         // Back under it: counting starts over.
         *mb.lock().unwrap() = 1_000;
-        t.check_memory(4_096, true, &read);
+        t.check_memory(&|_| 4_096,true, &read);
         *mb.lock().unwrap() = 5_000;
         for _ in 0..MEM_STRIKES {
-            t.check_memory(4_096, true, &read);
+            t.check_memory(&|_| 4_096,true, &read);
         }
         t.poll(None, &procs, &user_of, start + 2_000);
         assert_eq!(t.take_rejoins().iter().map(|r| r.cause).collect::<Vec<_>>(), [CrashKind::Mem]);
         assert!(t.take_rejoins().is_empty() && t.still_wants_rejoin(&id));
-        t.check_memory(0, true, &read);
+        t.check_memory(&|_| 0, true, &read);
         assert!(!t.still_wants_rejoin(&id), "turned off");
         for _ in 0..MEM_STRIKES {
-            t.check_memory(4_096, true, &read);
+            t.check_memory(&|_| 4_096,true, &read);
         }
 
         // RoALT closes it: it ends as a memory restart, with what it used.
@@ -2761,6 +2860,49 @@ mod tests {
     }
 
     #[test]
+    fn a_client_that_ran_its_hours_is_restarted_on_its_timer() {
+        const HOUR: i64 = 3_600_000;
+        let dir = temp_dir();
+        let start = now_ms();
+        let (t, id, procs, _log) = in_game_client(&dir, start);
+        t.check_uptime(2, start + HOUR, &[], false);
+        assert!(t.take_rejoins().is_empty(), "not yet");
+        // Not one the user plays or has in front, and not while a launch runs.
+        t.check_uptime(2, start + 2 * HOUR, std::slice::from_ref(&id), false);
+        assert!(t.take_rejoins().is_empty(), "skipped");
+        t.check_uptime(2, start + 2 * HOUR, &[], true);
+        assert!(t.take_rejoins().is_empty(), "held");
+        t.check_uptime(2, start + 2 * HOUR, &[], false);
+        assert_eq!(t.take_rejoins().iter().map(|r| r.cause).collect::<Vec<_>>(), [CrashKind::Timed]);
+        assert!(t.take_rejoins().is_empty() && t.still_wants_rejoin(&id), "handed out once");
+        // A launch under way (the restart itself) doesn't call it off; switching the timer off does.
+        t.check_uptime(2, start + 2 * HOUR, &[], true);
+        assert!(t.still_wants_rejoin(&id));
+        t.check_uptime(0, 0, &[], false);
+        assert!(!t.still_wants_rejoin(&id), "turned off");
+        t.check_uptime(2, start + 2 * HOUR, &[], false);
+
+        // "Close after" goes by the run, which a relaunch carries on.
+        assert!(t.close_due(3, start + 2 * HOUR, &[]).is_empty());
+        assert_eq!(t.close_due(2, start + 2 * HOUR, &[]), std::slice::from_ref(&id));
+        assert!(t.close_due(2, start + 2 * HOUR, std::slice::from_ref(&id)).is_empty(), "skipped");
+        assert!(t.close_due(0, start + 99 * HOUR, &[]).is_empty(), "off");
+        let next = t.register(&info(200, start + 2 * HOUR, false), target()).id;
+        assert!(!t.close_due(2, start + 3 * HOUR, &[]).contains(&next), "a new run");
+        t.carry_session(&next, &id);
+        assert!(t.close_due(2, start + 3 * HOUR, &[]).contains(&next), "the same run, relaunched");
+
+        // RoALT closes it: it ends as a timed restart, with how long it ran.
+        t.mark_restart(&id, Some(CrashKind::Timed));
+        procs.set(&[]);
+        t.poll(Some(&dir), &procs, &user_of, start + 2 * HOUR + 1_000);
+        let ended = t.take_crashes();
+        let mine: Vec<_> = ended.iter().filter(|e| e.instance_id == id).collect();
+        assert_eq!((mine.len(), mine[0].kind, mine[0].reason.as_deref()), (1, CrashKind::Timed, Some("Restarted on its timer after 2 h")));
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
     fn a_user_close_over_the_memory_limit_is_not_a_memory_restart() {
         let t = Tracker::new();
         let start = now_ms();
@@ -2768,7 +2910,7 @@ mod tests {
         let procs = Fake::new(&[(100, (start / 1000) as u64)]);
         t.poll(None, &procs, &user_of, start + 1_000);
         for _ in 0..MEM_STRIKES {
-            t.check_memory(4_096, true, &|_, _| Some(5_000));
+            t.check_memory(&|_| 4_096,true, &|_, _| Some(5_000));
         }
         t.mark_closing(&id);
         procs.set(&[]);

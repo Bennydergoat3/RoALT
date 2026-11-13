@@ -59,7 +59,7 @@ and only ever one client open at a time. RoALT removes all of that.
 - **Paste any game link** and launch one account, or ten, into it. Even into the same server.
 - **Run several Roblox windows side by side**, and let RoALT bring back any that crash or get kicked.
 
-It runs entirely on your PC. There is no RoALT account and no tracking: the only RoALT server is an online counter that gets a random ID and how many Roblox clients RoALT runs, and you can turn it off. Rolimons values (off by default) only download Rolimons' public item list.
+It runs entirely on your PC. There is no RoALT account and no tracking: the only RoALT server is an online counter that gets a random ID and how many Roblox clients RoALT runs, and you can turn it off. RoALT's site is asked who sponsors and supports it, with nothing sent about you. Rolimons values (off by default) only download Rolimons' public item list.
 
 <table>
 <tr>
@@ -143,8 +143,10 @@ CPU, memory, disk/network and uptime per client, with sparklines and totals, ref
 </td>
 <td valign="top">
 
-### 🎚️ Performance tab
-Three presets, **Max alts**, **Balanced** and **Roblox defaults**, and you see every change before it applies.
+### 🎚️ Performance
+The first area of Settings. Three presets, **Max alts**, **Balanced** and **Roblox defaults**, and you see every change before it applies.
+Each preset shows about how many clients this PC fits, from its processor, memory and graphics card, and the one that
+fits all your accounts is marked **Recommended**, before you've launched anything.
 **For this PC** watches your running clients for about 25 seconds and suggests what to turn on. FPS cap, lowest graphics and graphics flags (MSAA, textures, no grass, gray sky), with presets and
 shareable profiles. **Max alts** runs clients tiny, at 10 FPS, with a CPU share that scales with how many
 you run and memory trims. The one you're playing stays free of it. CPU and memory settings have their own
@@ -156,8 +158,9 @@ panel, most useful first. Cap one client's CPU, pin cores or trim memory.
 <td valign="top">
 
 ### 🔔 Discord alerts
-Crashes, disconnects, restarts and finished batches posted to **your own** webhook, kept encrypted
-in the vault. Opt-in.
+Crashes, disconnects (with why: kicked, idle, connection lost, server shut down), sign-in problems,
+restarts and finished batches posted to **your own** webhook, kept encrypted in the vault. Alerts name
+the game, not its place id. Opt-in.
 
 </td>
 <td valign="top">
@@ -215,7 +218,9 @@ Japanese, Korean, Polish, Portuguese (Brazil), Russian, Spanish, Swedish, Thai, 
 
 ### ❤️ Support RoALT
 RoALT is free. **Donate**, in the app menu (the RoALT logo) or Settings › About, opens a [Roblox gamepass](https://www.roblox.com/games/102259086923102/Donation-Experience#!/store)
-for the amount you pick, and you confirm the purchase on Roblox. No Robux? [Buy me a coffee](https://buymeacoffee.com/roaltdev) works too.
+for the amount you pick, and you confirm the purchase on Roblox. No Robux? [Buy me a coffee](https://buymeacoffee.com/roaltdev) works too, from the same
+dialog. Monthly supporters there get a Supporter role on [Discord](https://discord.gg/roaltdev) and their name in Settings › About.
+Want to sponsor RoALT? News has one clearly marked **Sponsored** card; ask on Discord.
 
 </td>
 </tr>
@@ -235,6 +240,39 @@ master password if you set one, and RoALT deletes the file after 10 minutes.
 
 </td>
 </tr>
+<tr>
+<td valign="top">
+
+### 🎬 Clips
+Like ShadowPlay for one account: RoALT keeps the last 15 to 120 seconds of its game and its own sound in memory,
+and a key saves them as a video in `Videos\RoALT`. Play, rename and delete them in the Clips tab.
+
+</td>
+<td valign="top">
+
+### 🎨 Modpacks
+Change Roblox's textures, sounds, fonts, cursors and sky with modpacks you import as a zip, and share them as a zip.
+Turn each on or off and drag to order them. Mods made for Bloxstrap work too. Roblox's own folder is never changed,
+and a modpack can't carry code.
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+### 👕 Outfits
+An account's saved Roblox outfits in one grid: wear one, save the current look, rename or delete, and copy an outfit
+to your other accounts. An account wears only what it owns; RoALT names the items it had to skip.
+
+</td>
+<td valign="top">
+
+### 🤝 Trades
+One inbox for every account's trades: inbound, outbound and completed, with each side's items, RAP and what you gain
+or lose. Accept, decline or take back a trade after a question. Accept obeys **Lock purchases**.
+
+</td>
+</tr>
 </table>
 
 <details>
@@ -243,33 +281,42 @@ master password if you set one, and RoALT deletes the file after 10 minutes.
 
 | Area | What you get |
 |---|---|
-| 🔐 **Vault** | DPAPI by default (opens silently). Optional master password with auto-lock after idle, and an optional one-use recovery code for it. Encrypted `.roalt` backups you can export and import. Copied cookies are kept out of clipboard history and cleared after 30 s. |
-| 👥 **Accounts** | Add through Roblox's sign-in page (passkeys and security keys work), by pasting a cookie, by pasting many cookies at once, by pasting `username:password` lines (Roblox's sign-in opens filled in for each; passwords are never saved), or by importing from Roblox Account Manager (an unlocked `AccountData.json`). Groups, alias, notes, colour, favourite, drag to reorder. Presence, Robux, Plus / Premium (legacy), friend and follower counts, join date, email and 2-step status. **Limiteds**: count an account's limited items for their total RAP and the most valuable ones, or every account's at once from Home (only when you press Count; with opt-in **Rolimons values**, also their value, demand and trend). "Open on roblox.com" opens Browse as that account. **MAIN** stays out of select-all (a setting). **Export cookies** of the accounts you pick as `username:cookie` lines; the file is deleted after 10 minutes. |
-| 🚀 **Play** | Game links, place IDs, `roblox://` links, job IDs, private server links, `roblox.com/share` links (both formats), universes, profiles, `@username`. Join a friend or one of your other accounts. Favourites on the Play page and in the tray. `Ctrl+Enter` to launch. An account that's already playing can be picked too: RoALT asks, then moves its client (into the same game, to the emptiest other server). |
-| 🌐 **Browse** | roblox.com inside RoALT, signed in as any account: games, the Marketplace, people search, friends, editing each account's avatar. Play on a game page launches through RoALT. **Popular** lists Roblox's charts without the ads; **Playtime** shows how long each account spent in each game. **Details** on a game (in Popular, Playtime, on a game's page and in Servers) shows its players, visits, favourites, likes, about how many servers run, its age rating, avatar type, places, the owning group's members, passes with their prices and badges with how many players won them. **Player details** on a profile page shows when they joined, where they are now, friends, followers, groups with their role, Roblox badges, the games they made, and their limiteds (RAP, the most valuable, or that the inventory is private). Create isn't there, and **Lock purchases** (on by default) stops spending Robux and buying Robux or Premium while free items still work. |
-| 🪟 **Batches** | Accounts launch strictly one after another with a stagger (default 6 s). **Same server**: *Pick a server* finds one with room for everyone first; *Follow the first* sends the rest to wherever the first account landed. **Different servers**: your own private servers, random public ones, the closest, the most full or the most empty. Cancel at any time; one click re-picks the accounts that didn't launch. |
-| 🔁 **Recovery** | Auto-rejoin after kicks, shutdowns and lost connections (not after you leave on purpose). Opt-in auto-restart for crashes, frozen windows (30 s) and a memory limit. Crash breaker: default 3 relaunches in 10 minutes, with growing backoff. Per-account "Allow disconnect". Crash history with the log's reason. |
+| 🔐 **Vault** | DPAPI by default (opens silently). Optional master password with auto-lock after idle, and an optional one-use recovery code for it. Encrypted `.roalt` backups you can export and import: accounts, groups, favourites, and your settings and Discord webhook (restored only when you tick it on import). Copied cookies are kept out of clipboard history and cleared after 30 s. |
+| 👥 **Accounts** | Add through Roblox's sign-in page (passkeys and security keys work), by pasting a cookie, by pasting many cookies at once, by pasting `username:password` lines (Roblox's sign-in opens filled in for each; passwords are never saved), or by importing from Roblox Account Manager (an unlocked `AccountData.json`; its groups come along). A new account goes into the group you have open, or the one you pick. Groups, alias, notes, colour, favourite, drag to reorder; the filter box also searches notes, and **Overrides** lists the accounts with settings of their own. A group can carry **defaults** for its accounts (FPS cap, Full quality, launch arguments, Mute Discord, Bring back, and a new client's limits and anti-AFK): an account's own setting wins, then the first group in the list that sets it, then your settings. **Columns** adds Added, Checked, FPS cap, Playtime, Robux and limiteds value to the list; click a heading to sort by it, **My order** goes back to yours. **Edit…** on a selection changes Full quality, Bring back, Mute Discord, the FPS cap, launch arguments or the group of all of them at once. Presence, Robux, Plus / Premium (legacy), friend and follower counts, join date, email and 2-step status. **Limiteds**: count an account's limited items for their total RAP and the most valuable ones (only when you press Count; with opt-in **Rolimons values**, also their value, demand and trend). "Open on roblox.com" opens Browse as that account. **MAIN** stays out of select-all (a setting). **Export cookies** of the accounts you pick as `username:cookie` lines; the file is deleted after 10 minutes. |
+| 🚀 **Play** | Game links, place IDs, `roblox://` links, job IDs, private server links, `roblox.com/share` links (both formats), universes, profiles, `@username`. Join a friend or one of your other accounts. Favourites on the Play page and in the tray; each keeps its accounts and groups (whoever is in a group when it launches), its server mode and FPS cap, and can have a global key of its own. **Recent** offers the games your accounts played last. `Ctrl+Enter` to launch. An account that's already playing can be picked too: RoALT asks, then moves its client (into the same game, to the emptiest other server). |
+| 🌐 **Browse** | roblox.com inside RoALT, signed in as any account: games, the Marketplace, people search, friends, editing each account's avatar. Play on a game page launches through RoALT; **Play…** takes the game to the Play page for more accounts, and **Save as favourite** keeps it. **Popular** lists Roblox's charts without the ads; **Limiteds** lists every limited with its RAP, Rolimons value, demand and trend, to search and sort (only with Rolimons values on); **Playtime** shows how long each account spent in each game, and per day for the last 90 days (as bars, and as a CSV file). **Details** on a game (in Popular, Playtime, on a game's page and in Servers) shows its players, visits, favourites, likes, about how many servers run, its age rating, avatar type, places, the owning group's members, passes with their prices and badges with how many players won them. **Player details** on a profile page shows when they joined, where they are now, friends, followers, groups with their role, Roblox badges, the games they made, and their limiteds (RAP, the most valuable, or that the inventory is private). Create isn't there, and **Lock purchases** (on by default) stops spending Robux and buying Robux or Premium while free items still work. |
+| 🪟 **Batches** | Accounts launch strictly one after another with a stagger (default 6 s). **Same server**: *Pick a server* finds one with room for everyone first; *Follow the first* sends the rest to wherever the first account landed. **Different servers**: your own private servers, random public ones, the closest, the most full or the most empty; servers your accounts are in, or joined in the last hour, are handed out last. Cancel at any time; one click re-picks the accounts that didn't launch. |
+| 🔁 **Recovery** | Auto-rejoin after kicks, shutdowns and lost connections (not after you leave on purpose). Opt-in auto-restart for crashes, frozen windows (30 s) and a memory limit. Crash breaker: default 3 relaunches in 10 minutes, with growing backoff. Per-account "Allow disconnect". Every end is kept in **Crash history** with the log's reason. **Timers** (off by default): restart each client every N hours, since long runs use more and more memory, and close each client once its run has lasted N hours; neither touches a Full quality account's client or the one in front. Limits you set on a running client (CPU limit, efficiency mode, trimming, cores, anti-AFK off) are **kept for that account's next client**, also after a rejoin or restart. |
 | ↔️ **Free resizing** | Drag a client's edge to any size, past the minimum Roblox holds its window to, and move a small window by its title bar without it growing back. RoALT sizes the window itself (a mouse hook in RoALT's own process); nothing goes into the client. **Start clients tiny** opens every new client at a size you choose. |
 | 🖥️ **Home** | Live preview for every client at 5, 15, 30 or 60 FPS, even hidden ones, with one status pill, game, uptime, CPU and RAM, and only the limits that differ from your defaults. Click a picture to show that client. Drag cards to sort them and resize them from the corner; **Compact** shows only the preview, with its actions on hover or focus. The bar above them says what your PC can take (it opens dials for CPU, memory and GPU), switches Anti-AFK, and holds Tile windows, Minimize all and **⋯** (Restore all, Tile tiny windows, Refresh, Close all). Browser-style **account tabs** give each account its own game and options, and launch one or all of them. **Layout** (Settings or the title bar) moves your accounts to a rail on the side. Drag accounts and sections to sort them, or use `Alt` and the arrow keys; the order is saved, and a launch of all tabs follows it. The **⋯** key, right-click, the menu key or `Shift+F10` for show, minimize, restore, tiny window (any size, 320×240 by default) and back, CPU limit, efficiency mode, anti-AFK, close. Recently closed clients come back with **Play again**, or **Play all again**. |
 | 🛑 **Stop all** | Hold one button (in the app menu, or the running clients' sheet in the island), use the tray, or press a global **panic hotkey** you choose (off by default) to end every Roblox process and stop pending launches and rejoins. |
+| ⌨️ **Global keys** | Optional keys that work in any app (all unset by default): show or hide RoALT, tile the clients, minimize them all, and one per favourite to launch it. |
 | 🌍 **Languages** | English, Arabic (right to left), Bosnian, Chinese (Simplified), Filipino, French, German, Indonesian, Japanese, Korean, Polish, Portuguese (Brazil), Russian, Spanish, Swedish, Thai, Turkish, Vietnamese. |
 | ⏲️ **Automation** | Minimize each new client on launch. Auto-shutdown timer: close the clients and shut the PC down at a set time (survives a RoALT restart, can be cancelled). Hourly Roblox log cleaner (logs older than a day or over 50 MB). Open logs button; RoALT's own logs rotate at 5 MB. |
+| 🔗 **Default Roblox launcher** | Pick what opens `roblox://` and `roblox-player:` links on this PC: Roblox, a bootstrapper RoALT finds (Bloxstrap, Fishstrap, Froststrap, Voidstrap, or any other holding the links), or RoALT. RoALT launches your accounts through the one picked. With RoALT, Play on roblox.com starts the game at once (multi-instance keeps working) and Roblox links fill in Play so you pick the account. RoALT takes the links back after a Roblox update; uninstalling RoALT gives them back to the program they came from. |
 | ⚙️ **Launch control** | Custom launch arguments (default and per account, checked before use and never logged), a cooldown between launches, a configurable close grace (1–60 s). |
 | 🎚️ **Limits** | Per client: CPU cap, efficiency mode, core affinity, working-set trim (every N minutes and sooner if a background client grows, or "Page memory out now"). A trim lowers the Memory column for a while; commit size doesn't change. Adaptive manager for background clients; a limit you set on a client wins for that limit. **Memory throttle**: a client whose commit size is over a limit gets a CPU cap, which lowers its frame rate, until it drops under 90 % of the limit. It doesn't free memory; only **Restart on high memory** does, and that disconnects the client. |
-| 🎞️ **FPS cap & graphics** | A default frame-rate cap (5–360), a per-account override and a per-launch one under Play's More options (a rejoin keeps it), plus the lowest graphics for every client (on by default). Set through Roblox's own Maximum Frame Rate and Graphics Quality just before each client starts; your own Roblox settings are put back once it has read them, and again when such a client closes (or when RoALT next starts, if it wasn't running then). Everything performance-related lives in its own **Performance** tab. |
+| 🎞️ **FPS cap & graphics** | A default frame-rate cap (5–360), a per-account override and a per-launch one under Play's More options (a rejoin keeps it), plus the lowest graphics for every client (on by default). Set through Roblox's own Maximum Frame Rate and Graphics Quality just before each client starts; your own Roblox settings are put back once it has read them, and again when such a client closes (or when RoALT next starts, if it wasn't running then). Everything performance-related lives in **Settings › Performance**. |
 | 🪶 **Lighter rendering** | Clients RoALT starts get low geometry detail and the graphics flags below (on by default): less GPU time and memory per client. Written just before each client starts and put back once it has read them; skipped under a bootstrapper. |
 | 🎚️ **Graphics flags** | Pick MSAA, texture quality, rendering mode, gray sky, no grass and lowest render quality, from the FastFlags Roblox still allows. Roblox may ignore Vulkan and OpenGL. |
 | 🧩 **Custom FFlags** | Add your own FastFlags as a list or paste Bloxstrap's JSON, for every account or each its own. They win over the graphics flags; Roblox applies only the ones on its allowlist. |
+| 🎬 **Clips** | Pick one account and RoALT keeps the last 15, 30, 60 or 120 seconds of its client in memory: the window encoded on your graphics card (H.264, Windows' own encoder) and only that client's sound (Windows' per-app capture), not Discord, music or other clients. The clip key (Ctrl+Alt+F10 by default, registered only while an account is picked) writes an MP4 to `Videos\RoALT` with a beep, also while the game is fullscreen. The picked account plays at full quality (never tiny, minimized, muted or capped), since a clip shows it. Hiding or minimizing that client pauses its clip. On Windows 10, Windows shows a yellow frame around the recorded window; Windows 11 lets RoALT hide it. The Clips tab plays, renames, shows in Explorer and deletes them (to the Recycle Bin). |
+| 🎨 **Modpacks** | Import a zip with `content`, `PlatformContent` or `ExtraContent` folders (Bloxstrap's Modifications layout) to change textures, sounds, fonts, cursors, meshes and the sky; export any modpack as a zip to share it. On/off per modpack, drag to order (the top one wins a file two modpacks change). Clients RoALT starts run from its own copy of the Roblox folder (hard links, with the modpacks laid over), so Roblox's folder and launches from outside RoALT stay unmodded. Only images, sounds, fonts, meshes and font lists are taken, each checked by its first bytes; no scripts, models, configs or anything outside those folders. Skipped under a bootstrapper. Windows' per-app GPU choice is kept by the exe's path, so it doesn't follow modded clients. |
+| 👕 **Outfits** | Pick an account to see its current look and its saved Roblox outfits. **Wear** sets the avatar type, body colours, scales and worn items; **Save current look** makes a new outfit; rename and delete from each card's menu. **Copy to accounts** wears an outfit on the other accounts you tick, one after another: items an account doesn't own are skipped and named, the rest still copies. A running game may show the new look only after a respawn or rejoin. |
+| 🤝 **Trades** | The newest 100 inbound, outbound and completed trades of each valid account in one list, with a filter by account. Each trade shows both sides: item pictures, names, serials, RAP (with opt-in **Rolimons values**, also value and a Projected tag), Robux, and one line saying what you gain or lose. **Accept** and **Decline** inbound trades, take back outbound ones; each asks first, and the accept question repeats both totals. Accept is refused while **Lock purchases** is on. If Roblox asks for 2-step verification, **Open on Roblox** opens the trade page in Browse. It loads on open and on Refresh, never on a timer; sending and countering stay on roblox.com. |
+| 💬 **Friend requests** | The requests every valid account got, in one list: **Accept** or **Decline** each, or **Decline all** of one account. There is no "accept all" on purpose. It loads on open and on Refresh, never on a timer. |
+| 🔑 **Private servers** | The private servers your accounts own, the first to run out on top: when each runs out or renews, its price, a mark on the ones that run out within a week, and **Manage** for its settings. |
+| 🧾 **History** | **Crash history** (More tools): the newest 200 ends of your clients, with what its log said and what the end points to (the client crashed, never started, was closed), filters, and CSV export. An account's **History** tab: its Robux in, out and pending over the last month, its newest purchases, sales, group payouts and Premium stipends, and how its clients ended. |
 | 👑 **Main account** | Mark an account **Full quality** and its clients keep your own Roblox graphics, without lowest graphics or lighter rendering. |
 | 🕘 **Recent servers** | Each account remembers the servers it reached (stored on this PC); rejoin a public one in a click. |
 | 🩺 **Diagnostics** | Copy or save a report for bug reports, from Debug: tickets, cookies, your Windows user name and IP addresses are removed. A client that ends badly leaves an autopsy in the log: how long it lived, any crash dump, Windows' record of the fault and the end of its logs. Each trim logs its memory before and after. |
 | 📤 **Performance profiles** | Export your performance settings to a file or a share code, or import someone else's: you see what changes, then apply it. Only performance settings travel, never accounts, passwords, launch arguments or hotkeys. |
 | 📶 **Bandwidth** | One upload cap for all Roblox clients through a Windows QoS policy. Applied only when you click Apply (admin prompt); cleared when Windows restarts. |
 | 💤 **Anti-AFK** | Off by default, with a switch on Home. While you are away from the PC, every few minutes each client is briefly brought to the front and gets one F13 press (no game uses it, so the character stays put), so Roblox doesn't kick it after 20 idle minutes. A minimized client is restored for the press and minimized again. Stops the moment you touch the mouse. Roblox only counts a real key press in the window in front: keys posted to a background window don't stop the idle kick (measured). Per-client opt-out. |
-| 🔔 **Discord** | Crash, disconnect, restart and batch alerts, plus an opt-in alert when a client gets into a game. Mute alerts per account. **Rich presence** (on by default, a switch on the Discord page): your profile shows "Playing RoALT", idling or with the game and how many alts run. |
+| 🔔 **Discord** | Crash, disconnect, restart and batch alerts, with the game's name and why a client was disconnected. Also when an account's sign-in stops working or Roblox wants a human check, and when a newer RoALT is out. Opt-in alerts when a client gets into a game or is slowed down for its memory, for new incoming trades, and when the PC's memory or the clients' GPU use stays nearly full. Mute alerts per account. **Rich presence** (on by default, a switch on the Discord page): your profile shows "Playing RoALT", idling or with the game and how many alts run. |
 | 📰 **News** | A tab on Home with RoALT's releases (GitHub), the DevForum's announcements and release notes, the Roblox Newsroom and Roblox client updates. Filter by source, unread counts, mark all read. |
-| 🔄 **RoALT updates** | Looks for a new RoALT on GitHub Releases at start and every 6 hours (can be turned off; *Check now* in Settings). The island offers it; *Update now* downloads it, checks its release signature, installs it silently and restarts RoALT. Never installs on its own. |
-| 🧰 **Comfort** | Tray menu with favourites, close to tray, relaunch an ended client in one click, movable data folder, keyboard shortcuts (`?` lists them). One search (`Ctrl+F`) finds any setting, in Settings, Performance or Discord, and takes you to it. Dark, light or system theme, white by default or any accent colour, and your own background image, with a choice of how much the theme covers it. **Motion**: follow Windows' animation setting, or always full or reduced. Optional skip of the splash screen. |
+| 🔄 **RoALT updates** | Looks for a new RoALT on GitHub Releases at start and every 6 hours (can be turned off; *Check now* in Settings). The island offers it; *Update now* downloads it, checks its release signature, installs it silently and restarts RoALT. Never installs on its own. Older installers stay on GitHub Releases, but they get no fixes or support, and an older RoALT won't open data saved by a newer one (it says so and changes nothing). |
+| 🧰 **Comfort** | Tray menu with favourites, the window tools (Tile, Minimize all, Restore all), Play all again and the Anti-AFK switch, and a tooltip that counts the running clients; close to tray, relaunch an ended client in one click, movable data folder, keyboard shortcuts (`?` lists them). One search (`Ctrl+F`) finds any setting, in Settings or Discord, and takes you to it. Dark, light or system theme, white by default or any accent colour, and your own background image or animated GIF (it holds still while you play in Roblox), with a choice of how much the theme covers it. **Custom themes**: recolour the window, title bar, navigation bar, panels, tabs, buttons, menus and text, start from a built-in theme (Midnight, Sakura, Terminal, Ocean, Paper), make corners square or round, and share a theme as a code. Text stays readable whatever you pick. **Motion**: follow Windows' animation setting, or always full or reduced. Optional skip of the splash screen. |
 
 </details>
 
@@ -292,11 +339,12 @@ master password if you set one, and RoALT deletes the file after 10 minutes.
 > compare its SHA-256 with `SHA256SUMS.txt` on the release page, then choose **More info → Run anyway**.
 >
 > ```powershell
-> Get-FileHash .\RoALT-Setup-1.1.0.exe -Algorithm SHA256
+> Get-FileHash .\RoALT-Setup-<version>.exe -Algorithm SHA256
 > ```
 
-Your accounts and settings live in `%LOCALAPPDATA%\RoALT`. Uninstalling keeps them unless you tick
-**"also delete my data"**.
+Your accounts and settings live in `%LOCALAPPDATA%\RoALT`. Uninstalling asks whether to keep them
+(a silent uninstall, like winget's, always keeps them). If you moved the data folder in Settings, the
+uninstaller leaves that folder alone: delete it yourself.
 
 <br>
 
@@ -355,7 +403,7 @@ In **Settings → Launching**, turn on **Auto-rejoin** (and, if you like, **Auto
 
 | Keys | Action |
 |---|---|
-| `Ctrl+1` … `Ctrl+9` | Home, Accounts, Play, Servers, Settings, Monitor, Discord, Debug, Performance |
+| `Ctrl+1` … `Ctrl+9` | Home, Accounts, Play, Servers, Settings, Monitor, Discord, Debug, Settings › Performance |
 | `Ctrl+N` | Add account |
 | `Ctrl+F` | Search accounts |
 | `Ctrl+Enter` | Play |
@@ -373,26 +421,31 @@ In **Settings → Launching**, turn on **Auto-rejoin** (and, if you like, **Auto
 
 #### ✅ What RoALT does
 
-- Talks **only** to `*.roblox.com` and `*.rbxcdn.com`, plus GitHub to look for RoALT updates (can be turned off), RoALT's online counter (can be turned off), Rolimons' public item list (only with Rolimons values on), and your Discord webhook.
+- Talks **only** to `*.roblox.com` and `*.rbxcdn.com`, plus GitHub to look for RoALT updates (can be turned off), RoALT's online counter (can be turned off), `roalt.dev` for the sponsor and supporter names (can be turned off), Rolimons' public item list (only with Rolimons values on), and your Discord webhook.
 - Encrypts every cookie with **AES-256-GCM** under a key protected by **Windows DPAPI**, plus your master password if you set one.
 - Encrypts the **whole database** too (SQLCipher, AES-256), with its own DPAPI-protected key: a copied `roalt.db` can't be read on another PC or Windows account.
 - Signs you in through **Roblox's own page**, in a throw-away browser profile.
 - Installs Roblox updates **only** when the installer is signed by Roblox Corporation.
 - Updates itself **only** when you click Update now, and only with an installer that carries RoALT's release signature.
 - Redacts launch tickets from anything it reads in Roblox's logs.
-- Keeps **Browse** on Roblox: no other site, no Create, no downloads, no pop-up windows. A page's Play link is read for the game only; RoALT launches with its own ticket. With **Lock purchases** on, Browse refuses Robux-spending requests before they leave your PC (in-game purchases happen in the Roblox client, which RoALT can't block).
+- Keeps **Browse** on Roblox: no other site, no Create, no downloads, no pop-up windows. A page's Play link is read for the game only; RoALT launches with its own ticket. With **Lock purchases** on, Browse refuses Robux-spending requests before they leave your PC, and Trades refuses to accept a trade (in-game purchases happen in the Roblox client, which RoALT can't block).
 
 </td>
 <td width="50%" valign="top">
 
 #### 🚫 What RoALT never does
 
-- **Never** reads or writes the Roblox client's memory or files, with two exceptions for the clients it starts: Roblox's own settings file (`GlobalBasicSettings_13.xml`, only the frame-rate cap and graphics quality) and the FFlags in the version folder's `ClientSettings\ClientAppSettings.json` (the allowlisted rendering flags, plus any custom FFlags you add). Both are put back as they were once the client has read them.
-- **Never** sends telemetry beyond the online count: every 2 minutes, a random ID made when RoALT starts and how many Roblox clients RoALT runs, nothing else ([the counter's source](server/online-counter)). Turn it off in **Settings > About** and nothing is sent. There is no RoALT account.
+- **Never** reads or writes the Roblox client's memory or files, with two exceptions for the clients it starts: Roblox's own settings file (`GlobalBasicSettings_13.xml`, only the frame-rate cap and graphics quality) and the FFlags in the version folder's `ClientSettings\ClientAppSettings.json` (the allowlisted rendering flags, plus any custom FFlags you add). Both are put back as they were once the client has read them. **Modpacks** never change Roblox's folder: with a modpack on, RoALT starts the client from its own copy in `%LOCALAPPDATA%\RoALT\mods` (hard links to Roblox's files, a modpack's files written as new ones), and only images, sounds, fonts, meshes and font lists go in. **Clips** record only the account you pick (its window and its own sound) and keep it in memory; nothing is written until you press the clip key, and then only to `Videos\RoALT` (if Windows syncs your Videos folder to OneDrive, clips go there too).
+- **Never** sends telemetry beyond the online count: every few minutes (5 now; the counter sets it), a random ID made when RoALT starts and how many Roblox clients RoALT runs, nothing else ([the counter's source](server/online-counter)). Turn it off in **Settings > About** and nothing is sent. There is no RoALT account.
+- **Sponsor and supporters.** News can show one card marked **Sponsored**, and Settings › About lists who supports RoALT. Both come from one small
+  file, `https://roalt.dev/app.json`, read when News or About opens and then at most every 6 hours; the request carries no ID and nothing about your PC or accounts, only RoALT's
+  version in its user agent. The card's link is always RoALT's own page (`roalt.dev/go/sponsor`), never an address from that file, and clicks
+  aren't counted by the app. Turn off **Show the sponsor in News** in Settings › About and News asks for nothing; the file is then read only
+  while Settings › About is open.
 - **Never** writes cookies, tickets or launch arguments to its logs.
 - **Never** changes Windows settings, except the opt-in bandwidth limit.
 - **Never** contacts Discord's servers unless you paste a webhook. Rich presence goes only to the Discord app on your PC.
-- **Never** contacts Rolimons unless you turn on **Rolimons values** (Settings > About). Then it downloads only Rolimons' public item list while counting limiteds, and sends no user ID, name or cookie.
+- **Never** contacts Rolimons unless you turn on **Rolimons values** (Settings > About). Then it downloads only Rolimons' public item list while counting limiteds, showing Browse › Limiteds or showing a trade's items, and sends no user ID, name or cookie.
 
 </td>
 </tr>
@@ -434,10 +487,17 @@ In **Settings → Launching**, turn on **Auto-rejoin** (and, if you like, **Auto
   is only noted, for a moment, as you asking for a hidden client back.
 - **Bandwidth limit (opt-in)** adds a Windows QoS policy named `RoALT-Roblox` through an admin prompt, only when you click
   Apply. Windows drops it on restart. It is the only change RoALT makes to Windows.
-- **Limiteds** are counted only when you press Count (or Count all on Home): RoALT reads that account's inventory on
+- **Limiteds** are counted only when you press Count: RoALT reads that account's inventory on
   `inventory.roblox.com` with the account's own cookie, one page a second, up to 5,000 items. What it holds is kept in
   the encrypted database until you count again.
-- **Rolimons values (opt-in, off by default).** While counting, RoALT downloads Rolimons' public item list from
+- **Outfits and Trades** talk only to Roblox (`avatar.roblox.com`, `trades.roblox.com` and the thumbnail service), with
+  the account's own session, and only while their tab is open or you press a button there. Nothing is read on a timer,
+  unless you turn on the Discord alert **New trades** (off by default): RoALT then reads every valid account's incoming
+  trades every 10 minutes.
+- **Sign-in watch (on by default).** 90 seconds after RoALT starts and every 6 hours, it asks Roblox who each saved
+  sign-in belongs to (`users.roblox.com`, one account at a time), so a dead one is known before a launch finds it. Turn it
+  off in **Settings > Security** and sign-ins are checked only when you ask.
+- **Rolimons values (opt-in, off by default).** While counting, with Browse › Limiteds open, or while Trades shows a trade's items, RoALT downloads Rolimons' public item list from
   `api.rolimons.com` (at most every 30 minutes) with only `RoALT/<version>` as its user agent, and keeps it in the
   database. Nothing about you or your accounts is sent. Rolimons isn't part of Roblox, and its terms don't allow
   automated access without its permission: turning this on is your call.
@@ -510,9 +570,11 @@ Without a code the password can't be recovered: that is what makes it safe. Remo
 <summary><b>Does it work with Bloxstrap?</b></summary>
 <br>
 
-Yes. RoALT launches through the registered bootstrapper and follows its clients. It won't install Roblox updates over a
-bootstrapper, since the bootstrapper keeps Roblox up to date itself. RoALT's graphics flags are skipped there, because a
-bootstrapper writes its own.
+Yes. RoALT finds the bootstrappers you have installed; pick one under Settings, Launching, **Default Roblox launcher**
+and RoALT launches through it (as `-player`, the way Windows does) and follows its clients. It won't install Roblox updates
+over a bootstrapper, since the bootstrapper keeps Roblox up to date itself. RoALT's graphics flags and modpacks are skipped
+there, because a bootstrapper writes its own; pick Roblox or RoALT to keep them. Mods made for Bloxstrap's Modifications
+folder import into RoALT's Modpacks as they are.
 
 </details>
 
@@ -571,7 +633,9 @@ flowchart LR
 | [`discord.rs`](src-tauri/src/discord.rs) | Webhook alerts: host-checked URL, events coalesced every 2 s, `retry_after` honoured. |
 | [`webview.rs`](src-tauri/src/webview.rs) | The sign-in window and the hardening every Roblox page gets: kept WebView2 profiles with the cookie put in before the first load and deleted after, navigation kept on Roblox. |
 | [`browse.rs`](src-tauri/src/browse.rs) | Browse: roblox.com as a child webview inside the RoALT window, one account at a time; Play links handed to the launcher, the purchase lock, rotated cookies kept. |
-| [`rolimons.rs`](src-tauri/src/rolimons.rs) | Rolimons values (opt-in): its public item list, downloaded while counting limiteds at most every 30 minutes, parsed and kept. |
+| [`rolimons.rs`](src-tauri/src/rolimons.rs) | Rolimons values (opt-in): its public item list, downloaded while counting limiteds, for Browse › Limiteds or for a trade's items, at most every 30 minutes, parsed and kept. |
+| [`clips/`](src-tauri/src/clips) | Clips. `video.rs` the window through the D3D11 video processor into Windows' hardware H.264 encoder; `audio.rs` one process's sound (process loopback) into AAC; `ring.rs` the last seconds from a keyframe; `mux.rs` an MP4 written from them as they are, with the codec header taken from the stream; `library.rs` the clips folder; `serve.rs` the player's `clip` protocol (main window and clip files only). |
+| [`mods/`](src-tauri/src/mods) | Modpacks. `pack.rs` what a modpack may hold (paths, file types by their first bytes) and its zip; `library.rs` the imported ones; `runtime.rs` RoALT's own copy of the version folder that modded clients start from, never pruned while a client runs from it. |
 | [`storage/`](src-tauri/src/storage) | SQLite through `rusqlite` with numbered migrations. Running clients live in memory only. |
 
 <details>
@@ -580,7 +644,8 @@ flowchart LR
 
 1. Validate the account, then resolve a share link or universe with **that account's** cookie.
 2. `GET auth.roblox.com/v1/client-assertion/`, then POST `authentication-ticket` with it, as the website does.
-3. Build the `roblox-player:` URI with a fresh `browsertrackerid`, then start the client from the path in
+3. Build the `roblox-player:` URI with a fresh `browsertrackerid`, then start the default launcher if it is a bootstrapper
+   (`HKCU\Software\Classes\roblox-player\shell\open\command`), else the client from the path in
    `HKCU\Software\ROBLOX Corporation\Environments\roblox-player`.
 4. Record the PID and creation time and close the process handle at once.
 5. Bind the client's `_Player_` log by that tracker ID, then read its job ID, user ID and disconnects. If Roblox
@@ -606,7 +671,7 @@ CPU-cap job handle is kept.
 | Layer | Tools |
 |---|---|
 | Shell | Tauri 2.12, WebView2 |
-| Backend | Rust (edition 2024), tokio, reqwest (rustls), rusqlite + rusqlite_migration, `windows` 0.62 |
+| Backend | Rust (edition 2024), tokio, reqwest (rustls), rusqlite + rusqlite_migration, `windows` 0.62 (Media Foundation for clips), zip (modpacks) |
 | Crypto | aes-gcm, argon2, zeroize, Windows DPAPI and Windows Hello |
 | Frontend | React 19, TypeScript, Vite, Tailwind CSS 4, TanStack Query 5 |
 | IPC types | [ts-rs](https://github.com/Aleph-Alpha/ts-rs): Rust types exported to `src/bindings/` |
@@ -651,19 +716,19 @@ npm run tauri dev        # run the app with hot reload
 │  ├─ dev/                 mock backend for `npm run dev`, and the ?gallery of every primitive
 │  ├─ styles/              tokens and layered CSS
 │  ├─ ui/                  shared components, the island, motion
-│  └─ features/            dashboard · news · accounts · launch · servers · performance · monitor · discord · debug · settings · splash · vault · donate
+│  └─ features/            dashboard · news · accounts · launch · servers · browse · outfits · trades · performance · monitor · discord · clips · mods · debug · settings · splash · vault · donate
 ├─ src-tauri/              Rust backend
 │  ├─ src/
 │  │  ├─ main.rs           builder, plugins, managed state
 │  │  ├─ commands.rs       IPC layer
 │  │  ├─ model.rs          shared types (exported to TS)
-│  │  ├─ vault/  roblox_api/  launcher/  instances/  storage/
+│  │  ├─ vault/  roblox_api/  launcher/  instances/  clips/  mods/  storage/
 │  │  ├─ discord.rs  webview.rs  tray.rs  error.rs
 │  └─ tauri.conf.json
 ├─ installer/RoALT.iss     Inno Setup script
-├─ scripts/                build-installer.ps1
+├─ scripts/                build-installer.ps1 · check-i18n.mjs · test-*.mjs
 ├─ docs/                   images/ · research/fixtures/ (recorded Roblox responses the tests read, no real cookies)
-└─ .github/workflows/      ci.yml · release.yml
+└─ .github/workflows/      ci.yml · release.yml · winget.yml
 ```
 
 <br>
@@ -672,6 +737,8 @@ npm run tauri dev        # run the app with hot reload
 
 ```powershell
 npm run typecheck                              # TypeScript
+npm run i18n:check                             # every language has every text
+npm run test:sounds; npm run test:news; npm run test:liquid
 cd src-tauri
 cargo test --locked                            # Rust unit tests
 cargo clippy --all-targets --locked -- -D warnings

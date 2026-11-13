@@ -47,6 +47,9 @@ jobs:
         # Installs it, or upgrades a preinstalled older 6.x (the .iss needs 6.6).
         run: choco upgrade innosetup --no-progress -y
       - run: powershell -ExecutionPolicy Bypass -File scripts\build-installer.ps1
+      # Before anything is signed: no signed installer from a commit whose tests fail.
+      - run: cargo test --locked
+        working-directory: src-tauri
       # Optional, until SignPath has approved the project: SIGNPATH_API_TOKEN (secret) and
       # SIGNPATH_ORGANIZATION_ID (variable). Before the updater's signature, which covers the
       # installer's exact bytes.

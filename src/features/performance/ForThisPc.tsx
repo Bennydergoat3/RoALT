@@ -162,7 +162,7 @@ export function ForThisPc({ settings, previewFps, onReview }: { settings: Settin
     <div ref={card} className="panel perf-bench">
       <div className="perf-bench-head">
         <div className="min-w-0 flex-[1_1_320px]">
-          <h2 className="section-title">{t("performance.bench.title")}</h2>
+          <h3 className="section-title">{t("performance.bench.title")}</h3>
           <p id={needId} className="set-hint">{t(inGame ? "performance.bench.intro" : "performance.bench.needGame")}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">

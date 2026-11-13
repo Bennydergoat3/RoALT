@@ -390,22 +390,44 @@ pub fn reset_followed(pid: u32, t0: u64) {
     }
 }
 
-/// `plan` for the clients running now, from what the tracker and the limiter know.
-pub fn plan_now(s: &crate::App, v: &Settings, clients: &[(String, u32, u64, Limits)], throttled: &[String]) -> Vec<(String, u32, u64, Limits)> {
-    let full_quality = s.db.full_quality_accounts().unwrap_or_else(|e| {
+/// The accounts the user plays: Full quality ones, and the one Clips record (a clip shows it).
+/// Their clients keep their window, sound, graphics and frame rate: no layout, tiny, cap or mute.
+pub fn played(s: &crate::App, v: &Settings) -> Vec<i64> {
+    let mut played = s.db.full_quality_accounts().unwrap_or_else(|e| {
         log::debug!("could not read the Full quality accounts: {e}");
         Vec::new()
     });
+    played.extend(v.clip_account);
+    played
+}
+
+/// `plan` for the clients running now, from what the tracker and the limiter know.
+pub fn plan_now(s: &crate::App, v: &Settings, clients: &[(String, u32, u64, Limits)], throttled: &[String]) -> Vec<(String, u32, u64, Limits)> {
+    let full_quality = played(s, v);
     let free = s.tracker.free(&full_quality, crate::commands::now_ms());
     let front = super::process::foreground_pid();
     s.limiter.note_free(&free, front);
-    plan(clients, v, front, crate::commands::cores(), throttled, &free, &s.limiter.uncapped())
+    let profiles = s.db.account_profiles().unwrap_or_else(|e| {
+        log::debug!("could not read the accounts' profiles: {e}");
+        HashMap::new()
+    });
+    let own = clients
+        .iter()
+        .filter_map(|c| {
+            let p = profiles.get(&s.tracker.get(&c.0)?.account_id)?;
+            Some((c.0.clone(), crate::performance::overlay(v, Some(p)).into_owned()))
+        })
+        .collect();
+    plan(clients, v, front, crate::commands::cores(), throttled, &free, &s.limiter.uncapped(), &own)
 }
 
 /// The limits each running client gets (`clients` as `Tracker::clients`, with the limits the
 /// user set): `effective`, free when its pid is `foreground` (the one owning the window in front)
 /// or its id in `free`, with its auto-spread share of `cores` (`uncapped` ids: `pin`) and the fair
-/// cap; then the memory throttle's cap on the `throttled` ids.
+/// cap; then the memory throttle's cap on the `throttled` ids. `own`: the settings of the clients
+/// whose account has its own profile (`performance::overlay`), by id; what every client shares
+/// (spread, fair cap, throttle) is always `v`'s.
+#[allow(clippy::too_many_arguments)]
 pub fn plan(
     clients: &[(String, u32, u64, Limits)],
     v: &Settings,
@@ -414,6 +436,7 @@ pub fn plan(
     throttled: &[String],
     free: &[String],
     uncapped: &[String],
+    own: &HashMap<String, Settings>,
 ) -> Vec<(String, u32, u64, Limits)> {
     let n = clients.len() as u32;
     let fair = v.fair_cap.then(|| fair_cap(n, cores));
@@ -427,7 +450,7 @@ pub fn plan(
                 true => spread(i, n, cores),
                 false => None,
             };
-            let mut l = effective(*manual, foreground == Some(*pid) || free.contains(id), v, share, fair);
+            let mut l = effective(*manual, foreground == Some(*pid) || free.contains(id), own.get(id).unwrap_or(v), share, fair);
             if v.mem_throttle.mb > 0 && throttled.contains(id) {
                 l.cpu_cap = Some(throttle_cap(l.cpu_cap, v.mem_throttle.cpu_cap));
             }
@@ -968,32 +991,37 @@ mod tests {
         // plan: the foreground pid is lifted; auto-spread only with several clients.
         v.auto_spread = true;
         let c = |id: &str, pid| (id.to_owned(), pid, 1, none);
-        let p = plan(&[c("a", 10), c("b", 20)], &v, Some(20), 4, &[], &[], &[]);
+        let no_own = HashMap::new();
+        // A client whose account has its own profile gets that profile's background limits.
+        let lighter = Settings { adaptive: crate::model::Adaptive { enabled: true, background: Limits { cpu_cap: Some(10), ..none } }, ..v.clone() };
+        let p = plan(&[c("a", 10), c("b", 20)], &v, None, 4, &[], &[], &[], &HashMap::from([("b".to_owned(), lighter)]));
+        assert_eq!((p[0].3.cpu_cap, p[1].3.cpu_cap), (Some(25), Some(10)));
+        let p = plan(&[c("a", 10), c("b", 20)], &v, Some(20), 4, &[], &[], &[], &no_own);
         assert_eq!(p[0].3, Limits { trim_every_min: Some(15), affinity: Some(0b0101), ..bg });
         assert_eq!(p[1].3, none);
-        assert_eq!(plan(&[c("a", 10)], &v, None, 4, &[], &[], &[])[0].3.affinity, None);
+        assert_eq!(plan(&[c("a", 10)], &v, None, 4, &[], &[], &[], &no_own)[0].3.affinity, None);
 
         // Loading, hung and Full quality clients are lifted the same way, the fair cap too.
         v.fair_cap = true;
-        let p = plan(&[c("a", 10), c("b", 20), c("c", 30)], &v, None, 6, &[], &["b".to_owned()], &[]);
+        let p = plan(&[c("a", 10), c("b", 20), c("c", 30)], &v, None, 6, &[], &["b".to_owned()], &[], &no_own);
         assert_eq!(p[0].3.cpu_cap, Some(25));
         assert_eq!(p[1].3, none);
         v.fair_cap = false;
 
         // Too few cores for two each: no pin, unless the CPU cap failed and it is all that's left.
         let three = [c("a", 10), c("b", 20), c("c", 30)];
-        assert_eq!(plan(&three, &v, None, 4, &[], &[], &[])[0].3.affinity, None);
-        assert_eq!(plan(&three, &v, None, 4, &[], &[], &["a".to_owned()])[0].3.affinity, Some(0b1001));
+        assert_eq!(plan(&three, &v, None, 4, &[], &[], &[], &no_own)[0].3.affinity, None);
+        assert_eq!(plan(&three, &v, None, 4, &[], &[], &["a".to_owned()], &no_own)[0].3.affinity, Some(0b1001));
 
         // The memory throttle tightens the cap of the clients it holds, the one in front too.
         v.mem_throttle = crate::model::MemThrottle { mb: 4_096, cpu_cap: 10 };
         let held = ["b".to_owned()];
-        let p = plan(&[c("a", 10), c("b", 20)], &v, Some(20), 4, &held, &[], &[]);
+        let p = plan(&[c("a", 10), c("b", 20)], &v, Some(20), 4, &held, &[], &[], &no_own);
         assert_eq!((p[0].3.cpu_cap, p[1].3.cpu_cap), (Some(25), Some(10)));
         let tight = Limits { cpu_cap: Some(5), ..none };
-        assert_eq!(plan(&[("b".to_owned(), 20, 1, tight)], &v, None, 4, &held, &[], &[])[0].3.cpu_cap, Some(5), "its own tighter cap");
+        assert_eq!(plan(&[("b".to_owned(), 20, 1, tight)], &v, None, 4, &held, &[], &[], &no_own)[0].3.cpu_cap, Some(5), "its own tighter cap");
         v.mem_throttle.mb = 0;
-        assert_eq!(plan(&[c("b", 20)], &v, Some(20), 4, &held, &[], &[])[0].3.cpu_cap, None, "off");
+        assert_eq!(plan(&[c("b", 20)], &v, Some(20), 4, &held, &[], &[], &no_own)[0].3.cpu_cap, None, "off");
     }
 
     #[test]

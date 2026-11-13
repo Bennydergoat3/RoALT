@@ -16,7 +16,9 @@ import { friendly } from "../../ui/Toast";
 import { fmtNum, t, tx, type Key } from "../../i18n";
 import { accountName } from "../accounts/shared";
 import { useGameDetails } from "../browse/GameDetails";
+import { RecentGames } from "../launch/RecentGames";
 import { useNow } from "../launch/Running";
+import { copyRoaltLink } from "../launch/target";
 import { BuyPrivateServerDialog } from "./BuyPrivateServerDialog";
 import { PrivateServerDialog } from "./PrivateServerDialog";
 import { PrivateTable, PublicTable, short, type Pick } from "./ServerTables";
@@ -265,6 +267,7 @@ export function ServerBrowser({ accounts, asker, place, setPlace, onChoice, vari
           {effOrder === "bestLatency" && servers.length > 0 && <p className="meta px-5 pt-3">{t("servers.samePcNote")}</p>}
           <PublicTable
             servers={firstPage(pub) ? null : servers}
+            placeId={place}
             pick={pubPick}
             fastest={effOrder === "bestLatency"}
             radio={radio}
@@ -337,6 +340,8 @@ export function ServerBrowser({ accounts, asker, place, setPlace, onChoice, vari
           <div className="empty flex-1 content-center">
             <Icon name="servers" size={22} className="text-fg-3" />
             <p>{t("servers.pastePrompt")}</p>
+            {/* Or one of the games just played: its servers load at once. */}
+            <RecentGames onPick={setPlace} />
           </div>
         ) : waiting ? (
           <>
@@ -347,7 +352,7 @@ export function ServerBrowser({ accounts, asker, place, setPlace, onChoice, vari
               </div>
             </div>
             <div className="panel srv-panel scroll flex-1 min-h-[160px] px-2 pb-2">
-              <PublicTable servers={null} pick={null} fastest={false} radio={radio} onPick={() => {}} />
+              <PublicTable servers={null} placeId={null} pick={null} fastest={false} radio={radio} onPick={() => {}} />
             </div>
           </>
         ) : !g ? (
@@ -577,6 +582,11 @@ function GameHead({ game: g, drawer, onDetails }: { game: GameInfo; drawer: bool
           {onDetails && (
             <Button size="sm" variant="ghost" icon="info" onClick={onDetails}>
               {t("game.details")}
+            </Button>
+          )}
+          {!drawer && (
+            <Button size="sm" variant="ghost" icon="link" onClick={() => copyRoaltLink({ kind: "place", placeId: g.placeId, launchData: null })}>
+              {t("share.copyLink")}
             </Button>
           )}
         </span>

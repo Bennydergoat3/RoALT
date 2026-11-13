@@ -5,6 +5,7 @@ import { qk, queryClient, useSetSettings, useSettings, useVault } from "./data";
 import { AppMenu } from "./app/AppMenu";
 import { TitleTools } from "./app/TitleTools";
 import { useTheme } from "./app/theme";
+import { playAllAgain } from "./features/dashboard/Ended";
 import { DonateDialog } from "./features/donate/DonateDialog";
 import { PublicNetworkBanner } from "./features/settings/PublicNetworkBanner";
 import { resetLaunches } from "./features/launch/launchQueue";
@@ -55,7 +56,7 @@ function Root() {
 
   const markLocked = () => {
     qc.setQueryData<VaultStatus>(qk.vault, (old) => old && { ...old, locked: true });
-    for (const queryKey of [qk.accounts, qk.presence, ["info"], qk.favourites, qk.join, qk.privateServers, qk.discord]) qc.removeQueries({ queryKey });
+    for (const queryKey of [qk.accounts, qk.presence, ["info"], qk.favourites, qk.join, qk.privateServers, qk.discord, ["trades"], qk.tradeDetails, ["friendRequests"], ["ownedServers"], ["robux"], ["robuxTotals"], ["outfits"], qk.values, ["playerValue"]]) qc.removeQueries({ queryKey });
     // A launch kept on show from here (its target can hold a private server's code) goes too. The
     // backend's batch (qk.bulk) stays: "unlock, then launch the ones cancelled" shows after unlock.
     resetLaunches();
@@ -84,6 +85,8 @@ function Root() {
       events.onRobloxClient((c) => qc.setQueryData(qk.client, c)),
       events.onNetwork((n) => qc.setQueryData(qk.network, n)),
       events.onAppUpdate((u) => qc.setQueryData(qk.appUpdate, u)),
+      events.onSettingsChanged(() => void qc.invalidateQueries({ queryKey: qk.settings })),
+      events.onPlayAgain(() => playAllAgain(qc)),
       // Errors stay until dismissed: the window may have been hidden in the tray.
       events.onNotice((n) => toast(n.message, n.error ? "error" : "ok", n.error, n.error ? "error" : "notification")),
       events.onVaultLocked(() => {

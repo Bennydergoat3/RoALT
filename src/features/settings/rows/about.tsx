@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { api } from "../../../api";
-import { qk } from "../../../data";
-import { t } from "../../../i18n";
+import { qk, useExtras } from "../../../data";
+import { fmtList, t } from "../../../i18n";
 import { Button } from "../../../ui/Button";
 import { Switch } from "../../../ui/controls";
 import { DonateDialog } from "../../donate/DonateDialog";
@@ -65,7 +65,7 @@ function Releases() {
 export function VersionRow() {
   const version = import.meta.env.APP_VERSION;
   return (
-    <SettingRow id="version" name={`RoALT ${version}`} title={<span className="set-label">RoALT <span className="mono">{version}</span></span>}>
+    <SettingRow id="version" name={`RoALT ${version}`} title={<span className="set-label">RoALT <span className="mono">{version}</span></span>} detail={t("settings.olderVersions")}>
       <Releases />
     </SettingRow>
   );
@@ -84,8 +84,11 @@ function Support() {
 }
 
 export function SupportRow() {
+  // Asked for with About open; nothing shows until roalt.dev answers.
+  const names = useExtras(true).data?.supporters;
+  const detail = names && (names.length ? t("settings.supporters", { names: fmtList(names) }) : t("settings.supportersNone"));
   return (
-    <SettingRow id="support" title={<span className="set-label">{t("donate.title")}</span>}>
+    <SettingRow id="support" title={<span className="set-label">{t("donate.title")}</span>} detail={detail}>
       <Support />
     </SettingRow>
   );

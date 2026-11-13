@@ -2,11 +2,12 @@ import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "rea
 import { useQueryClient } from "@tanstack/react-query";
 import { open as openFile } from "@tauri-apps/plugin-dialog";
 import { api, asError, type AccountSummary, type ImportReport } from "../../api";
-import { qk } from "../../data";
+import { qk, useGroups } from "../../data";
 import { fmtList, t, tx } from "../../i18n";
 import { Button } from "../../ui/Button";
 import { Segmented } from "../../ui/controls";
 import { Dialog, DialogSteps } from "../../ui/Dialog";
+import { Select } from "../../ui/Field";
 import { Morph } from "../../ui/motion";
 import { friendly, toast } from "../../ui/Toast";
 
@@ -56,13 +57,33 @@ export function Step({ className = "", children }: { className?: string; childre
   );
 }
 
-export function AddAccountDialog({ open, startOn = "login", onClose, onAdded }: {
+/** `group`: the group open in Accounts, offered as the one new accounts go into. `onAdded` is told
+ * the group the account was put in (null: none). */
+export function AddAccountDialog({ open, startOn = "login", group = null, onClose, onAdded }: {
   open: boolean;
   startOn?: Tab;
+  group?: number | null;
   onClose: () => void;
-  onAdded: (a: AccountSummary) => void;
+  onAdded: (a: AccountSummary, group: number | null) => void;
 }) {
   const qc = useQueryClient();
+  const groups = useGroups().data ?? [];
+  // "": no group. A group deleted meanwhile is none.
+  const [into, setInto] = useState("");
+  const gid = groups.some((g) => String(g.id) === into) ? Number(into) : null;
+  /** Puts `a` into the picked group, keeping the ones it has; its failure is a toast, the account stays added. */
+  const file = async (a: AccountSummary) => {
+    if (gid === null || a.groupIds.includes(gid)) return;
+    await api.accountUpdate(a.id, { groupIds: [...a.groupIds, gid] }).catch((e) => toast(friendly(asError(e)), "error"));
+  };
+  /** The accounts there are now, asked of the backend (not the page's copy, which may not be read
+   * yet: every account would then count as new). Null with no group picked: nothing to file. */
+  const known = async () => (gid === null ? null : new Set((await api.accountsList()).map((a) => a.id)));
+  /** Puts every account an import added (those not in `had`) into the picked group. */
+  const fileNew = async (had: Set<number> | null) => {
+    if (had === null) return;
+    for (const a of await api.accountsList()) if (!had.has(a.id)) await file(a);
+  };
   const [tab, setTab] = useState<Tab>(startOn);
   const [direction, setDirection] = useState<1 | -1>(1);
   const [error, setError] = useState<string | null>(null);
@@ -73,6 +94,7 @@ export function AddAccountDialog({ open, startOn = "login", onClose, onAdded }: 
     if (open) {
       setTab(startOn);
       setError(null);
+      setInto(group === null ? "" : String(group));
     }
   }
   // Closed while its request ran: the account is still added, but the app stays where it is.
@@ -104,12 +126,13 @@ export function AddAccountDialog({ open, startOn = "login", onClose, onAdded }: 
     setError(null);
   };
 
-  const added = (a: AccountSummary) => {
+  const added = async (a: AccountSummary) => {
+    await file(a);
     qc.invalidateQueries({ queryKey: qk.accounts });
     qc.invalidateQueries({ queryKey: qk.vault });
     toast(t("accounts.add.added", { name: a.username }));
     if (stillOpen.current) {
-      onAdded(a);
+      onAdded(a, gid);
       onClose();
     }
   };
@@ -118,7 +141,7 @@ export function AddAccountDialog({ open, startOn = "login", onClose, onAdded }: 
     setError(null);
     setWaiting(true);
     try {
-      added(await api.accountAddLogin());
+      await added(await api.accountAddLogin());
     } catch (e) {
       const err = asError(e);
       if (err.kind !== "cancelled") setError(friendly(err));
@@ -135,7 +158,7 @@ export function AddAccountDialog({ open, startOn = "login", onClose, onAdded }: 
     setError(null);
     setBusy(true);
     try {
-      added(await api.accountAddCookie(value));
+      await added(await api.accountAddCookie(value));
     } catch (e) {
       setError(friendly(asError(e)));
     } finally {
@@ -167,7 +190,10 @@ export function AddAccountDialog({ open, startOn = "login", onClose, onAdded }: 
     setError(null);
     setBusy(true);
     try {
-      imported(await run());
+      const had = await known();
+      const r = await run();
+      await fileNew(had);
+      imported(r);
     } catch (e) {
       setError(friendly(asError(e)));
     } finally {
@@ -183,7 +209,7 @@ export function AddAccountDialog({ open, startOn = "login", onClose, onAdded }: 
     const logins = parseLogins(value);
     runImport(async () => {
       // Cookies first (also what says "nothing found" when there is neither), then the sign-ins.
-      const r = value.includes(COOKIE_MARK) || !logins.length ? await api.accountsImportCookies(value) : { added: 0, updated: 0, skipped: 0, failed: 0 };
+      const r = value.includes(COOKIE_MARK) || !logins.length ? await api.accountsImportCookies(value) : { added: 0, updated: 0, skipped: 0, failed: 0, settings: null };
       return logins.length ? signInEach(logins, r) : r;
     });
   }
@@ -254,6 +280,17 @@ export function AddAccountDialog({ open, startOn = "login", onClose, onAdded }: 
             { value: "many", label: t("accounts.add.tabMany") },
           ]}
         />
+        {groups.length > 0 && (
+          <label className="flex items-center gap-2 text-[13px] text-fg-2">
+            {t("accounts.addToGroup")}
+            <Select
+              aria-label={t("accounts.addToGroup")}
+              value={gid === null ? "" : String(gid)}
+              onChange={setInto}
+              options={[{ value: "", label: t("accounts.add.noGroup") }, ...groups.map((g) => ({ value: String(g.id), label: g.name }))]}
+            />
+          </label>
+        )}
       </div>
       <DialogSteps step={tab} direction={direction}>
         {tab === "login" ? (

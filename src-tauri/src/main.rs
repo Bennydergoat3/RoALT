@@ -3,14 +3,18 @@
 #[macro_use]
 mod i18n;
 mod browse;
+mod clips;
 mod commands;
 mod cookie_export;
 mod diagnostics;
 mod discord;
+mod hotkeys;
 mod error;
 mod instances;
 mod launcher;
+mod http;
 mod model;
+mod mods;
 mod network;
 mod performance;
 mod roblox_api;
@@ -23,6 +27,7 @@ mod splash;
 mod storage;
 mod tray;
 mod vault;
+mod watch;
 mod webview;
 
 use std::io::ErrorKind;
@@ -481,6 +486,22 @@ fn init(app: &TauriApp, data_dir: &Path, moved_from: Option<&Path>) -> std::resu
             commands::notice(&handle, true, tr!("{why} The panic hotkey is off; change it in Settings, Automation.", why = e.message()));
         });
     }
+    if let Err(e) = commands::set_clip_hotkey(app.handle(), "", commands::clip_key(&settings)) {
+        let handle = app.handle().clone();
+        tauri::async_runtime::spawn(async move {
+            tokio::time::sleep(Duration::from_secs(5)).await;
+            commands::notice(&handle, true, tr!("{why} The clip key is off; change it in Clips.", why = e.message()));
+        });
+    }
+    // A global key that can't be had is off and said (the first one); the others work.
+    if let Some(e) = hotkeys::sync(app.handle()).into_iter().next() {
+        let handle = app.handle().clone();
+        tauri::async_runtime::spawn(async move {
+            tokio::time::sleep(Duration::from_secs(5)).await;
+            commands::notice(&handle, true, e.message());
+        });
+    }
+    clips::library::sweep();
     // AutoHotkey's work folder from the removed Macros feature; a crash could leave scripts in it.
     let _ = std::fs::remove_dir_all(data_dir.join("macros"));
     if let Err(e) = tray::setup(app.handle()) {
@@ -501,8 +522,15 @@ fn init(app: &TauriApp, data_dir: &Path, moved_from: Option<&Path>) -> std::resu
     instances::afk::spawn(app.handle().clone());
     network::spawn(app.handle().clone());
     launcher::flags::restore();
+    mods::library::sweep(&app.state::<App>().db);
+    match app.state::<App>().db.prune_cache(commands::now_ms()) {
+        Ok(0) => {}
+        Ok(n) => log::info!("cache: {n} old rows dropped"),
+        Err(e) => log::warn!("cache: old rows not dropped: {e}"),
+    }
     launcher::client_settings::spawn(app.handle().clone());
     discord::spawn(app.handle().clone());
+    watch::spawn(app.handle().clone());
     rpc::spawn(app.handle().clone());
     launcher::update::spawn(app.handle().clone());
     remind_bandwidth(app.handle().clone());
@@ -521,7 +549,7 @@ fn remind_bandwidth(handle: AppHandle) {
             commands::notice(
                 &handle,
                 true,
-                tr!("The Roblox bandwidth limit is off: Windows clears it when it restarts. Apply it again in Performance > More settings."),
+                tr!("The Roblox bandwidth limit is off: Windows clears it when it restarts. Apply it again in Settings > Performance > Network."),
             );
         }
     });
@@ -606,7 +634,12 @@ fn main() {
 
     tauri::Builder::default()
         // Must be first: a second launch shows the running window instead.
-        .plugin(tauri_plugin_single_instance::init(|app, _, _| tray::show_main(app)))
+        .plugin(tauri_plugin_single_instance::init(|app, args, _| {
+            // A Play click on roblox.com starts its client without bringing RoALT up.
+            if commands::open_link(app, args) {
+                tray::show_main(app);
+            }
+        }))
         .plugin(
             tauri_plugin_log::Builder::new()
                 .clear_targets()
@@ -620,17 +653,31 @@ fn main() {
                 .rotation_strategy(RotationStrategy::KeepSome(5))
                 .build(),
         )
-        // The panic hotkey (`settings.panic_hotkey`, registered by `commands::set_panic_hotkey`),
-        // the only global shortcut RoALT registers, kills all.
+        // The global shortcuts RoALT registers: the clip key (`settings.clip_hotkey`, while an
+        // account is picked) saves a clip; the panic hotkey (`settings.panic_hotkey`) kills all.
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
-                .with_handler(|app, _key, e| {
-                    if e.state == ShortcutState::Pressed {
+                .with_handler(|app, key, e| {
+                    if e.state != ShortcutState::Pressed {
+                        return;
+                    }
+                    if clips::is_key(key) {
+                        clips::save(app);
+                    } else if commands::is_panic_key(key) {
                         tray::kill_all(app);
+                    } else if let Some(id) = hotkeys::id_of(key) {
+                        tray::on_menu(app, &id);
                     }
                 })
                 .build(),
         )
+        // Clips for the Clips view's player: only the main window, only files in Videos\RoALT.
+        .register_asynchronous_uri_scheme_protocol("clip", |ctx, request, responder| {
+            if ctx.webview_label() != "main" {
+                return responder.respond(clips::serve::refuse(403));
+            }
+            std::thread::spawn(move || responder.respond(clips::serve::clip(&request)));
+        })
         // "main" is restored by `splash::start`, which shows it small first.
         .plugin(tauri_plugin_window_state::Builder::new().with_filter(|label| label == "main").skip_initial_state("main").build())
         .plugin(tauri_plugin_opener::init())
@@ -641,6 +688,8 @@ fn main() {
             if let Err(message) = init(app, &data_dir, moved_from.as_deref()) {
                 fatal(&message);
             }
+            // Opened by a `roalt://` link: Play takes it once the UI is up.
+            commands::open_link(app.handle(), std::env::args().skip(1));
             Ok(())
         })
         .on_window_event(on_window_event)
@@ -664,6 +713,7 @@ fn main() {
             commands::accounts_reorder,
             commands::accounts_remove,
             commands::accounts_validate,
+            commands::accounts_robux,
             commands::accounts_befriend,
             commands::account_reveal_cookie,
             commands::account_copy_cookie,
@@ -681,6 +731,24 @@ fn main() {
             commands::playtime_list,
             commands::games_popular,
             commands::target_parse,
+            commands::take_pending_link,
+            commands::market_items,
+            commands::asset_thumbnails,
+            commands::clips_status,
+            commands::clips_save,
+            commands::clips_list,
+            commands::clips_rename,
+            commands::clips_delete,
+            commands::clips_reveal,
+            commands::clips_open_folder,
+            commands::clips_folder,
+            commands::mods_list,
+            commands::mods_import,
+            commands::mods_export,
+            commands::mods_export_name,
+            commands::mods_remove,
+            commands::mods_set_on,
+            commands::mods_reorder,
             commands::user_lookup,
             commands::launch,
             commands::favourites_list,
@@ -719,6 +787,7 @@ fn main() {
             commands::diagnostics_text,
             commands::diagnostics_save,
             commands::server_history,
+            commands::server_history_recent,
             commands::crash_open_log,
             commands::discord_get,
             commands::discord_set,
@@ -735,7 +804,10 @@ fn main() {
             commands::target_place,
             commands::roblox_client,
             commands::roblox_install,
+            commands::roblox_launchers,
+            commands::roblox_launcher_set,
             commands::news,
+            commands::extras,
             commands::online_ping,
             commands::self_update_status,
             commands::self_update_check,
@@ -759,6 +831,24 @@ fn main() {
             commands::private_server_update,
             commands::private_server_renew,
             commands::private_server_buy,
+            commands::outfits_list,
+            commands::outfit_wear,
+            commands::outfit_save,
+            commands::outfit_rename,
+            commands::outfit_delete,
+            commands::trades_list,
+            commands::trade_details,
+            commands::trade_accept,
+            commands::trade_decline,
+            commands::friend_requests_list,
+            commands::friend_request_answer,
+            commands::friend_requests_decline_all,
+            commands::robux_transactions,
+            commands::robux_totals,
+            commands::private_servers_owned,
+            commands::playtime_days,
+            commands::crashes_export,
+            commands::playtime_export,
             commands::groups_list,
             commands::group_save,
             commands::group_remove,
@@ -769,6 +859,7 @@ fn main() {
             commands::performance_read,
             commands::performance_parse,
             commands::performance_benchmark,
+            commands::performance_specs,
             commands::settings_get,
             commands::settings_set,
             commands::network_status,

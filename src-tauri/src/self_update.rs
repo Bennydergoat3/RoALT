@@ -362,6 +362,21 @@ pub fn switched(app: &AppHandle, on: bool) {
     });
 }
 
+/// Tells Discord of `version` once (which one was told is kept, so a restart doesn't say it again).
+fn told_discord(app: &AppHandle, version: &str) {
+    const KEY: &str = "discordToldUpdate";
+    let db = &app.state::<App>().db;
+    if db.setting_value(KEY).ok().flatten().as_deref() == Some(version) {
+        return;
+    }
+    // Not queued (no webhook, switched off, vault locked): the next check tries again.
+    if crate::discord::notify(app, crate::discord::Event::Update { version: version.to_owned() })
+        && let Err(e) = db.set_setting_value(KEY, Some(version))
+    {
+        log::debug!("the told update isn't remembered: {e}");
+    }
+}
+
 /// Deletes what earlier updates left in %TEMP%, then checks at start and every 6 hours
 /// while `settings.self_update` is on; `app://update` when there is a newer version.
 pub fn spawn(app: AppHandle) {
@@ -379,6 +394,7 @@ pub fn spawn(app: AppHandle) {
                 match check(&app).await {
                     Ok(u) if u.available.is_some() => {
                         let _ = app.emit(UPDATE_EVENT, &u);
+                        told_discord(&app, u.available.as_deref().unwrap_or_default());
                     }
                     Ok(_) => {}
                     Err(e) => log::info!("RoALT update check failed: {e}"),

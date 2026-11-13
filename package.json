@@ -1,7 +1,7 @@
 {
   "name": "roalt",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.2.0",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -13,6 +13,7 @@
     "test:sounds": "node --experimental-strip-types scripts/test-sounds.mjs",
     "test:news": "node --experimental-strip-types scripts/test-news.mjs",
     "test:liquid": "node --experimental-strip-types scripts/test-liquid.mjs",
+    "test:look": "node --experimental-strip-types scripts/test-look.mjs",
     "tauri": "tauri",
     "bindings": "cargo test --manifest-path src-tauri/Cargo.toml export_bindings"
   },

@@ -1,25 +1,28 @@
 // Every setting RoALT has, as data: where its row lives, its words, its control and when it shows.
-// Settings renders from it, and one search covers Settings, Performance and Discord, plus
-// links to per-account, per-launch and per-client settings in other views.
+// Settings renders from it (Performance's rows are one of its areas), and one search covers
+// Settings and Discord, plus links to per-account, per-launch and per-client settings in other views.
 import { LANGUAGES, t, type Key } from "../../i18n";
 import { motionPreference } from "../../ui/motion";
+import { RANGES } from "../../ui/ranges";
 import type { View } from "../../app/navigation";
 import type { AntiAfk, DiscordEvents, Settings, VaultStatus } from "../../api";
 import type { MemThrottle } from "../../bindings/MemThrottle";
 import type { RenderFlags } from "../../bindings/RenderFlags";
-import { AREAS, type AreaDef, type SettingsArea } from "./areas";
+import { AREAS, ROW_IDS, type AreaDef, type SettingsArea } from "./areas";
+import { GOALS, UNPLACED } from "./goals";
 import { SHORTCUTS } from "./shortcuts";
 import { PERFORMANCE_ENTRIES } from "../performance/entries";
 import { DISCORD_ENTRIES } from "../discord/entries";
+import { CLIPS_ENTRIES } from "../clips/entries";
 
 export type { AreaDef, SettingsArea };
 
 /** Where a row lives. A link-only place is another view's: search and jumps go there. */
 export type Place =
   | { view: "settings"; area: SettingsArea; group?: Key }
-  | { view: "performance"; group: Key }
   | { view: "discord"; group?: Key }
-  | { view: Extract<View, "accounts" | "launch" | "dashboard">; link: true };
+  | { view: "clips"; group?: Key }
+  | { view: Extract<View, "accounts" | "launch" | "dashboard" | "mods">; link: true };
 
 /** What conditions and changing lines read. `background`: a background image is set. */
 export type Ctx = { s: Settings; vault: VaultStatus; background: boolean };
@@ -80,7 +83,7 @@ export type Entry = {
   /** Where search and jumps go while `when` is false (else the parent). */
   fallback?: string;
   /** Queries a successful write makes stale. */
-  invalidates?: readonly ("multi" | "values")[];
+  invalidates?: readonly ("multi" | "values" | "market" | "tradeDetails")[];
   /** ASCII search words (fps, afk, qos): never shown, never translated. */
   aliases?: readonly string[];
 };
@@ -91,6 +94,7 @@ const ACTION = { kind: "action" } as const;
 const LINK = { kind: "link" } as const;
 const launching = { view: "settings", area: "launching" } as const;
 const appearance = { view: "settings", area: "appearance" } as const;
+const shortcuts = { view: "settings", area: "shortcuts" } as const;
 const security = { view: "settings", area: "security" } as const;
 const data = { view: "settings", area: "data" } as const;
 const about = { view: "settings", area: "about" } as const;
@@ -115,6 +119,14 @@ const SETTINGS_ENTRIES: readonly Entry[] = [
   { id: "autoRejoin", place: launching, label: "settings.autoRejoin", hint: "settings.autoRejoinHint", field: "autoRejoin", control: SWITCH, aliases: ["reconnect", "disconnect", "kick"] },
   { id: "autoRestart", place: launching, label: "settings.autoRestart", hint: "settings.autoRestartShort", more: "settings.autoRestartHint", field: "autoRestartOnCrash", control: SWITCH, aliases: ["crash", "hang", "relaunch"] },
   { id: "breaker", place: launching, label: "settings.breaker", more: "settings.breakerHint", field: ["breakerMax", "breakerWindowMin"], control: CUSTOM, aliases: ["breaker", "retries", "tries"] },
+  {
+    id: "restartEvery", place: launching, label: "settings.restartEvery", hint: "settings.restartEveryShort", more: "settings.restartEveryHint", field: "restartEveryH",
+    control: { kind: "offOrValue", ...RANGES.timerHours, unit: "settings.unit.hours", short: "settings.unit.h" }, aliases: ["restart", "timer", "hours", "schedule", "memory leak"],
+  },
+  {
+    id: "closeAfter", place: launching, label: "settings.closeAfter", hint: "settings.closeAfterShort", field: "closeAfterH",
+    control: { kind: "offOrValue", ...RANGES.timerHours, unit: "settings.unit.hours", short: "settings.unit.h" }, aliases: ["close", "stop", "timer", "hours", "schedule"],
+  },
   { id: "antiAfk", place: launching, label: "settings.antiAfk", hint: "settings.antiAfkShort", more: ["settings.antiAfkHint", "settings.antiAfkHowHint"], field: "antiAfk.enabled", control: SWITCH, aliases: ["afk", "idle", "kick"] },
   {
     id: "antiAfkEvery", place: launching, parent: "antiAfk", when: (c) => c.s.antiAfk.enabled, label: "settings.antiAfkEvery", hint: "settings.antiAfkEveryHint", field: "antiAfk.intervalMin",
@@ -124,20 +136,39 @@ const SETTINGS_ENTRIES: readonly Entry[] = [
     id: "panic", place: launching, label: "settings.panic", hint: "settings.panicShort", more: "settings.panicHint", field: "panicHotkey",
     control: { kind: "text", placeholder: "settings.placeholderOff", size: "md" }, aliases: ["kill", "hotkey", "emergency"],
   },
+  { id: "keyToggle", place: shortcuts, label: "settings.keyToggle", hint: "settings.globalKeyHint", field: "toggleHotkey", control: { kind: "text", placeholder: "settings.placeholderOff", size: "md" }, aliases: ["hotkey", "global", "tray", "show", "hide"] },
+  { id: "keyTile", place: shortcuts, label: "dashboard.tile", hint: "settings.globalKeyHint", field: "tileHotkey", control: { kind: "text", placeholder: "settings.placeholderOff", size: "md" }, aliases: ["hotkey", "global", "tile", "windows"] },
+  { id: "keyMinimize", place: shortcuts, label: "dashboard.minimizeAll", hint: "settings.globalKeyHint", field: "minimizeHotkey", control: { kind: "text", placeholder: "settings.placeholderOff", size: "md" }, aliases: ["hotkey", "global", "minimize"] },
   { id: "closeGrace", place: launching, label: "settings.closeGrace", hint: "settings.closeGraceHint", field: "closeGraceS", control: { kind: "number", min: 1, max: 60, unit: "settings.unit.seconds", short: "settings.unit.s" } },
   { id: "shutdown", place: launching, label: "settings.shutdown", hint: "settings.shutdownShort", more: "settings.shutdownHintClose", control: ACTION, aliases: ["timer", "power", "turn off"] },
+  {
+    id: "defaultLauncher", place: launching, label: "settings.defaultLauncher", hint: "settings.defaultLauncherHint", more: "settings.defaultLauncherMore", control: CUSTOM,
+    aliases: ["bloxstrap", "fishstrap", "froststrap", "voidstrap", "bootstrapper", "protocol", "roblox-player", "links"],
+  },
+  { id: "askBrowserLinks", place: launching, label: "settings.askBrowserLinks", more: "settings.askBrowserLinksHint", field: "askBrowserLinks", control: SWITCH, aliases: ["roblox-player", "links", "browser", "play", "website", "account"] },
   { id: "client", place: launching, label: "settings.client", more: "settings.clientInstallHint", control: ACTION, aliases: ["roblox", "install", "update", "version", "bloxstrap"] },
   { id: "autoUpdate", place: launching, label: "settings.autoUpdate", more: "settings.autoUpdateHint", field: "autoUpdate", control: SWITCH, aliases: ["roblox", "version"] },
 
+  { id: "theme", place: appearance, label: "settings.theme", hint: "settings.themeHint", field: "theme", control: CUSTOM, aliases: ["dark", "light", "mode", "custom"] },
+  { id: "themes", place: appearance, label: "look.themes", hint: "look.themesHint", field: ["theme", "look", "accent", "corners"], control: CUSTOM, aliases: ["theme", "preset", "midnight", "sakura", "terminal", "ocean", "paper"] },
   {
-    id: "theme", place: appearance, label: "settings.theme", hint: "settings.themeHint", field: "theme", aliases: ["dark", "light", "mode"],
-    control: { kind: "segmented", options: [{ value: "dark", label: "settings.themeDark" }, { value: "light", label: "settings.themeLight" }, { value: "system", label: "settings.themeSystem" }] },
+    id: "look", place: appearance, when: (c) => c.s.theme === "custom", fallback: "theme", label: "look.title", hint: "look.hint", field: "look", control: CUSTOM,
+    aliases: ["colour", "color", "colours", "colors", "window", "title bar", "island", "navigation", "panels", "tabs", "buttons", "text", "borders", "customize", "customise"],
   },
+  { id: "lookShare", place: appearance, when: (c) => c.s.theme === "custom", fallback: "themes", label: "look.share", hint: "look.shareHint", control: ACTION, aliases: ["share", "code", "export", "import", "theme"] },
   { id: "accent", place: appearance, label: "settings.accentColour", hint: "settings.accentHint", field: "accent", control: CUSTOM, aliases: ["color", "colour", "highlight"] },
-  { id: "background", place: appearance, label: "settings.background", more: "settings.backgroundHint", control: CUSTOM, aliases: ["wallpaper", "picture", "image"] },
+  {
+    id: "corners", place: appearance, label: "look.corners", hint: "look.cornersHint", field: "corners", aliases: ["radius", "round", "rounded", "square", "sharp"],
+    control: { kind: "segmented", options: ([[0, "look.corners0"], [50, "look.corners50"], [100, "look.corners100"], [150, "look.corners150"], [200, "look.corners200"]] as const).map(([value, label]) => ({ value, label })) },
+  },
+  { id: "background", place: appearance, label: "settings.background", more: "settings.backgroundHint", control: CUSTOM, aliases: ["wallpaper", "picture", "image", "gif", "animated"] },
   {
     id: "backgroundDim", place: appearance, parent: "background", when: (c) => c.background, label: "settings.backgroundDim", field: "backgroundDim",
     control: { kind: "segmented", mono: true, options: [40, 60, 80].map((n) => ({ value: n, label: { key: "settings.percent", params: { n } }, title: { key: "settings.backgroundCovers", params: { n } } })) },
+  },
+  {
+    id: "backgroundMotion", place: appearance, parent: "background", when: (c) => c.background, label: "look.motion", more: "look.motionHint", field: "backgroundMotion", aliases: ["gif", "animated", "pause"],
+    control: { kind: "segmented", options: [{ value: "focused", label: "look.motionFocused" }, { value: "always", label: "look.motionAlways" }, { value: "never", label: "look.motionNever" }] },
   },
   {
     id: "density", place: appearance, label: "settings.density", hint: "settings.densityHint", field: "density", aliases: ["compact", "rows"],
@@ -174,6 +205,7 @@ const SETTINGS_ENTRIES: readonly Entry[] = [
     control: { kind: "segmented", label: "settings.autoLockLabel", mono: true, options: [0, 5, 15, 30, 60].map((n) => ({ value: n, label: n ? { key: "settings.minutes", params: { n } } : "common.off" })) },
   },
   { id: "clipboard", place: security, label: "settings.clipboard", field: "clipboardClearSeconds", control: { kind: "number", min: 5, max: 300, unit: "settings.unit.seconds", short: "settings.unit.s" }, aliases: ["copy", "cookie"] },
+  { id: "signInWatch", place: security, label: "settings.signInWatch", hint: "settings.signInWatchShort", more: "settings.signInWatchHint", field: "signInWatch", control: SWITCH, aliases: ["cookie", "sign in", "expired", "check", "validate"] },
   { id: "lockPurchases", place: security, label: "settings.lockPurchases", hint: "settings.lockPurchasesShort", more: "settings.lockPurchasesHint", field: "lockPurchases", control: SWITCH, aliases: ["robux", "buy", "spend", "purchase", "premium", "money"] },
   { id: "publicNetworks", place: security, label: "settings.public", hint: "settings.publicShort", more: "settings.publicHint", field: "allowPublicNetworks", control: CUSTOM, aliases: ["wifi", "network", "cafe", "hotel"] },
 
@@ -185,12 +217,13 @@ const SETTINGS_ENTRIES: readonly Entry[] = [
 
   { id: "selfUpdate", place: about, label: "settings.selfUpdate", more: "settings.selfUpdateHint", field: "selfUpdate", control: CUSTOM, aliases: ["update", "github", "version"] },
   { id: "onlineCount", place: about, label: "settings.onlineCount", more: "settings.onlineCountHint", field: "onlineCount", control: SWITCH, aliases: ["online", "users", "counter", "telemetry", "privacy"] },
+  { id: "showSponsor", place: about, label: "settings.showSponsor", more: "settings.showSponsorHint", field: "showSponsor", control: SWITCH, aliases: ["sponsor", "sponsored", "ads", "news", "privacy"] },
   {
     id: "rolimons", place: about, label: "settings.rolimons", hint: "settings.rolimonsShort", more: "settings.rolimonsHint", field: "rolimonsValues",
-    control: SWITCH, invalidates: ["values"], aliases: ["rolimons", "value", "rap", "limiteds", "trading", "privacy"],
+    control: SWITCH, invalidates: ["values", "market", "tradeDetails"], aliases: ["rolimons", "value", "rap", "limiteds", "trading", "trades", "privacy"],
   },
-  { id: "version", place: about, label: "settings.openReleases", hint: "settings.aboutShort", more: "settings.aboutHint", control: ACTION, aliases: ["version", "about", "changelog", "privacy"] },
-  { id: "support", place: about, label: "app.joinDiscord", control: ACTION, aliases: ["donate", "robux", "community", "help"] },
+  { id: "version", place: about, label: "settings.openReleases", hint: "settings.aboutShort", more: "settings.aboutHint", control: ACTION, aliases: ["version", "about", "changelog", "privacy", "downgrade", "older", "previous"] },
+  { id: "support", place: about, label: "app.joinDiscord", control: ACTION, aliases: ["donate", "robux", "community", "help", "supporters", "coffee"] },
 ];
 
 const accounts = { view: "accounts", link: true } as const;
@@ -206,6 +239,7 @@ const LINK_ENTRIES: readonly Entry[] = [
   { id: "launch.windowLayout", place: { view: "launch", link: true }, label: "launch.layout", hint: "launch.layoutHint", field: "windowLayout", control: LINK, aliases: ["tile", "fit", "tiny"] },
   { id: "launch.fpsCap", place: { view: "launch", link: true }, label: "launch.fpsCap", hint: "launch.fpsHint", control: LINK, aliases: ["fps"] },
   { id: "client.antiAfk", place: { view: "dashboard", link: true }, label: "launch.limits.antiAfkClient", control: LINK, aliases: ["afk"] },
+  { id: "mods.on", place: { view: "mods", link: true }, label: "mods.useMods", hint: "mods.lead", control: LINK, aliases: ["mods", "modpack", "textures", "sounds", "sky", "cursor", "font", "bloxstrap"] },
 ];
 
 const KEY_ENTRIES: readonly Entry[] = SHORTCUTS.map((s) => ({
@@ -217,7 +251,7 @@ const KEY_ENTRIES: readonly Entry[] = SHORTCUTS.map((s) => ({
   aliases: ["shortcut", "hotkey", s.combo.toLowerCase()],
 }));
 
-export const ENTRIES: readonly Entry[] = [...SETTINGS_ENTRIES, ...PERFORMANCE_ENTRIES, ...DISCORD_ENTRIES, ...LINK_ENTRIES, ...KEY_ENTRIES];
+export const ENTRIES: readonly Entry[] = [...SETTINGS_ENTRIES, ...PERFORMANCE_ENTRIES, ...DISCORD_ENTRIES, ...CLIPS_ENTRIES, ...LINK_ENTRIES, ...KEY_ENTRIES];
 
 const BY_ID = new Map(ENTRIES.map((e) => [e.id, e]));
 const KIDS = new Map<string, Entry[]>();
@@ -254,4 +288,16 @@ if (import.meta.env.DEV) {
   const listed = new Set(AREAS.flatMap((a) => a.groups.flatMap((g) => g.ids)));
   for (const e of ENTRIES)
     if (e.place.view === "settings" && !e.parent && !listed.has(e.id)) console.warn(`settings: "${e.id}" is placed in ${e.place.area}, but AREAS doesn't list it`);
+  // Goals (goals.ts) hold the same rows a second way: each row once, and only entries that exist.
+  if (UNPLACED.length) console.warn(`settings goals: no goal lists ${UNPLACED.join(", ")} (shown under the last goal)`);
+  const seen = new Set<string>();
+  const rows = new Set(ROW_IDS);
+  for (const g of GOALS) {
+    for (const id of [...g.start, ...g.tune]) {
+      if (!rows.has(id)) console.warn(`settings goals: "${g.id}" lists "${id}", which isn't a row of Settings`);
+      if (seen.has(id)) console.warn(`settings goals: "${id}" is in two goals (its row would be drawn twice)`);
+      seen.add(id);
+    }
+    for (const id of g.links) if (!BY_ID.has(id)) console.warn(`settings goals: "${g.id}" links to "${id}", which isn't an entry`);
+  }
 }

@@ -7,6 +7,7 @@ pub mod bulk;
 pub mod client;
 pub mod client_settings;
 pub mod flags;
+pub mod links;
 pub mod target;
 pub mod update;
 pub mod uri;
@@ -130,9 +131,9 @@ pub fn launch_args(text: &str) -> Result<Vec<String>> {
     Ok(args)
 }
 
-/// The account's own launch arguments, else the default from settings (`launch_args`).
+/// The account's own launch arguments, else its groups', else the default from settings (`launch_args`).
 fn args_for(s: &App, account_id: i64) -> Result<Vec<String>> {
-    let own = s.db.account(account_id)?.launch_args;
+    let own = s.db.effective(account_id)?.launch_args;
     launch_args(&own.map_or_else(|| s.db.settings().map(|v| v.launch_args), Ok)?)
 }
 
@@ -151,9 +152,17 @@ pub async fn launch(s: &App, account_id: i64, target: &LaunchTarget, fps_cap: Op
     let cookie = account_cookie(s, account_id)?;
     // Before any cookie call: no ticket is fetched when Roblox isn't installed or the arguments
     // are refused.
-    let (exe, production) = update::launch_client(s).await?;
+    let (exe, production, self_updates) = update::launch_client(s).await?;
     let args = args_for(s, account_id)?;
     let (join, warning) = resolve(&s.api, account_id, &cookie, target).await?;
+    // After everything that can refuse the launch, so a refused one builds no copy.
+    // Up to a few seconds of file work (a plain copy where links fail): off the async workers.
+    let (exe, mods_skipped) = tokio::task::block_in_place(|| crate::mods::runtime::prepare(s, exe, self_updates));
+    let warning = match (warning, mods_skipped) {
+        (w, None) => w,
+        (None, Some(m)) => Some(tr!("Modpacks weren't applied: {why}", why = m)),
+        (Some(w), Some(m)) => Some(format!("{w} {}", tr!("Modpacks weren't applied: {why}", why = m))),
+    };
     // Read again before each call: Roblox can rotate the cookie in any answer, and the old one stops working.
     let assertion = s
         .api
@@ -164,11 +173,18 @@ pub async fn launch(s: &App, account_id: i64, target: &LaunchTarget, fps_cap: Op
     let ticket = s.api.authentication_ticket(account_id, &account_cookie(s, account_id)?, assertion.as_ref()).await?;
     let (browser_tracker_id, started_at) = (uri::new_browser_tracker_id(), crate::commands::now_ms());
     let place = uri::PlaceLaunch { join: &join, browser_tracker_id, join_attempt_id: Uuid::new_v4() };
-    let settings = s.db.settings()?;
-    let account = s.db.account(account_id)?;
-    let fps = fps_cap.or(account.fps_cap).unwrap_or(settings.fps_cap);
-    let undo = client_settings::apply(&s.db, fps, settings.low_graphics && !account.full_quality);
-    let lighter = (settings.lighter_rendering && !account.full_quality).then_some(&settings.render_flags);
+    let global = s.db.settings()?;
+    // With its groups' defaults: the cap and Full quality may come from them.
+    let account = s.db.effective(account_id)?;
+    // Its own performance profile's settings over the ones in Settings.
+    let settings = crate::performance::overlay(&global, account.profile.as_ref());
+    // The account's own cap, then its own profile's, then its groups': what is set on the account wins.
+    let own_cap = s.db.account(account_id)?.fps_cap;
+    let fps = fps_cap.or(own_cap).or(account.profile.as_ref().and_then(|p| p.fps_cap)).or(account.fps_cap).unwrap_or(global.fps_cap);
+    // The account Clips record counts as full quality: its clips shouldn't be at the lowest graphics.
+    let full_quality = account.full_quality || settings.clip_account == Some(account_id);
+    let undo = client_settings::apply(&s.db, fps, settings.low_graphics && !full_quality);
+    let lighter = (settings.lighter_rendering && !full_quality).then_some(&settings.render_flags);
     let custom = match settings.custom_flags_scope {
         FlagScope::Global => &settings.custom_flags,
         FlagScope::Account => &account.custom_flags,

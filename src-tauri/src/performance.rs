@@ -141,6 +141,23 @@ fn patch_of(p: &Profile) -> SettingsPatch {
     }
 }
 
+/// What of `p` one account can have of its own. The rest is shared by every client: a share of the
+/// cores, one memory threshold and default trim, the UI's preview rate.
+pub fn per_client(p: Profile) -> Profile {
+    Profile { mem_throttle: None, trim_every_min: None, auto_spread: None, fair_cap: None, preview_fps: None, ..p }
+}
+
+/// `v` as the clients of an account with the profile `p` get it (pure): `per_client` of `p` over it.
+pub fn overlay<'a>(v: &'a Settings, p: Option<&Profile>) -> std::borrow::Cow<'a, Settings> {
+    let Some(p) = p else { return std::borrow::Cow::Borrowed(v) };
+    let mut v = v.clone();
+    macro_rules! over {
+        ($($f:ident),*) => { $(if let Some(x) = p.$f { v.$f = x; })* };
+    }
+    over!(fps_cap, low_graphics, lighter_rendering, render_flags, minimize_on_launch, mute_on_launch, micro_width, micro_height, tiny_on_launch, mem_restart_mb, adaptive);
+    std::borrow::Cow::Owned(v)
+}
+
 /// The profile in `text`, checked against the rules Settings applies to `current` (pure; nothing is
 /// saved). Unknown keys are ignored; a preview rate the Dashboard doesn't offer is dropped.
 pub fn parse(text: &str, current: &Settings) -> Result<Profile> {
@@ -355,6 +372,59 @@ pub fn measured(rounds: &[Round], cores: u32) -> Bench {
     }
 }
 
+/// How many clients of `per` each fit under 85 % (`TIGHT_BELOW`) of `all` next to `other`, plus
+/// `fixed` already counted (pure); `per` must be above 0.
+fn fit(all: f64, other: f64, per: f64, fixed: u32) -> u32 {
+    (((TIGHT_BELOW * all - other) / per).floor() + f64::from(fixed)).max(0.0) as u32
+}
+
+// shortcut: guessed per-client costs, unmeasured and game-dependent; tune from real benchmarks of each preset.
+/// What one client costs under each preset, by specs alone (no client measured): MB, cores.
+const PER_CLIENT_MAX_ALTS: (f64, f64) = (600.0, 0.10);
+const PER_CLIENT_BALANCED: (f64, f64) = (900.0, 0.30);
+const PER_CLIENT_DEFAULTS: (f64, f64) = (1400.0, 0.90);
+/// Dedicated video memory under which a GPU counts as integrated (it shares the RAM).
+const INTEGRATED_BELOW_MB: f64 = 512.0;
+
+/// About how many clients fit under each preset (`presets.ts`).
+#[derive(Serialize, TS, Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct PresetRooms {
+    pub max_alts: u32,
+    pub balanced: u32,
+    pub defaults: u32,
+}
+
+/// This PC as read without any client running (`commands::performance_specs`).
+#[derive(Serialize, TS, Clone, Debug, PartialEq)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct Specs {
+    /// The processor's name; empty when Windows didn't say.
+    pub cpu: String,
+    pub threads: u32,
+    pub ram_mb: f64,
+    /// The graphics card with the most video memory, and that memory; None: none found.
+    pub gpu: Option<String>,
+    pub vram_mb: f64,
+    pub integrated: bool,
+    pub rooms: PresetRooms,
+}
+
+/// About how many clients fit under each preset, by the guessed costs (pure). `other_*`: what
+/// everything but the clients uses now.
+pub fn spec_rooms(ram_mb: f64, other_mb: f64, cores: u32, other_cores: f64) -> PresetRooms {
+    let cores = f64::from(cores.max(1));
+    let room = |(mb, per_cores): (f64, f64)| fit(ram_mb, other_mb, mb, 0).min(fit(cores, other_cores, per_cores, 0));
+    PresetRooms { max_alts: room(PER_CLIENT_MAX_ALTS), balanced: room(PER_CLIENT_BALANCED), defaults: room(PER_CLIENT_DEFAULTS) }
+}
+
+/// Whether `vram_mb` of dedicated video memory means an integrated GPU (pure).
+pub fn integrated(vram_mb: f64) -> bool {
+    vram_mb < INTEGRATED_BELOW_MB
+}
+
 /// `mb` rounded up to 256 MB, within the memory limits' 512..=65 536.
 fn mem_limit(mb: f64) -> u32 {
     ((mb / 256.0).ceil() * 256.0).clamp(512.0, 65_536.0) as u32
@@ -382,7 +452,7 @@ pub fn suggest(b: &Bench, v: &Settings, target: Option<u32>) -> Advice {
     let room = [(b.ram_mb, b.other_mb, b.per_mb, 0), (cores, b.other_cores + b.free_cores, b.per_cores, free)]
         .into_iter()
         .filter(|&(_, _, per, _)| per > 0.0)
-        .map(|(all, other, per, fixed)| (((TIGHT_BELOW * all - other) / per).floor() + f64::from(fixed)).max(0.0) as u32)
+        .map(|(all, other, per, fixed)| fit(all, other, per, fixed))
         .min();
     let busy = tier != Tier::Light;
     let over = tier == Tier::Over;
@@ -490,6 +560,19 @@ mod tests {
     use super::*;
 
     #[test]
+    fn an_accounts_profile_goes_over_settings_except_what_clients_share() {
+        let v = Settings { fps_cap: 60, fair_cap: false, trim_every_min: 30, ..Settings::default() };
+        assert_eq!(*overlay(&v, None), v);
+        let p = Profile { fps_cap: Some(10), tiny_on_launch: Some(true), mem_restart_mb: Some(2048), fair_cap: Some(true), trim_every_min: Some(5), ..Profile::default() };
+        let own = overlay(&v, Some(&p));
+        assert_eq!((own.fps_cap, own.tiny_on_launch, own.mem_restart_mb), (10, true, 2048));
+        assert_eq!((own.fair_cap, own.trim_every_min), (false, 30), "shared by every client: the ones in Settings");
+        assert_eq!(own.low_graphics, v.low_graphics, "not in the profile: as it is");
+        let kept = per_client(p);
+        assert_eq!((kept.fps_cap, kept.fair_cap, kept.trim_every_min), (Some(10), None, None));
+    }
+
+    #[test]
     fn a_profile_round_trips() {
         let v = Settings { fps_cap: 30, mem_restart_mb: 2048, fair_cap: true, ..Settings::default() };
         let p = parse(&of(&v, Some(5), 1), &Settings::default()).unwrap();
@@ -538,6 +621,33 @@ mod tests {
         assert_eq!(p, Profile { fps_cap: Some(15), ..Default::default() }, "unknown keys and a bad preview rate are dropped");
         let patch = patch_of(&p);
         assert!(patch.launch_args.is_none() && patch.panic_hotkey.is_none());
+    }
+
+    #[test]
+    fn specs_fit_fewer_clients_as_presets_get_heavier() {
+        // 16 GB, 12 threads, 3 GB and 0.5 cores used by the rest.
+        let r = spec_rooms(16_384.0, 3_072.0, 12, 0.5);
+        // RAM: (0.85 * 16384 - 3072) / 600 = 18; CPU: (10.2 - 0.5) / 0.1, about 97.
+        assert_eq!(r.max_alts, 18);
+        // RAM: 12 / CPU: 32.
+        assert_eq!(r.balanced, 12);
+        // RAM: 7 / CPU: (10.2 - 0.5) / 0.9 = 10.
+        assert_eq!(r.defaults, 7);
+        assert!(r.max_alts >= r.balanced && r.balanced >= r.defaults);
+    }
+
+    #[test]
+    fn specs_of_a_full_pc_fit_none() {
+        assert_eq!(spec_rooms(8_192.0, 8_000.0, 4, 0.0), PresetRooms::default());
+        assert_eq!(spec_rooms(16_384.0, 0.0, 4, 4.0), PresetRooms::default(), "the CPU is full");
+        assert_eq!(spec_rooms(0.0, 0.0, 0, 0.0), PresetRooms::default(), "nothing read");
+    }
+
+    #[test]
+    fn small_video_memory_is_integrated() {
+        assert!(integrated(128.0));
+        assert!(integrated(0.0));
+        assert!(!integrated(4_096.0));
     }
 
     fn pc(cores: u32, ram_gb: f64, clients: u32, per_mb: f64, per_cores: f64) -> Bench {

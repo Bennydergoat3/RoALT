@@ -84,7 +84,6 @@ pub fn current() -> &'static str {
     LANGS[CURRENT.load(Ordering::Relaxed) as usize]
 }
 
-#[cfg(windows)]
 fn system_language() -> String {
     use windows::Win32::Globalization::{GetUserDefaultUILanguage, LCIDToLocaleName};
     let mut buf = [0u16; 85];
@@ -93,11 +92,6 @@ fn system_language() -> String {
         log::debug!("LCIDToLocaleName failed: {}", windows::core::Error::from_thread());
     }
     String::from_utf16_lossy(&buf[..(n.max(1) as usize - 1)])
-}
-
-#[cfg(not(windows))]
-fn system_language() -> String {
-    String::new()
 }
 
 /// CLDR plural category of a whole number in `lang`.

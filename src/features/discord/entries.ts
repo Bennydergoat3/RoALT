@@ -2,7 +2,7 @@ import type { Entry } from "../settings/registry";
 import { RANGES } from "../../ui/ranges";
 
 const events = { view: "discord", group: "discord.events" } as const;
-const ev = (key: "launch" | "crash" | "hang" | "disconnect" | "restart" | "memRestart" | "breaker" | "batchDone", label: Entry["label"], hint: Entry["label"]): Entry => ({
+const ev = (key: "launch" | "crash" | "hang" | "disconnect" | "restart" | "memRestart" | "breaker" | "batchDone" | "signIn" | "throttle" | "update" | "trade" | "pc", label: Entry["label"], hint: Entry["label"]): Entry => ({
   id: `ev.${key}`,
   place: events,
   label,
@@ -23,10 +23,15 @@ export const DISCORD_ENTRIES: readonly Entry[] = [
   ev("crash", "discord.evCrash", "discord.evCrashHint"),
   ev("hang", "discord.evHang", "discord.evHangHint"),
   ev("disconnect", "discord.evDisconnect", "discord.evDisconnectHint"),
+  ev("signIn", "discord.evSignIn", "discord.evSignInHint"),
   ev("restart", "discord.evRestart", "discord.evRestartHint"),
   ev("memRestart", "discord.evMemRestart", "discord.evMemRestartHint"),
   ev("breaker", "discord.evBreaker", "discord.evBreakerHint"),
   ev("batchDone", "discord.evBatchDone", "discord.evBatchDoneHint"),
+  ev("throttle", "discord.evThrottle", "discord.evThrottleHint"),
+  ev("update", "discord.evUpdate", "discord.evUpdateHint"),
+  ev("trade", "discord.evTrade", "discord.evTradeHint"),
+  ev("pc", "discord.evPc", "discord.evPcHint"),
   {
     id: "statusSummary", place: events, label: "discord.statusSummary", hint: "discord.statusSummaryHint", field: "discord.statusEveryMin",
     control: { kind: "offOrValue", ...RANGES.statusEveryMin, unit: "settings.unit.minutes", short: "settings.unit.min" }, aliases: ["report", "ram", "cpu"],

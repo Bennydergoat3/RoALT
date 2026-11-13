@@ -2,7 +2,7 @@ import { useRef, useState, type MouseEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
 import { api, type AccountSummary, type Instance } from "../../api";
-import { qk, useMetrics, useSystemUsage } from "../../data";
+import { qk, useGroups, useMetrics, useSystemUsage, withGroupDefaults } from "../../data";
 import { isRtl, t } from "../../i18n";
 import { Button, IconButton } from "../../ui/Button";
 import { Icon } from "../../ui/Icon";
@@ -200,7 +200,9 @@ export function ClientCard({ inst: i, account: a, detailed, width, menuOpen, onS
     : painted && pictureNote ? { tone: "neutral", label: pictureNote, tip: hidden ? t("dashboard.lastPictureHint") : undefined }
     : ageS !== null ? { tone: "neutral", label: t("dashboard.pictureAge", { s: ageS }), tip: t("dashboard.pictureAgeHint") }
     : null;
-  const tags = detailed ? tagsOf(i, a, afkOn, defaultFps) : [];
+  // As run: Full quality or an FPS cap may come from its groups.
+  const groups = useGroups().data;
+  const tags = detailed ? tagsOf(i, a && withGroupDefaults(a, groups ?? []), afkOn, defaultFps) : [];
   const show = () => api.instanceShow(i.id, "focus").catch(toastError);
   const minimize = () => api.instanceShow(i.id, hidden ? "restore" : "minimize").catch(toastError);
   const menuFrom = (e: MouseEvent<HTMLElement>) => {
