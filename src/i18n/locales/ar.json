@@ -741,6 +741,7 @@
   "accounts.select": "تحديد {name}",
   "accounts.favouriteName": "تفضيل {name}",
   "accounts.noMatch": "لا حسابات مطابقة.",
+  "accounts.groupEmpty": "لا حسابات في {name} بعد. حدّد بعضها ضمن «الكل»، ثم اختر «إضافة إلى مجموعة».",
   "accounts.clearFilters": "مسح عوامل التصفية",
   "accounts.selected_zero": "لا تحديد",
   "accounts.selected_one": "المحدد: {count}",

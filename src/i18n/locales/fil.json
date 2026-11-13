@@ -629,6 +629,7 @@
   "accounts.select": "Piliin si {name}",
   "accounts.favouriteName": "I-favourite si {name}",
   "accounts.noMatch": "Walang tugmang account.",
+  "accounts.groupEmpty": "Wala pang account sa {name}. I-check ang ilan sa “Lahat”, tapos piliin ang “Idagdag sa group”.",
   "accounts.clearFilters": "Alisin ang filters",
   "accounts.selected_one": "{count} napili",
   "accounts.selected_other": "{count} napili",

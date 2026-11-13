@@ -36,7 +36,7 @@ const OVERSCAN = 12;
 /** The accounts list. Its columns follow the table's own width (the `acc-table` container). Rows glide
  * to a new order (FLIP) and new ones rise in, on WAAPI and never with motion components: the drag sets
  * the row's transform inline. */
-export function AccountsTable({ rows, ordered, groupById, presence, compact, now, currentId, checked, all, some, live, isChecking, onTick, onTickAll, onOpen, onMenu, onLaunch, menuId, onReorder, onClearFilters, cols, cellsOf, sort, onSort }: {
+export function AccountsTable({ rows, ordered, groupById, presence, compact, now, currentId, checked, all, some, live, isChecking, onTick, onTickAll, onOpen, onMenu, onLaunch, menuId, onReorder, emptyText, onClearFilters, cols, cellsOf, sort, onSort }: {
   /** What the filters show, in list order. */
   rows: AccountSummary[];
   /** Every account in list order: a drop lands among them. */
@@ -61,6 +61,8 @@ export function AccountsTable({ rows, ordered, groupById, presence, compact, now
   /** The row whose "…" menu is open. */
   menuId?: number;
   onReorder: (ids: number[]) => void;
+  /** Why no row shows: nothing matches, or the group on show has no accounts. */
+  emptyText: string;
   onClearFilters: () => void;
   /** The optional columns shown, and each row's cells for them, tab-separated (one string, so a
    * row re-renders only when a cell's text changes). */
@@ -331,7 +333,7 @@ export function AccountsTable({ rows, ordered, groupById, presence, compact, now
       </table>
       {rows.length === 0 && (
         <div className="empty enter m-4">
-          {t("accounts.noMatch")}
+          {emptyText}
           <Button size="md" onClick={onClearFilters}>
             {t("accounts.clearFilters")}
           </Button>

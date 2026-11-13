@@ -163,6 +163,8 @@ export function AccountsView({ accounts, groups, density, vaultMode, clipboardSe
   const needsSignIn = accounts.filter((a) => a.status === "invalid").length;
   const lastChecked = Math.max(0, ...accounts.map((a) => a.statusCheckedAt ?? 0)) || null;
   const activeGroup = group === null ? null : groupById.get(group) ?? null;
+  // A group with nobody in it is not a search that found nothing: it says how accounts get in.
+  const emptyText = activeGroup && accounts.length && !inGroup.length ?t("accounts.groupEmpty", { name: activeGroup.name }) : t("accounts.noMatch");
   const friendable = checkedIds.filter((id) => byId.get(id)?.status === "valid").length;
   const mainAccount = accounts.find((a) => a.main);
   const mainToBefriend = checkedIds.map((id) => byId.get(id)).find((a) => a?.main && a.status === "valid");
@@ -300,7 +302,7 @@ export function AccountsView({ accounts, groups, density, vaultMode, clipboardSe
   useEffect(() => {
     if (lastFilter.current === filterKey) return;
     lastFilter.current = filterKey;
-    const timer = setTimeout(() => announce(shownCount ? t("accounts.shown", { count: shownCount }) : t("accounts.noMatch")), 600);
+    const timer = setTimeout(() => announce(shownCount ? t("accounts.shown", { count: shownCount }) : emptyText), 600);
     return () => clearTimeout(timer);
   }, [filterKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -572,6 +574,7 @@ export function AccountsView({ accounts, groups, density, vaultMode, clipboardSe
                   onLaunch={(id) => onLaunch([id])}
                   menuId={menu && !menu.solo ? menu.id : undefined}
                   onReorder={applyOrder}
+                  emptyText={emptyText}
                   onClearFilters={clearFilters}
                   cols={cols}
                   cellsOf={(a) => cols.map((c) => colText(c, a, extra, now)).join("\t")}

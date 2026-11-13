@@ -629,6 +629,7 @@
   "accounts.select": "Sélectionner {name}",
   "accounts.favouriteName": "Mettre {name} en favori",
   "accounts.noMatch": "Aucun compte ne correspond.",
+  "accounts.groupEmpty": "Aucun compte dans {name} pour l'instant. Coches-en quelques-uns dans « Tous », puis choisis « Ajouter au groupe ».",
   "accounts.clearFilters": "Effacer les filtres",
   "accounts.selected_one": "{count} sélectionné",
   "accounts.selected_other": "{count} sélectionnés",

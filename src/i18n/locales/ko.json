@@ -601,6 +601,7 @@
   "accounts.select": "{name} 선택",
   "accounts.favouriteName": "{name} 즐겨찾기",
   "accounts.noMatch": "일치하는 계정이 없어요.",
+  "accounts.groupEmpty": "{name} 그룹에 아직 계정이 없어요. “전체”에서 계정을 선택한 다음 “그룹에 추가”를 누르세요.",
   "accounts.clearFilters": "필터 지우기",
   "accounts.selected_other": "{count}개 선택됨",
   "accounts.cantLaunch_other": "계정 {count}개는 실행할 수 없어 제외돼요",

@@ -657,6 +657,7 @@
   "accounts.select": "Выбрать {name}",
   "accounts.favouriteName": "{name} в избранное",
   "accounts.noMatch": "Нет подходящих аккаунтов.",
+  "accounts.groupEmpty": "В группе {name} пока нет аккаунтов. Отметьте нужные в списке «Все», затем выберите «Добавить в группу».",
   "accounts.clearFilters": "Сбросить фильтры",
   "accounts.selected_one": "Выбран {count}",
   "accounts.selected_few": "Выбрано {count}",

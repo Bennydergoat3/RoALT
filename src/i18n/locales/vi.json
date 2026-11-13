@@ -601,6 +601,7 @@
   "accounts.select": "Chọn {name}",
   "accounts.favouriteName": "Yêu thích {name}",
   "accounts.noMatch": "Không có tài khoản nào khớp.",
+  "accounts.groupEmpty": "Chưa có tài khoản nào trong {name}. Hãy chọn vài tài khoản trong “Tất cả”, rồi chọn “Thêm vào nhóm”.",
   "accounts.clearFilters": "Xóa bộ lọc",
   "accounts.selected_other": "Đã chọn {count}",
   "accounts.cantLaunch_other": "{count} tài khoản không thể khởi chạy và sẽ bị bỏ qua",

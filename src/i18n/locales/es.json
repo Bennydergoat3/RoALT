@@ -629,6 +629,7 @@
   "accounts.select": "Seleccionar {name}",
   "accounts.favouriteName": "Marcar {name} como favorita",
   "accounts.noMatch": "Ninguna cuenta coincide.",
+  "accounts.groupEmpty": "Aún no hay cuentas en {name}. Marca algunas en “Todas” y elige “Agregar a grupo”.",
   "accounts.clearFilters": "Borrar filtros",
   "accounts.selected_one": "{count} seleccionada",
   "accounts.selected_other": "{count} seleccionadas",

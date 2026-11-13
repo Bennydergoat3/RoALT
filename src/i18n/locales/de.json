@@ -629,6 +629,7 @@
   "accounts.select": "{name} auswählen",
   "accounts.favouriteName": "{name} als Favorit",
   "accounts.noMatch": "Keine passenden Konten.",
+  "accounts.groupEmpty": "Noch keine Konten in {name}. Hake unter „Alle“ ein paar an und wähle dann „Zu Gruppe hinzufügen“.",
   "accounts.clearFilters": "Filter aufheben",
   "accounts.selected_one": "{count} ausgewählt",
   "accounts.selected_other": "{count} ausgewählt",

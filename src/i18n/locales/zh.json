@@ -601,6 +601,7 @@
   "accounts.select": "选择 {name}",
   "accounts.favouriteName": "收藏 {name}",
   "accounts.noMatch": "没有匹配的账号。",
+  "accounts.groupEmpty": "{name} 里还没有账号。在“全部”中勾选账号，然后选择“添加到分组”。",
   "accounts.clearFilters": "清除筛选",
   "accounts.selected_other": "已选择 {count} 个",
   "accounts.cantLaunch_other": "{count} 个账号无法启动，将被跳过",

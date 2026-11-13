@@ -601,6 +601,7 @@
   "accounts.select": "{name} を選択",
   "accounts.favouriteName": "{name} をお気に入りに追加",
   "accounts.noMatch": "一致するアカウントはありません。",
+  "accounts.groupEmpty": "{name} にはまだアカウントがありません。「すべて」でいくつか選択し、「グループに追加」を選んでください。",
   "accounts.clearFilters": "絞り込みを解除",
   "accounts.selected_other": "{count} 件選択中",
   "accounts.cantLaunch_other": "{count} 件のアカウントは起動できないため除外されます",

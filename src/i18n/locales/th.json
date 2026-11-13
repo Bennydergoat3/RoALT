@@ -601,6 +601,7 @@
   "accounts.select": "เลือก {name}",
   "accounts.favouriteName": "ตั้ง {name} เป็นรายการโปรด",
   "accounts.noMatch": "ไม่มีบัญชีที่ตรงกัน",
+  "accounts.groupEmpty": "ยังไม่มีบัญชีใน {name} เลือกบัญชีใน “ทั้งหมด” แล้วเลือก “เพิ่มไปยังกลุ่ม”",
   "accounts.clearFilters": "ล้างตัวกรอง",
   "accounts.selected_other": "เลือกแล้ว {count}",
   "accounts.cantLaunch_other": "{count} บัญชีเปิดเล่นไม่ได้และจะถูกข้าม",

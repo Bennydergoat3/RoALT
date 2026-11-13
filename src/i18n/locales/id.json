@@ -601,6 +601,7 @@
   "accounts.select": "Pilih {name}",
   "accounts.favouriteName": "Jadikan favorit {name}",
   "accounts.noMatch": "Tidak ada akun yang cocok.",
+  "accounts.groupEmpty": "Belum ada akun di {name}. Centang beberapa di “Semua”, lalu pilih “Tambahkan ke grup”.",
   "accounts.clearFilters": "Hapus filter",
   "accounts.selected_other": "{count} dipilih",
   "accounts.cantLaunch_other": "{count} akun tidak dapat diluncurkan dan akan dilewati",

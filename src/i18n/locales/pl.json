@@ -657,6 +657,7 @@
   "accounts.select": "Zaznacz {name}",
   "accounts.favouriteName": "Ulubione: {name}",
   "accounts.noMatch": "Brak pasujących kont.",
+  "accounts.groupEmpty": "W grupie {name} nie ma jeszcze kont. Zaznacz kilka na liście „Wszystkie”, a potem wybierz „Dodaj do grupy”.",
   "accounts.clearFilters": "Wyczyść filtry",
   "accounts.selected_one": "Zaznaczono {count}",
   "accounts.selected_few": "Zaznaczono {count}",

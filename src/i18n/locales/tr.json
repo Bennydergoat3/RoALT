@@ -629,6 +629,7 @@
   "accounts.select": "{name} seç",
   "accounts.favouriteName": "{name} favorilere ekle",
   "accounts.noMatch": "Eşleşen hesap yok.",
+  "accounts.groupEmpty": "{name} grubunda henüz hesap yok. “Tümü” altında birkaçını işaretleyin, sonra “Gruba ekle”yi seçin.",
   "accounts.clearFilters": "Filtreleri temizle",
   "accounts.selected_one": "{count} seçili",
   "accounts.selected_other": "{count} seçili",

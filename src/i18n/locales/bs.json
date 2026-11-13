@@ -657,6 +657,7 @@
   "accounts.select": "Odaberi {name}",
   "accounts.favouriteName": "Favorit {name}",
   "accounts.noMatch": "Nijedan račun ne odgovara.",
+  "accounts.groupEmpty": "U grupi {name} još nema računa. Označite neke pod „Svi”, zatim odaberite „Dodaj u grupu”.",
   "accounts.clearFilters": "Ukloni filtere",
   "accounts.selected_one": "{count} odabran",
   "accounts.selected_few": "{count} odabrana",

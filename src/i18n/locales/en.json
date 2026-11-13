@@ -629,6 +629,7 @@
   "accounts.select": "Select {name}",
   "accounts.favouriteName": "Favourite {name}",
   "accounts.noMatch": "No accounts match.",
+  "accounts.groupEmpty": "No accounts in {name} yet. Tick some under “All”, then choose “Add to group”.",
   "accounts.clearFilters": "Clear filters",
   "accounts.selected_one": "{count} selected",
   "accounts.selected_other": "{count} selected",

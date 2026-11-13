@@ -629,6 +629,7 @@
   "accounts.select": "Markera {name}",
   "accounts.favouriteName": "Favoritmarkera {name}",
   "accounts.noMatch": "Inga konton matchar.",
+  "accounts.groupEmpty": "Inga konton i {name} än. Markera några under ”Alla” och välj sedan ”Lägg till i grupp”.",
   "accounts.clearFilters": "Rensa filter",
   "accounts.selected_one": "{count} markerat",
   "accounts.selected_other": "{count} markerade",
