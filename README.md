@@ -67,7 +67,7 @@ It runs entirely on your PC. There is no RoALT account and no tracking: the only
 <td width="50%"><img src="docs/images/play.webp" alt="Play: pick who plays, then where to, with a batch's progress per account"><br><sub><b>Play:</b> who plays, where, and each account's progress</sub></td>
 </tr>
 <tr>
-<td><img src="docs/images/performance.webp" alt="Performance: Max alts, Balanced and Roblox defaults presets, For this PC, and fine-tuning"><br><sub><b>Performance:</b> presets, For this PC and fine-tuning</sub></td>
+<td><img src="docs/images/performance.webp" alt="Settings, Performance: Max alts, Balanced and Roblox defaults presets with about how many clients fit, and For this PC"><br><sub><b>Settings › Performance:</b> presets, For this PC and fine-tuning</sub></td>
 <td><img src="docs/images/servers.webp" alt="Servers: a game's public servers by players, ping and FPS"><br><sub><b>Servers:</b> pick a server, send any accounts into it</sub></td>
 </tr>
 <tr>
@@ -75,8 +75,8 @@ It runs entirely on your PC. There is no RoALT account and no tracking: the only
 <td><img src="docs/images/discord.webp" alt="Discord: rich presence, a webhook and which events it posts"><br><sub><b>Discord:</b> your status, and alerts in your own channel</sub></td>
 </tr>
 <tr>
-<td><img src="docs/images/settings.webp" alt="Settings: launching and recovery options, with a search for any setting"><br><sub><b>Settings:</b> launching, recovery, and a search for any setting</sub></td>
-<td><img src="docs/images/home-light.webp" alt="Home in the light theme"><br><sub><b>Light theme:</b> or dark, or follow Windows, with any accent</sub></td>
+<td><img src="docs/images/settings.webp" alt="Settings, Appearance: theme, built-in themes, accent colour, corners and background, with a search for any setting"><br><sub><b>Settings:</b> one page, Areas or Goals, and a search for any setting</sub></td>
+<td><img src="docs/images/themes.webp" alt="Settings in the Midnight theme: navy panels, blue accent, and the colour editor"><br><sub><b>Custom themes:</b> Midnight, or any colours you like</sub></td>
 </tr>
 </table>
 
@@ -107,7 +107,8 @@ select-all, so a batch never takes it by accident.
 
 ### 🚀 Launch anything
 Paste a game link, place ID, job ID, private server or share link, a profile or `@username`:
-RoALT works out what it is. Join a friend, or save a target as a favourite.
+RoALT works out what it is. Join a friend, save a target as a favourite, **Browse games** on roblox.com
+inside RoALT and send one to Play, or go back to a server your accounts were in with **Last played**.
 
 </td>
 <td valign="top">
@@ -202,7 +203,7 @@ without them snapping back. Or start every client tiny.
 ### 🏝️ The island
 A quiet, near-black window with one living control: the **island**, a pill in the title bar that holds every
 section and grows a launch's progress and your running clients out of its side. Light theme too, white by
-default or any accent you pick, your own background, and motion you can turn down (or up) in Settings.
+default or any accent you pick, and motion you can turn down (or up) in Settings.
 
 </td>
 </tr>
@@ -273,6 +274,23 @@ or lose. Accept, decline or take back a trade after a question. Accept obeys **L
 
 </td>
 </tr>
+<tr>
+<td valign="top">
+
+### 🌈 Custom themes
+Recolour the window, title bar, navigation bar, panels, tabs, buttons, menus and text, or start from **Midnight**,
+**Sakura**, **Terminal**, **Ocean** or **Paper**. Share a theme as a code, and make corners square or extra round.
+Text stays readable whatever you pick.
+
+</td>
+<td valign="top">
+
+### 🖼️ Animated backgrounds
+Your own picture or animated GIF behind the app, up to 16 MB, with a choice of how much the theme covers it. A GIF
+holds still while RoALT isn't in front, so the clients you're playing don't pay for it.
+
+</td>
+</tr>
 </table>
 
 <details>
@@ -283,8 +301,8 @@ or lose. Accept, decline or take back a trade after a question. Accept obeys **L
 |---|---|
 | 🔐 **Vault** | DPAPI by default (opens silently). Optional master password with auto-lock after idle, and an optional one-use recovery code for it. Encrypted `.roalt` backups you can export and import: accounts, groups, favourites, and your settings and Discord webhook (restored only when you tick it on import). Copied cookies are kept out of clipboard history and cleared after 30 s. |
 | 👥 **Accounts** | Add through Roblox's sign-in page (passkeys and security keys work), by pasting a cookie, by pasting many cookies at once, by pasting `username:password` lines (Roblox's sign-in opens filled in for each; passwords are never saved), or by importing from Roblox Account Manager (an unlocked `AccountData.json`; its groups come along). A new account goes into the group you have open, or the one you pick. Groups, alias, notes, colour, favourite, drag to reorder; the filter box also searches notes, and **Overrides** lists the accounts with settings of their own. A group can carry **defaults** for its accounts (FPS cap, Full quality, launch arguments, Mute Discord, Bring back, and a new client's limits and anti-AFK): an account's own setting wins, then the first group in the list that sets it, then your settings. **Columns** adds Added, Checked, FPS cap, Playtime, Robux and limiteds value to the list; click a heading to sort by it, **My order** goes back to yours. **Edit…** on a selection changes Full quality, Bring back, Mute Discord, the FPS cap, launch arguments or the group of all of them at once. Presence, Robux, Plus / Premium (legacy), friend and follower counts, join date, email and 2-step status. **Limiteds**: count an account's limited items for their total RAP and the most valuable ones (only when you press Count; with opt-in **Rolimons values**, also their value, demand and trend). "Open on roblox.com" opens Browse as that account. **MAIN** stays out of select-all (a setting). **Export cookies** of the accounts you pick as `username:cookie` lines; the file is deleted after 10 minutes. |
-| 🚀 **Play** | Game links, place IDs, `roblox://` links, job IDs, private server links, `roblox.com/share` links (both formats), universes, profiles, `@username`. Join a friend or one of your other accounts. Favourites on the Play page and in the tray; each keeps its accounts and groups (whoever is in a group when it launches), its server mode and FPS cap, and can have a global key of its own. **Recent** offers the games your accounts played last. `Ctrl+Enter` to launch. An account that's already playing can be picked too: RoALT asks, then moves its client (into the same game, to the emptiest other server). |
-| 🌐 **Browse** | roblox.com inside RoALT, signed in as any account: games, the Marketplace, people search, friends, editing each account's avatar. Play on a game page launches through RoALT; **Play…** takes the game to the Play page for more accounts, and **Save as favourite** keeps it. **Popular** lists Roblox's charts without the ads; **Limiteds** lists every limited with its RAP, Rolimons value, demand and trend, to search and sort (only with Rolimons values on); **Playtime** shows how long each account spent in each game, and per day for the last 90 days (as bars, and as a CSV file). **Details** on a game (in Popular, Playtime, on a game's page and in Servers) shows its players, visits, favourites, likes, about how many servers run, its age rating, avatar type, places, the owning group's members, passes with their prices and badges with how many players won them. **Player details** on a profile page shows when they joined, where they are now, friends, followers, groups with their role, Roblox badges, the games they made, and their limiteds (RAP, the most valuable, or that the inventory is private). Create isn't there, and **Lock purchases** (on by default) stops spending Robux and buying Robux or Premium while free items still work. |
+| 🚀 **Play** | Game links, place IDs, `roblox://` links, job IDs, private server links, `roblox.com/share` links (both formats), universes, profiles, `@username`. Join a friend or one of your other accounts. Favourites on the Play page and in the tray; each keeps its accounts and groups (whoever is in a group when it launches), its server mode and FPS cap, and can have a global key of its own. **Recent** offers the games your accounts played last, and **Last played…** the exact servers they were in (a public one rejoins as it was). **Browse games** opens roblox.com as the first picked account; Play or Join there fills in Play instead of launching. `Ctrl+Enter` to launch. An account that's already playing can be picked too: RoALT asks, then moves its client (into the same game, to the emptiest other server). |
+| 🌐 **Browse** | roblox.com inside RoALT, signed in as any account: games, the Marketplace, people search, friends, editing each account's avatar. Play on a game page launches through RoALT (opened from Play's **Browse games**, it fills in Play instead); **Play…** takes the game to the Play page for more accounts, and **Save as favourite** keeps it. **Popular** lists Roblox's charts without the ads; **Limiteds** lists every limited with its RAP, Rolimons value, demand and trend, to search and sort (only with Rolimons values on); **Playtime** shows how long each account spent in each game, and per day for the last 90 days (as bars, and as a CSV file). **Details** on a game (in Popular, Playtime, on a game's page and in Servers) shows its players, visits, favourites, likes, about how many servers run, its age rating, avatar type, places, the owning group's members, passes with their prices and badges with how many players won them. **Player details** on a profile page shows when they joined, where they are now, friends, followers, groups with their role, Roblox badges, the games they made, and their limiteds (RAP, the most valuable, or that the inventory is private). Create isn't there, and **Lock purchases** (on by default) stops spending Robux and buying Robux or Premium while free items still work. |
 | 🪟 **Batches** | Accounts launch strictly one after another with a stagger (default 6 s). **Same server**: *Pick a server* finds one with room for everyone first; *Follow the first* sends the rest to wherever the first account landed. **Different servers**: your own private servers, random public ones, the closest, the most full or the most empty; servers your accounts are in, or joined in the last hour, are handed out last. Cancel at any time; one click re-picks the accounts that didn't launch. |
 | 🔁 **Recovery** | Auto-rejoin after kicks, shutdowns and lost connections (not after you leave on purpose). Opt-in auto-restart for crashes, frozen windows (30 s) and a memory limit. Crash breaker: default 3 relaunches in 10 minutes, with growing backoff. Per-account "Allow disconnect". Every end is kept in **Crash history** with the log's reason. **Timers** (off by default): restart each client every N hours, since long runs use more and more memory, and close each client once its run has lasted N hours; neither touches a Full quality account's client or the one in front. Limits you set on a running client (CPU limit, efficiency mode, trimming, cores, anti-AFK off) are **kept for that account's next client**, also after a rejoin or restart. |
 | ↔️ **Free resizing** | Drag a client's edge to any size, past the minimum Roblox holds its window to, and move a small window by its title bar without it growing back. RoALT sizes the window itself (a mouse hook in RoALT's own process); nothing goes into the client. **Start clients tiny** opens every new client at a size you choose. |
